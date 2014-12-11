@@ -291,7 +291,7 @@ class Pw {
         // 是否本地存储
         if (parse_url($prefix, PHP_URL_HOST) == $_SERVER['HTTP_HOST']) {
             return (!file_exists(PUBLIC_PATH.'/windid/attachment/avatar/'. self::getUserDir($uid). '/'. $file)
-                     && $uid !== 0) ? self::getAvatar(0) :
+                     && $uid !== 0) ? self::getAvatar(0, $size) :
                     PUBLIC_URL . '/windid/attachment/avatar/'. self::getUserDir($uid) . '/' . $file;
         } else {
             return $prefix . '/avatar/' . self::getUserDir($uid) . '/' . $file;
