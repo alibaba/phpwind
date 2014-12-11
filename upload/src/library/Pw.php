@@ -286,10 +286,16 @@ class Pw {
 	 */
     public static function getAvatar($uid, $size = 'middle') {
         $file = $uid . (in_array($size, array('middle', 'small')) ? '_' . $size : '') . '.jpg';
-        //if( !file_exists(PUBLIC_PATH.'/windid/attachment/avatar/'. self::getUserDir($uid). '/'. $file) && $uid!==0){
-        //    return self::getAvatar(0);
-        //}
-		return Wekit::C('site', 'avatarUrl') . '/avatar/' . self::getUserDir($uid) . '/' . $file;
+        $prefix = Wekit::C('site', 'avatarUrl');
+
+        // 是否本地存储
+        if (parse_url($prefix, PHP_URL_HOST) == $_SERVER['HTTP_HOST']) {
+            return (!file_exists(PUBLIC_PATH.'/windid/attachment/avatar/'. self::getUserDir($uid). '/'. $file)
+                     && $uid !== 0) ? self::getAvatar(0) :
+                    PUBLIC_URL . '/windid/attachment/avatar/'. self::getUserDir($uid) . '/' . $file;
+        } else {
+            return $prefix . '/avatar/' . self::getUserDir($uid) . '/' . $file;
+        }
 	}
 	
 	/**
