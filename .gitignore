@@ -1,1 +1,8 @@
 tags
+upload/themes/portal/local
+upload/conf/founder.php
+upload/conf/database.php
+upload/data/cache
+upload/data/compile
+upload/data/install.lock
+upload/windid/attachment/avatar
