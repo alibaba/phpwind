@@ -59,21 +59,31 @@
 				<!--#
 				$_url = '';
 				$_panelManage = false;
-				if ($loginUser->getPermission('panel_bbs_manage')) {
+				$_permission  = $loginUser->getPermission('panel_bbs_manage', false, array());
+				if ($_permission && isset($_permission['thread_check'])) {
 					$_url = 'manage/content/run';
 					$_panelManage = true;
 				}
-				if (!$_panelManage && $loginUser->getPermission('panel_user_manage')) {
-					$_url = 'manage/user/run';
-					$_panelManage = true;
+				if (!$_panelManage) {
+					$_permission = $loginUser->getPermission('panel_user_manage');
+					if ($_permission && isset($_permission['user_check'])) {
+						$_url = 'manage/user/run';
+						$_panelManage = true;
+					}
 				}
-				if (!$_panelManage && $loginUser->getPermission('panel_report_manage')) {
-					$_url = 'manage/report/run';
-					$_panelManage = true;
+				if (!$_panelManage) {
+					$_permission = $loginUser->getPermission('panel_report_manage');
+					if ($_permission && isset($_permission['report_manage'])) {
+						$_url = 'manage/report/run';
+						$_panelManage = true;
+					}
 				}
-				if (!$_panelManage && $loginUser->getPermission('panel_recycle_manage')) {
-					$_url = 'manage/recycle/run';
-					$_panelManage = true;
+				if (!$_panelManage) {
+					$_permission = $loginUser->getPermission('panel_recycle_manage');
+					if ($_permission && isset($_permission['recycle'])) {
+						$_url = 'manage/recycle/run';
+						$_panelManage = true;
+					}
 				}
 				if ($_panelManage) {
 				#-->
