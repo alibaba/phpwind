@@ -59,29 +59,21 @@
 				<!--#
 				$_url = '';
 				$_panelManage = false;
-				$_permission  = $loginUser->getPermission('panel_bbs_manage', false, array());
-				if ($_permission && isset($_permission['thread_check'])) {
-					$_url = 'manage/content/run';
-					$_panelManage = true;
-				}
-				if (!$_panelManage) {
-					$_permission = $loginUser->getPermission('panel_user_manage');
-					if ($_permission && isset($_permission['user_check'])) {
-						$_url = 'manage/user/run';
-						$_panelManage = true;
+
+				// $_toCheck: permission name => array(permission key, url path)
+				$_toCheck = array(
+					'panel_bbs_manage'     => array('thread_check', 'manage/content/run'),
+					'panel_user_manage'    => array('user_check', 'manage/user/run'),
+					'panel_report_manage'  => array('report_manage', 'manage/report/run'),
+					'panel_recycle_manage' => array('recycle', 'manage/recycle/run'),
+				);
+				foreach ($_toCheck as $_permName => $_permInfo) {
+					if ($_panelManage) {
+						break;
 					}
-				}
-				if (!$_panelManage) {
-					$_permission = $loginUser->getPermission('panel_report_manage');
-					if ($_permission && isset($_permission['report_manage'])) {
-						$_url = 'manage/report/run';
-						$_panelManage = true;
-					}
-				}
-				if (!$_panelManage) {
-					$_permission = $loginUser->getPermission('panel_recycle_manage');
-					if ($_permission && isset($_permission['recycle'])) {
-						$_url = 'manage/recycle/run';
+					$_permission  = $loginUser->getPermission($_permName, false, array());
+					if ($_permission && isset($_permission[$_permInfo[0]])) {
+						$_url = $_permInfo[1];
 						$_panelManage = true;
 					}
 				}
