@@ -11,7 +11,8 @@ Wind::import('WSRV:config.WindidConfig');
  */
 class WindidUserValidator {
 
-	private static $_illegalChar = array("\\", '&', ' ', "'", '"', '/', '*', ',', '<', '>', "\r", "\t", "\n", '#', '%', '?', '　');
+	private static $_illegalChar = array("\\", '&', ' ', "'", '"', '/', '*', ',', '<', '>', "\r", "\t", "\n", '#', '%', '?', '　',
+										 '..', '$', '{', '}', '`', '(', ')');
 
 	/**
 	 * 检查用户名是否通过
