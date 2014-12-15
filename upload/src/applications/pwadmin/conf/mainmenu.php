@@ -28,9 +28,9 @@ return array(
 	'contents' => array('内容', array()),
 	'bbs' => array('论坛', array()),
 	'design' => array('门户', array()),
-//	'mobile' => array('手机', array()),
 	'data' => array('工具', array()),
 	'appcenter' => array('应用', array()),
+	'mobile' => array('手机', array()),
 	'platform' => array('插件与模板', array()),
 
 	'custom_set' => array('常用菜单', 'custom/*', '', '', 'custom'),
@@ -101,6 +101,8 @@ return array(
 	'app_link' => array('友情链接', 'link/link/*', '', '', 'appcenter'),
 	'app_message' => array('消息群发', 'message/manage/send', '', '', 'appcenter'),
 	'app_announce' => array('公告管理', 'announce/announce/*', '', '', 'appcenter'),
+    
+    'mobile_test' => array('公告管理', 'announce/announce/*', '', '', 'mobile'),
 
 	//'platform_server' => array('平台首页', 'appcenter/server/run', '', '', 'platform'),
 	//'platform_appList' => array('应用中心', 'appcenter/server/appcenter', '', '', 'platform'),
