@@ -339,12 +339,30 @@ class RegisterController extends PwBaseController {
 		list($_nameMsg, $_nameArgs) = PwUserValidator::buildNameShowMsg();
 		$this->setOutput($resource->getMessage($_pwdMsg, $_pwdArgs), 'pwdReg');
 		$this->setOutput($resource->getMessage($_nameMsg, $_nameArgs), 'nameReg');
-		$this->setOutput(in_array('register', (array)Wekit::C('verify', 'showverify')), 'verify');
+		$this->setOutput($this->_showVerify(), 'verify');
 		$this->setOutput($this->_getRegistConfig(), 'config');
 		$this->setOutput(PwUserHelper::getRegFieldsMap(), 'needFields');
 		$this->setOutput(array('location', 'hometown'), 'areaFields');
 	}
-	
+
+        
+    /**
+     * 判断是否需要展示验证码
+     * @return boolean
+     */
+    private function _showVerify() {
+        $config = Wekit::C('verify', 'showverify');
+        !$config && $config = array();
+        if(in_array('register', $config)==true){
+            return true;
+        }else{
+            //ip限制,防止撞库; 错误三次,自动显示验证码
+            $ipDs = Wekit::load('user.PwUserLoginIpRecode');
+            $info = $ipDs->getRecode($this->getRequest()->getClientIp());
+            return is_array($info) && $info['error_count']>3 ? true : false;
+        }   
+    }
+
 	/**
 	 * 关闭
 	 */

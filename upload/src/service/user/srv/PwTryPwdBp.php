@@ -30,6 +30,9 @@ class PwTryPwdBp {
 	 */
 	private $configTotal = 5;
 
+
+    private $ip = "";
+
 	/**
 	 * 构造信息
 	 */
@@ -70,7 +73,10 @@ class PwTryPwdBp {
 		//用户名登录
 		if ($r[0] == -14 && in_array(3, $this->loginConfig['ways'])) {
 			$r = $this->_getWindid()->login($username, $password, 2, $checkQ, $safeQuestion, $safeAnswer);
-		}
+        }
+        //
+        $this->ip = $ip;
+        //
 		return $this->checkVerifyResult($r[0], $r[1]);
 	}
 
@@ -118,7 +124,7 @@ class PwTryPwdBp {
 	 */
 	public function allowTryAgain($uid, $ip, $type = 'pwd') {
 		//Ip限制添加
-		if (true !== ($_result = $this->checkIpLimit($ip))) {
+		if (true !== ($_result = $this->checkIpLimit($ip,true))) {
 			return $_result;
 		}
 		//密码次数测试
@@ -192,7 +198,7 @@ class PwTryPwdBp {
 	protected function checkVerifyResult($status, $info) {
 		switch ($status) {
 			case 1://用户信息正常
-				if (true !== ($r = $this->allowTryAgain($info['uid'], $ip))) {
+				if (true !== ($r = $this->allowTryAgain($info['uid'], $this->ip))) {
 					return $r;
 				}
 				break;
@@ -206,7 +212,7 @@ class PwTryPwdBp {
 					->setIp($ip)
 					->setCreatedTime(Pw::getTime());
 				Wekit::load('SRV:log.PwLogLogin')->addLog($dm);
-				return $this->updateTryRecord($info['uid'], $ip, 'pwd');
+				return $this->updateTryRecord($info['uid'], $this->ip, 'pwd');
 				//return array(-2, $r[1]);
 			case -20://用户安全问题错误
 				Wind::import('SRV:log.PwLogLogin');
@@ -217,7 +223,7 @@ class PwTryPwdBp {
 					->setCreatedTime(Pw::getTime())
 					->setTypeid(PwLogLogin::ERROR_SAFEQ);
 				Wekit::load('SRV:log.PwLogLogin')->addLog($dm);
-				return $this->updateTryRecord($info['uid'], $ip, 'question');
+				return $this->updateTryRecord($info['uid'], $this->ip, 'question');
 				//return array(-3, $r[1]);
 			case -14://用户不存在
 			default:

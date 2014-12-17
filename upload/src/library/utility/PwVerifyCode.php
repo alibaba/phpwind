@@ -25,10 +25,15 @@ class PwVerifyCode {
 	public function checkVerify($inputCode='') {
 		if ($inputCode===false || $inputCode==='') return false;
         $inputCode = Pw::encrypt(strtolower($inputCode), $this->_config['key']);
-        if ($inputCode === self::_readVerifyCode()) return true;
-        //清除cookie
-        Pw::setCookie('Pw_verify_code',"" ,-1); 
-        //
+
+        if ($inputCode === self::_readVerifyCode()){
+            //清除session
+            $this->_clearVerifyCode();
+            return true;
+        }
+
+        //清除session
+        $this->_clearVerifyCode();
 		return false;
 	}
 	
@@ -130,20 +135,35 @@ class PwVerifyCode {
 	}
 	
 	private function _readVerifyCode() {
-		return Pw::getCookie('Pw_verify_code');
-		/*Wind::import('WIND:http.session.WindSession');
+		//return Pw::getCookie('Pw_verify_code');
+		Wind::import('WIND:http.session.WindSession');
 		$session = new WindSession();
-		return $session->get('verifycode');*/
+		return $session->get('verifycode');
 	}
 	
 	private function _saveVerifyCode() {
 		Wind::import('LIB:utility.verifycode.PwBaseCode');
 		$code = WindConvert::convert(PwBaseCode::getCode(), Wekit::V('charset'), 'UTF-8');
 		$code = Pw::encrypt(strtolower($code), $this->_config['key']);
-		//Wind::import('WIND:http.session.WindSession');
-		Pw::setCookie('Pw_verify_code',$code ,3600);
-		/*$session = new WindSession();
-		$session->set('verifycode', $code);*/
-	}
+
+        //
+		$verify_session_id = Pw::getCookie('Pw_verify_code');
+        if( !$verify_session_id ){
+            $verify_session_id = md5($code);
+            Pw::setCookie('Pw_verify_code',md5($code), 3600);
+        }
+
+        //session 保存验证码
+        Wind::import('WIND:http.session.WindSession');
+        $session = new WindSession();
+        $session->set('verifycode', $code);
+    }
+
+    private function _clearVerifyCode(){
+        Wind::import('WIND:http.session.WindSession');
+        $session = new WindSession();
+        $session->delete('verifycode');
+    }
+
 }
 ?>

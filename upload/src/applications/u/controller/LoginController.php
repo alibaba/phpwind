@@ -78,8 +78,8 @@ class LoginController extends PwBaseController {
 		
 		/* [验证验证码是否正确] */
 		if ($this->_showVerify()) {
-			$veryfy = $this->_getVerifyService();
-			if ($veryfy->checkVerify($userForm['code']) !== true) {
+            $veryfy = $this->_getVerifyService();
+            if ($veryfy->checkVerify($userForm['code']) !== true) {
 				$this->showError('USER:verifycode.error');
 			}
 		}
@@ -129,7 +129,42 @@ class LoginController extends PwBaseController {
 	/**
 	 * 页头登录
 	 */
-	public function dologinAction() {
+    public function dologinAction() {
+        
+        //快捷登录功能关闭
+        return;
+
+        //
+        $userForm = $this->_getLoginForm();
+
+        $login = new PwLoginService();
+        $result = Wekit::load('user.PwUser')->getUserByName($userForm['username']);
+
+        //如果开启了验证码 
+        Wind::import('SRV:user.srv.PwRegisterService');
+        $registerService = new PwRegisterService();
+        $info = $registerService->sysUser($result['uid']);
+        $identity = PwLoginService::createLoginIdentify($info);
+        $backUrl = $this->getInput('backurl');
+        if (!$backUrl) $backUrl = $this->getRequest()->getServer('HTTP_REFERER');
+        $identity = base64_encode($identity . '|' . $backUrl . '|' . $userForm['rememberme']);
+
+        $url = '';
+        if ($result['safecv']) {
+            $url = WindUrlHelper::createUrl('u/login/showquestion', array('_statu' => $identity));
+        } elseif (Wekit::load('user.srv.PwUserService')->mustSettingSafeQuestion($info['uid'])) {
+            $url = WindUrlHelper::createUrl('u/login/setquestion', array('_statu' => $identity));
+        } elseif ($this->_showVerify()) {
+            $url = WindUrlHelper::createUrl('u/login/showquestion', array('_statu' => $identity));
+        }
+        if( $url!='' ){
+            $url =  WindUrlHelper::createUrl('u/login/run', array('_statu' => $identity) );
+            $this->addMessage(array('url' => ''), 'check');
+            $this->showMessage('USER:login.success', 'u/login/run/?_statu=' . $identity);
+            return;
+        }
+
+        //----
 		$userForm = $this->_getLoginForm();
 		
 		$login = new PwLoginService();
@@ -413,7 +448,14 @@ class LoginController extends PwBaseController {
 	private function _showVerify() {
 		$config = Wekit::C('verify', 'showverify');
 		!$config && $config = array();
-		return in_array('userlogin', $config);
+        if(in_array('userlogin', $config)==true){
+            return true;
+        }
+
+        //ip限制,防止撞库; 错误三次,自动显示验证码
+        $ipDs = Wekit::load('user.PwUserLoginIpRecode');
+        $info = $ipDs->getRecode($this->getRequest()->getClientIp());
+        return is_array($info) && $info['error_count']>3 ? true : false;
 	}
 	
 	private function _getWindid() {

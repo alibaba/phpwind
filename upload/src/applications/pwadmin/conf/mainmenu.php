@@ -102,7 +102,7 @@ return array(
 	'app_message' => array('消息群发', 'message/manage/send', '', '', 'appcenter'),
 	'app_announce' => array('公告管理', 'announce/announce/*', '', '', 'appcenter'),
     
-    'mobile_test' => array('公告管理', 'announce/announce/*', '', '', 'mobile'),
+    'mobile_oauth' => array('第三方帐号接入', 'mobile/oauthuser/*', '', '', 'mobile'),
 
 	//'platform_server' => array('平台首页', 'appcenter/server/run', '', '', 'platform'),
 	//'platform_appList' => array('应用中心', 'appcenter/server/appcenter', '', '', 'platform'),

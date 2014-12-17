@@ -78,9 +78,12 @@ class PwRegisterService extends PwBaseHookService {
 		if (($result = $this->runWithVerified('beforeRegister', $this->userDm)) instanceof PwError) {
 			return $result;
 		}
-		if (($uid = $this->_getUserDs()->addUser($this->userDm)) instanceof PwError) {
+        if (($uid = $this->_getUserDs()->addUser($this->userDm)) instanceof PwError) {
 			return $uid;
 		}
+        //记录一下ip次数
+        $this->_recordIpLimit($uid);
+        //
 		$this->userDm->setUid($uid);
 		return $this->afterRegister($this->userDm);
 	}
@@ -386,5 +389,11 @@ class PwRegisterService extends PwBaseHookService {
 	 */
 	protected function _getInterfaceName() {
 		return 'PwRegisterDoBase';
-	}
+    }
+
+    private function _recordIpLimit(){
+        Wind::import('SRV:user.srv.PwTryPwdBp');
+        $pwdBp = new PwTryPwdBp();     
+        $pwdBp->allowTryAgain($uid, Wind::getComponent('request')->getClientIp(), true );
+    }
 }

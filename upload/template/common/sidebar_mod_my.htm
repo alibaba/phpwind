@@ -1,7 +1,8 @@
 <!--# if (!$loginUser->isExists()) { #-->
 	<!--# Wind::import('APPS:u.service.helper.PwUserHelper'); #-->
 	<!--# $_loginWay = PwUserHelper::getLoginMessage(); #-->
-	<div class="box_wrap sidebar_login">
+    <div class="box_wrap sidebar_login">
+        <!--
 		<form id="J_login_form" action="{@url:u/login/dologin}" method="post">
 		<dl>
 			<dt id="J_sidebar_login_dt" class="cc">
@@ -12,7 +13,9 @@
 			<dd class="operate"><button type="submit" id="J_sidebar_login" class="btn btn_big btn_submit">登录</button><a class="btn btn_big btn_error" href="{@url:u/register/run}" rel="nofollow">立即注册</a></dd>
 		</dl>
 		</form>
-	</div>
+        -->
+        <dd class="operate"><button type="button" id="J_sidebar_login" class="btn btn_big btn_submit" onclick="location.href='{@url:u/login/run}'">登录</button><a class="btn btn_big btn_error" href="{@url:u/register/run}" rel="nofollow" onclick="location.href='{@url:u/register/run}'">立即注册</a></dd>
+    </div>
 <!--# } else { #-->
 	<!--# $_group = $loginUser->getGroupInfo(); #-->
 	<div class="box_wrap user_info">
