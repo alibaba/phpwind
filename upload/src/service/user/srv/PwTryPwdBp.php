@@ -124,7 +124,7 @@ class PwTryPwdBp {
 	 */
 	public function allowTryAgain($uid, $ip, $type = 'pwd') {
 		//Ip限制添加
-		if (true !== ($_result = $this->checkIpLimit($ip,true))) {
+		if (true !== ($_result = $this->checkIpLimit($ip))) {
 			return $_result;
 		}
 		//密码次数测试
@@ -227,6 +227,8 @@ class PwTryPwdBp {
 				//return array(-3, $r[1]);
 			case -14://用户不存在
 			default:
+                $this->updateTryRecord(0, $this->ip, 'test');
+                //
 				return new PwError('USER:user.error.-14');
 				//return array(-1, array());
 		}

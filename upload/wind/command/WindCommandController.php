@@ -40,7 +40,7 @@ abstract class WindCommandController extends WindModule implements IWindControll
 		if ($action !== 'run') $action = $this->resolvedActionName($action);
 		$args = $this->getRequest()->getRequest('argv');
 		call_user_func_array(array($this, $action), $args);
-		print_r($args);
+//		print_r($args);
 		if ($this->errorMessage !== null) $this->getErrorMessage()->sendError();
 		$this->afterAction($handlerAdapter);
 		return $this->forward;
