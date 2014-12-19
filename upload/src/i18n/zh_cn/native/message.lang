@@ -1,0 +1,5 @@
+error.openaccount.args="开放平台帐号请求参数不够"
+error.openaccount.type="开放平台接入不支持"
+error.openaccount.exist="该帐号已被关联"
+
+

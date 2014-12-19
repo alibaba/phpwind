@@ -75,8 +75,11 @@ class WindidController extends AdminBaseController {
 					->setCharset($charset);
 				$service->editApp($dm);
 			}
-		}
-		Wekit::C()->setConfig('site', 'avatarUrl', WindidApi::api('avatar')->getAvatarUrl());
+        }
+        $_avatarUrl =  WindidApi::api('avatar')->getAvatarUrl();
+        if( $_avatarUrl!=WindidError::SERVER_ERROR ){
+            Wekit::C()->setConfig('site', 'avatarUrl', $_avatarUrl);
+        }
 
 		$this->showMessage('ADMIN:success');
 	}

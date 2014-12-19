@@ -33,7 +33,7 @@ class WindidUtility {
 	}
 	
 	public static function appKey($apiId, $time, $secretkey, $get, $post) {
-		$array = array('windidkey', 'clientid', 'time', '_json', 'jcallback', 'csrf_token', 'Filename', 'Upload', 'token');
+		$array = array('windidkey', 'clientid', 'time', '_json', 'jcallback', 'csrf_token', 'Filename', 'Upload', 'token', '__data');
 		$str = '';
 		ksort($get);
 		ksort($post);

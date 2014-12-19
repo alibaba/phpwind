@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<div class="wrap">
+
+<div class="h_a">功能说明</div>
+
+<div class="prompt_text">
+	<ul>
+		<li>app在登录使用securityKey来混淆加密，保存在客户端，不要随便改，因为改动后客户端所有用户都需要重新登录</li>
+	</ul>
+</div>
+<form class="J_ajaxForm" action="{@url:native/AccountSecurity/doSessionKey}" method="post">
+<input type="hidden" name="type" value="alipay" />
+<div class="table_full">
+	<table width="100%">
+		<col width="th" />
+		<col width="400"/>
+		<col />
+		
+		<tr>
+		<th>Native安全密匙</th>
+		<td>
+             <input name="securityKey" type="text" class="input length_4" value="{$config['securityKey']}">
+        </td>
+		<td><div class="fun_tips"></div></td>
+		</tr>
+	</table>
+</div>
+<div class="btn_wrap">
+	<div class="btn_wrap_pd" id="J_sub_wrap">
+   <button type="submit" class="btn btn_submit J_ajax_submit_btn">提交</button>
+	</div>
+</div>
+</form>
+
+
+
+</div>
+<template source='TPL:admin.common.footer' />
+</body>
+</html>
