@@ -66,7 +66,7 @@ class UserController extends MobileBaseController {
         $login = new PwLoginService();
         $this->runHook('c_login_dorun', $login);
 
-        $isSuccess = $login->login($username, $password, $this->getRequest()->getClientIp(), $question='', $answer='');
+        $isSuccess = $login->login($username, $password, $this->getRequest()->getClientIp());
         if ($isSuccess instanceof PwError) {
             $this->showError($isSuccess->getError());
 
@@ -84,7 +84,12 @@ class UserController extends MobileBaseController {
 
         if (!$info)  $this->showError('USER:user.syn.error');
 
-        //success
+        //登录成功后，加密身份key
+        $securityKey = Pw::encrypt( Pw::jsonEncode(array('username'=>$username,'password'=>$password)), $this->_securityKey);
+
+        //
+        $_data = array('securityKey'=>$securityKey);
+        $this->setOutput($_data, 'data');
         $this->showMessage('USER:login.success');
     }
 
@@ -161,6 +166,8 @@ class UserController extends MobileBaseController {
 			if (1 == Wekit::C('register', 'active.mail')) {
                 $this->showMessage('USER:active.sendemail.success');
 			} else {
+                $_data = array('securityKey'=>$this->_securityKey);
+                $this->setOutput($_data, 'data');                                                                                                                 
                 $this->showMessage('USER:register.success');
 			}
 		}
@@ -265,7 +272,8 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function doAvatarAction(){
-        
+        echo $this->_checkUserSessionValid();
+
     }
 
     /**
@@ -280,7 +288,22 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function doSexAction(){
-        
+        if( $uid=$this->_checkUserSessionValid() ){
+            //$userDm = new PwUserInfoDm($this->loginUser->uid);  
+            $userDm = new PwUserInfoDm($uid);
+            $userDm->setGender($this->getInput('gender', 'post'));
+
+            /* @var $userDs PwUser */
+            $userDs = Wekit::load('user.PwUser');
+            $result = $userDs->editUser($userDm, PwUser::FETCH_MAIN + PwUser::FETCH_INFO);
+
+            if ($result instanceof PwError) {
+                $this->showError($result->getError());
+            }else{
+                PwSimpleHook::getInstance('profile_editUser')->runDo($dm);
+                $this->showMessage('USER:user.edit.profile.success');
+            }
+        }
     }
 
     /**
@@ -312,19 +335,61 @@ class UserController extends MobileBaseController {
 
     }
 
+
     /**
-     * 显示验证码 
+     * 获得第三方平台的appid，用来app生成使用
      * 
      * @access public
      * @return void
      */
-    public function showVerifycodeAction(){
-    
+    public function thirdPlatformAppidAction(){
+        $config = Wekit::C()->getValues('thirdPlatform');                                                                                                 
+        //
+        $data = array();
+        if( count($config) ){
+            foreach($config as $k=>$v){
+                $_keys = explode('.',$k);
+                $data[$_keys[0]][$_keys[1]] = $v;
+            }
+            foreach($data as $k=>$v){
+                if( $v['status']==1 ){
+                    $data[$k] = $v['displayOrder'].'-'.$v['appId'];
+                }else{
+                    unset($data[$k]);
+                }
+            }
+            asort($data);
+            foreach($data as $k=>$v){
+                list($order,$appId) = explode('-',$v);
+                $data[$k] = array(
+                    'order'=>$order,
+                    'appId'=>$appId,
+                );
+            }
+        }
+        $this->setOutput($data, 'data');
+        $this->showMessage("USER:message.success");
     }
 
+    /**
+     * 获得session_id; 验证验证码时需要通过session_id来识别身份 
+     * /index.php?m=verify&a=get&rand=rand()
+     *
+     * @access public
+     * @return void
+     */
+    public function sessionIdAction(){
+        Wind::import('WIND:http.session.WindSession');
+        $session = new WindSession();
+        //
+        $this->setOutput(array('sid'=>$session->getCurrentId()), 'data');
+        $this->showMessage("USER:message.success");
+    }
 
     /**
      * 是否需要显示验证码 
+     * 获得session_id; 验证验证码时需要通过session_id来识别身份 
+     * /index.php?m=verify&a=get&rand=rand()
      * 
      * @access public
      * @return boolean
@@ -335,7 +400,15 @@ class UserController extends MobileBaseController {
     </pre>
      */
     public function ifShowVerifycodeAction(){
-        $this->setOutput($this->_showVerify(), 'display');
+        Wind::import('WIND:http.session.WindSession');
+        $session = new WindSession();
+        //
+        $data = array(
+            'session_id'=>$session->getCurrentId(),
+            'display'=>$this->_showVerify(),
+        );
+        //
+        $this->setOutput($data, 'data');
         $this->showMessage('success');
     }
 

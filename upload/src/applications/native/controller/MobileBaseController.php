@@ -13,8 +13,13 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 
 class MobileBaseController extends PwBaseController {
 
+    protected $_securityKey = null;
+
 	public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
+
+        $_config_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
+        $this->_securityKey = $_config_securityKey['value'];
 
         $_POST['_json'] = 1;
 	}
@@ -64,10 +69,24 @@ class MobileBaseController extends PwBaseController {
      </pre>
      */
     protected function _checkUserSessionValid(){
-        
+        $unsecurityKey = $this->getInput('securityKey');
+        $unsecurityKey ='upE8/bmzngysvSECXLkY7s5xsq+e1vyk2WzIhAyewKVgW9AenvFKP+lu7PM=';
+        //
+        $unsecurityKey = Pw::decrypt($unsecurityKey,$this->_securityKey);
+        $securityKey   = Pw::jsonDecode($unsecurityKey);
+//        exit;
+        //
+        if( is_array($securityKey) && isset($securityKey['username']) && isset($securityKey['password']) ){
+            $userSrv = Wekit::load('user.srv.PwUserService');
+            if (($r = $userSrv->verifyUser($securityKey['username'], $securityKey['password'], 2)) instanceof PwError) {
+                $this->showError('USER:login.error.pwd');
+            }
+            $localUser = Wekit::load('user.PwUser')->getUserByName($securityKey['username'], PwUser::FETCH_MAIN); 
+            return $localUser['uid'];
+        }else{
+            $this->showError("NATIVE:error.sessionkey.error");
+        }
     }
-
-
 
 
 }

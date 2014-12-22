@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<div class="wrap">
+
+<template source='thirdopenplatform_tab' />
+<form class="J_ajaxForm" action="{@url:native/ThirdOpenPlatform/doset}" method="post">
+<input type="hidden" name="type" value="{$type}" />
+<div class="table_full">
+	<table width="100%">
+		<col width="th" />
+		<col width="400"/>
+		<col />
+		
+		<tr>
+		<th>开启绑定</th>
+		<td>
+			<ul class="switch_list cc">
+                <li><label><input type="radio" name="{$type}.status" value="1" {@Pw::ifcheck($info['status'])}><span>开启</span></label></li>
+                <li><label><input type="radio" name="{$type}.status" value="0" {@Pw::ifcheck(!$info['status'])}><span>关闭</span></label></li>
+			</ul>
+		</td>
+		<td><div class="fun_tips"></div></td>
+		</tr>
+		
+		<tr>
+            <th>{$lab['AppId']}</th>
+		<td>
+            <input type="text" class="input length_5 mr5" name="{$type.'_appId'}" value="{$info['appId']}">
+		</td>
+        <!--td><div class="fun_tips">请输入支付宝合作身份者id</div></td-->
+		</tr>
+	
+	
+		<tr>
+		<th>{$lab['AppKey']}</th>
+		<td>
+            <input type="text" class="input length_5 mr5" name="{$type.'_appKey'}" value="{$info['appKey']}">
+		</td>
+		</tr>
+	
+		<tr>
+		<th>显示顺序</th>
+		<td>
+            <input type="text" class="input length_5 mr5" name="{$type}_displayOrder" value="{$info['displayOrder']}">
+		</td>
+		</tr>
+	</table>
+</div>
+<div class="btn_wrap">
+	<div class="btn_wrap_pd" id="J_sub_wrap">
+   <button type="submit" class="btn btn_submit J_ajax_submit_btn">提交</button>
+	</div>
+</div>
+{$csrf_token}
+</form>
+
+
+
+</div>
+<template source='TPL:admin.common.footer' />
+</body>
+</html>

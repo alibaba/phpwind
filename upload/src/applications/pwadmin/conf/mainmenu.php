@@ -30,7 +30,7 @@ return array(
 	'design' => array('门户', array()),
 	'data' => array('工具', array()),
 	'appcenter' => array('应用', array()),
-//	'native' => array('手机', array()),
+	'native' => array('手机', array()),
 	'platform' => array('插件与模板', array()),
 
 	'custom_set' => array('常用菜单', 'custom/*', '', '', 'custom'),
@@ -102,7 +102,11 @@ return array(
 	'app_message' => array('消息群发', 'message/manage/send', '', '', 'appcenter'),
 	'app_announce' => array('公告管理', 'announce/announce/*', '', '', 'appcenter'),
     
-//    'admin_accountsecurity' => array('Native帐号安全', 'native/AccountSecurity/*', '', '', 'admin'),
+    'admin_accountsecurity' => array('Native帐号安全', 'native/AccountSecurity/*', '', '', 'admin'),
+    
+    'native_accountsecurity' => array('第三方平台接入', 'native/ThirdOpenPlatform/*', '', '', 'native'),
+
+
 
 	//'platform_server' => array('平台首页', 'appcenter/server/run', '', '', 'platform'),
 	//'platform_appList' => array('应用中心', 'appcenter/server/appcenter', '', '', 'platform'),

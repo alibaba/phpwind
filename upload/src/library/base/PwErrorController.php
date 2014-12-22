@@ -90,7 +90,7 @@ class PwErrorController extends WindErrorHandler {
 				if ($key == 'html') continue;
 				$vars[$key] = WindSecurity::escapeArrayHTML($value);
             }
-            //print_r($vars);
+            print_r($vars);
 			echo Pw::jsonEncode($vars);
 			exit();
 		}
