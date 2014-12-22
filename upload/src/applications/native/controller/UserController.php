@@ -272,8 +272,36 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function doAvatarAction(){
-        echo $this->_checkUserSessionValid();
+        if( $this->_checkUserSessionValid() ){
+            $uid = (int)$this->getInput('uid', 'get');
+            Wind::import('WSRV:upload.action.WindidAvatarUpload');
+            Wind::import('LIB:upload.PwUpload');
+            $bhv = new WindidAvatarUpload($uid);
 
+            //
+            $upload = new PwUpload($bhv);
+            if (($result = $upload->check()) === true) {
+                foreach ($_FILES as $key => $value) {
+                    if (!PwUpload::isUploadedFile($value['tmp_name']) || !$bhv->allowType($key)) {
+                        continue;
+                    }   
+                }
+                $file = new PwUploadFile($key, $value);
+                if (($result = $upload->checkFile($file)) !== true) {
+                    $this->showError($result->getError());
+                }
+                $file->filename = $upload->filterFileName($bhv->getSaveName($file));
+                $file->savedir = $bhv->getSaveDir($file);
+                $file->source = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage')->getAbsolutePath($file->filename, $file->savedir);
+                $file->source = str_replace('attachment','windid/attachment',$file->source);
+
+                if (!PwUpload::moveUploadedFile($value['tmp_name'], $file->source)) {
+                    $this->showError('upload.fail');
+                }
+                $this->showMessage('success');
+            }
+            $this->showMessage('operate.fail');
+        }
     }
 
     /**
@@ -332,7 +360,7 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function doLoginOutAction(){
-
+        //no
     }
 
 
