@@ -59,7 +59,8 @@ return array(
 		'scope' => 'singleton',
 	),
 	'httptransfer' => array(
-		'path' => 'WIND:http.transfer.WindHttpSocket',
+		//'path' => 'WIND:http.transfer.WindHttpSocket',
+		'path' => 'WIND:http.transfer.WindHttpCurl',
 		'scope' => 'prototype'
 	),
 	'storage' => array(

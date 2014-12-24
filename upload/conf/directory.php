@@ -22,6 +22,7 @@ return array(
 'HOOK'		 => '../src/hooks',
 'LIB'        => '../src/library',
 'SRV'		 => '../src/service',
+'WSRV'       => '../src/windid/service',
 'REP'		 => '../src/repository',
 'WINDID'	 => '../src/windid',
 'ACLOUD'	 => '../src/aCloud',

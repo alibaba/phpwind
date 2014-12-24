@@ -21,11 +21,7 @@ class UserController extends MobileBaseController {
 		parent::beforeAction($handlerAdapter);
 //		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
 	}
-	
-	public function run() {
 
-
-    }
 
     /**
      * 登录;并校验验证码
@@ -33,7 +29,7 @@ class UserController extends MobileBaseController {
      * @return string
      * @example
      <pre>
-     /index.php?m=mobile&c=user&a=doLogin <br>
+     /index.php?m=native&c=user&a=doLogin <br>
      post: username&password&csrf_token&code&_json=1 <br>
      response: 
     {
@@ -99,7 +95,7 @@ class UserController extends MobileBaseController {
      * @return void
      * @example
      <pre>
-     /index.php?m=mobile&c=user&a=doRegister    <br>
+     /index.php?m=native&c=user&a=doRegister    <br>
      post: username&password&repassword&email&code 
      response: {err:"",data:""} 
      </pre>
@@ -265,10 +261,11 @@ class UserController extends MobileBaseController {
      * @return void
      * @example
      <pre>
-     /index.php?m=mobile&c=user&a=doAvatar <br>
+     /index.php?m=native&c=user&a=doAvatar <br>
      post: sessionid
      postdata: avatar
-     response: {err:"",data:""}
+     response:
+     curl  --form "Filename=@icon1.jpg" 'http://10.101.81.197:8001/phpwind/upload/index.php?m=native&c=user&a=doAvatar&uid=3&windidkey=7d89be2e77d3acc7fd1e7ffe6946ca79&clientid=1&type=flash'
      </pre>
      */
     public function doAvatarAction(){
@@ -310,7 +307,7 @@ class UserController extends MobileBaseController {
      * @return void
      * @example
      <pre>
-     /index.php?m=mobile&c=user&a=doSex <br>
+     /index.php?m=native&c=user&a=doSex <br>
      post: sessionid&gender
      response: {err:"",data:""}
      </pre>
@@ -340,63 +337,13 @@ class UserController extends MobileBaseController {
      * @return void
      * @example
      <pre>
-     /index.php?m=mobile&c=user&a=doPassWord <br>
+     /index.php?m=native&c=user&a=doPassWord <br>
      post: sessionid&oldpassword&newpassword&repassword
      response: {err:"",data:""}
      </pre>
      */
     public function doPassWordAction(){
 
-    }
-
-    /**
-     * 退出登录 
-     * @access public
-     * @return void
-     * @example
-     <pre>
-     /index.php?m=mobile&c=user&a=doLoginOut <br>
-     response: {err:"",data:""}
-     </pre>
-     */
-    public function doLoginOutAction(){
-        //no
-    }
-
-
-    /**
-     * 获得第三方平台的appid，用来app生成使用
-     * 
-     * @access public
-     * @return void
-     */
-    public function thirdPlatformAppidAction(){
-        $config = Wekit::C()->getValues('thirdPlatform');                                                                                                 
-        //
-        $data = array();
-        if( count($config) ){
-            foreach($config as $k=>$v){
-                $_keys = explode('.',$k);
-                $data[$_keys[0]][$_keys[1]] = $v;
-            }
-            foreach($data as $k=>$v){
-                if( $v['status']==1 ){
-                    $data[$k] = $v['displayOrder'].'-'.$v['appId'];
-                }else{
-                    unset($data[$k]);
-                }
-            }
-            asort($data);
-            foreach($data as $k=>$v){
-                list($order,$appId) = explode('-',$v);
-                $data[$k] = array(
-                    'order'=>$order,
-                    'appId'=>$appId,
-                );
-            }
-        }
-        $this->setOutput($data, 'data');
-        $this->showMessage("USER:message.success");
     }
 
     /**
@@ -415,15 +362,15 @@ class UserController extends MobileBaseController {
     }
 
     /**
-     * 是否需要显示验证码 
-     * 获得session_id; 验证验证码时需要通过session_id来识别身份 
+     * 是否需要显示验证码 <br>
+     * 获得session_id; 验证验证码时需要通过session_id来识别身份 <br> 
      * /index.php?m=verify&a=get&rand=rand()
      * 
      * @access public
      * @return boolean
      * @example
      * <pre>  
-     /index.php?m=mobile&c=user&a=ifshowVerifycode <br>
+     /index.php?m=native&c=user&a=ifshowVerifycode <br>
     { "err":"","data":true }
     </pre>
      */
@@ -506,6 +453,23 @@ class UserController extends MobileBaseController {
 
 
     /**
+     * 第三方平台的接口url 
+     * 
+     * @access protected
+     * @return void
+     */
+    protected function _thirdPlatformUrl(){
+        return array(
+            'weixin'=>array(
+                'access_token_uri'=>'https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code',
+                'userinfo_uri'=>'https://api.weixin.qq.com/sns/userinfo',
+            ),
+        );
+    }
+
+
+
+    /**
      * 开放平台帐号关联ds
      * 
      * @access private
@@ -513,7 +477,6 @@ class UserController extends MobileBaseController {
      */
     private function _getUserOpenAccountDs() {
         return Wekit::load('native.PwOpenAccount');
-
     }   
 
 
