@@ -4,3 +4,13 @@ error.openaccount.exist="该帐号已被关联"
 
 error.sessionkey.error="身份无效"
 
+
+data.success="数据发送成功"
+data.empty="数据为空"
+data.error="数据错误"
+sethot.success="设置热帖成功"
+sethot.failed="设置热帖失败"
+args.error="参数错误"
+my.threads="我关注话题相关帖子列表"
+new.threads="最新帖子列表"
+
