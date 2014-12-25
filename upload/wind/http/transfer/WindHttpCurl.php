@@ -59,7 +59,7 @@ final class WindHttpCurl extends AbstractWindHttp {
 	/* (non-PHPdoc)
 	 * @see AbstractWindHttp::send()
 	 */
-	public function send($method = 'GET', $options = array()) {
+    public function send($method = 'GET', $options = array()) {
 		if ($this->data) {
 			switch (strtoupper($method)) {
 				case 'GET':
@@ -71,7 +71,8 @@ final class WindHttpCurl extends AbstractWindHttp {
 					$this->request(CURLOPT_POST, 1);
 					$data = array();
 					$this->_resolvedData($this->data, $data);
-					$this->request(CURLOPT_POSTFIELDS, $data);
+					//$this->request(CURLOPT_POSTFIELDS, $data);
+					$this->request(CURLOPT_POSTFIELDS, http_build_query($data));
 					break;
 				default:
 					break;
@@ -83,6 +84,9 @@ final class WindHttpCurl extends AbstractWindHttp {
 		$this->request(CURLOPT_TIMEOUT, $this->timeout);
 		$this->request(CURLOPT_FOLLOWLOCATION, 0);
 		$this->request(CURLOPT_RETURNTRANSFER, 1);
+        //https
+        $this->request(CURLOPT_SSL_VERIFYPEER, 0);
+		$this->request(CURLOPT_SSL_VERIFYHOST, 0);
 		if ($options && is_array($options)) {
 			curl_setopt_array($this->httpHandler, $options);
 		}

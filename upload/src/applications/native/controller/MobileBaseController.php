@@ -24,11 +24,18 @@ class MobileBaseController extends PwBaseController {
         $_POST['_json'] = 1;
 	}
 
+    /**
+     *
+     * 测试接口，从第三方获得用户信息
+     */
     public function testAction(){
-
-        $this->_authThirdPlatform();
-        
-        exit;
+        $userinfo = $this->authThirdPlatform();
+        if( empty($userinfo) ){
+            $this->showMessage('operate.fail');
+        }else{
+            $this->setOutput($userSrv, 'data');
+            $this->showMessage('USER:login.success');
+        }
     }
 
     /**
@@ -119,19 +126,18 @@ class MobileBaseController extends PwBaseController {
      */
     protected function _checkUserSessionValid(){
         $unsecurityKey = $this->getInput('securityKey');
-        $unsecurityKey ='upE8/bmzngysvSECXLkY7s5xsq+e1vyk2WzIhAyewKVgW9AenvFKP+lu7PM=';
+        $unsecurityKey ='nvKjBzbL9mn7pAjNsH1Y8DIs6Lno1j2jlUjowLt80swW31AOI/tCAb5LRflITYZ7ZQR4eqMtyM8ZEQ0E/ezW1h1InMvIO2iY';
         //
         $unsecurityKey = Pw::decrypt($unsecurityKey,$this->_securityKey);
         $securityKey   = Pw::jsonDecode($unsecurityKey);
-//        exit;
+        
         //
         if( is_array($securityKey) && isset($securityKey['username']) && isset($securityKey['password']) ){
-            $userSrv = Wekit::load('user.srv.PwUserService');
-            if (($r = $userSrv->verifyUser($securityKey['username'], $securityKey['password'], 2)) instanceof PwError) {
+            $_userInfo = Wekit::load('user.PwUser')->getUserByName($securityKey['username'], PwUser::FETCH_MAIN);
+            if( $_userInfo['username']==$securityKey['username'] && $securityKey['password']==$securityKey['password'] ){
                 $this->showError('USER:login.error.pwd');
             }
-            $localUser = Wekit::load('user.PwUser')->getUserByName($securityKey['username'], PwUser::FETCH_MAIN); 
-            return $localUser['uid'];
+            return $_userInfo['uid'];
         }else{
             $this->showError("NATIVE:error.sessionkey.error");
         }
@@ -147,23 +153,25 @@ class MobileBaseController extends PwBaseController {
      * post: auth_code&platformname&native_name
      * </pre>
      */
-    protected function _authThirdPlatform(){
+    protected function authThirdPlatform(){
         $_oauth = Wekit::load("APPS:native.service.PwThirdOpenPlatformService");
         $_oauth->auth_code = $this->getInput('auth_code');
         $_oauth->third_platform_name = $this->getInput('platformname');
         $_oauth->native_name = $this->getInput('native_name');
         //
-        $_oauth->auth_code='96246b6f3a35a4ce0899c2099be11900';
-        $_oauth->third_platform_name = 'taobao';
-        $_oauth->native_name = 'gamecenter://oauth.m.taobao.com/callback';
-//        $_oauth->native_name = 'http%3A%2F%2Fwww.iiwoo.com';
+        $_oauth->auth_code='6AF5CBB5925BC219956DD3F50A5BC684';
+        $_oauth->third_platform_name = 'qq';
+        $_oauth->native_name = 'http%3A%2F%2Fwww.iiwoo.com';
         //
         $info = array();
         $_method_name = $_oauth->third_platform_name.'AuthInfo';
         if( method_exists($_oauth,$_method_name) ){
             $info = $_oauth->$_method_name();
         }
-        print_r($info);
+        if( empty($info) ){
+            $this->showError('NATIVE:error.openaccount.noauth'); 
+        }
+        $info['type'] = $_oauth->third_platform_name;
         return $info; 
     }
 

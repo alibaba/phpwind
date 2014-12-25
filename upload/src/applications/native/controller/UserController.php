@@ -2,6 +2,12 @@
 /**
  * 用户登录,注册等接口
  *
+ * 注意：客户端在请求时需要携带cookie <br>
+ * csrf_token=pw;PHPSESSID=guid <br>
+ * authOpenAccountAction() <br>
+ * openAccountRegisterAction() <br>
+ * openAccountLoginAction() <br>
+ *
  * @fileName: UserController.php
  * @author: dongyong<dongyong.ydy@alibaba-inc.com>
  * @license: http://www.phpwind.com
@@ -47,7 +53,7 @@ class UserController extends MobileBaseController {
     public function doLoginAction(){
         
         list($username, $password, $code) = $this->getInput(array('username', 'password', 'code'));
-
+        
         if (empty($username) || empty($password)) $this->showError('USER:login.user.require');
 
         //
@@ -65,27 +71,16 @@ class UserController extends MobileBaseController {
         $isSuccess = $login->login($username, $password, $this->getRequest()->getClientIp());
         if ($isSuccess instanceof PwError) {
             $this->showError($isSuccess->getError());
-
         }
-        $config = Wekit::C('site');
-        if ($config['windid'] != 'local') {
-            $localUser = $this->_getUserDs()->getUserByUid($isSuccess['uid'], PwUser::FETCH_MAIN);
-            if ($localUser['username'] && $userForm['username'] != $localUser['username']) $this->showError('USER:user.syn.error');
 
-        }   
-
+        //
         Wind::import('SRV:user.srv.PwRegisterService');
         $registerService = new PwRegisterService();
         $info = $registerService->sysUser($isSuccess['uid']);
-
         if (!$info)  $this->showError('USER:user.syn.error');
 
-        //登录成功后，加密身份key
-        $securityKey = Pw::encrypt( Pw::jsonEncode(array('username'=>$username,'password'=>$password)), $this->_securityKey);
-
         //
-        $_data = array('securityKey'=>$securityKey);
-        $this->setOutput($_data, 'data');
+        $this->setOutput( $this->_getUserInfo($isSuccess['uid']), 'data');
         $this->showMessage('USER:login.success');
     }
 
@@ -157,18 +152,27 @@ class UserController extends MobileBaseController {
 		$this->runHook('c_register', $registerService);
 		if (($info = $registerService->register()) instanceof PwError) {
 			$this->showError($info->getError());
-		} else {
-			$identity = PwRegisterService::createRegistIdentify($info['uid'], $info['password']);
-			if (1 == Wekit::C('register', 'active.mail')) {
+        } else {
+            if (1 == Wekit::C('register', 'active.mail')) {
                 $this->showMessage('USER:active.sendemail.success');
 			} else {
-                $_data = array('securityKey'=>$this->_securityKey);
-                $this->setOutput($_data, 'data');                                                                                                                 
+                $this->setOutput($this->_getUserInfo($info['uid']), 'data');                                                                                       
                 $this->showMessage('USER:register.success');
 			}
 		}
     }
 
+    /**
+     * 认证第三平台帐号合法性 
+     * 
+     * @access public
+     * @return void
+     */
+    public function authOpenAccountAction(){
+        $accountData = $this->authThirdPlatform();
+        $this->setOutput($accountData, 'data');
+        $this->showMessage('NATIVE:error.openaccount.auth');
+    }
 
     /**
      * 开放帐号登录; (通过第三方开放平台认证通过后,获得的帐号id在本地查找是否存在,如果存在登录成功 ) 
@@ -177,35 +181,33 @@ class UserController extends MobileBaseController {
      * @return string sessionid
      * @example
      <pre>
-     post:
+     post: auth_code&platformname(qq|weibo|weixin|....)&native_name(回调地址)
      $this->_checkAccountValid() +  <br>
      </pre>
      */
     public function openAccountLoginAction(){
-        if( $accountData=$this->_checkAccountValid() ){
-
-            $accountData['account'] = '9299134';
+        if( $accountData=$this->authThirdPlatform() ){
+            //测试数据
+            $accountData['uid'] = 'f52e68d83f141d8b1e160d15c797d117';
             $accountData['type'] = 'qq';
 
-            $accountRelationData = $this->_getUserOpenAccountDs()->getUid($accountData['account'],$accountData['type']);
+            //
+            $accountRelationData = $this->_getUserOpenAccountDs()->getUid($accountData['uid'],$accountData['type']);
 
             //
-            $isSuccess = Wekit::load('user.PwUser')->getUserByUid($accountRelationData['uid'], PwUser::FETCH_MAIN);
-            $username = $isSuccess['username'];
-            $password = $isSuccess['password'];
-
-
             /* [验证用户名和密码是否正确] */
             $login = new PwLoginService();
             $this->runHook('c_login_dorun', $login);
 
             Wind::import('SRV:user.srv.PwRegisterService');
             $registerService = new PwRegisterService();
-            $info = $registerService->sysUser($isSuccess['uid']);
+            $info = $registerService->sysUser($accountRelationData['uid']);
 
-            if (!$info)  $this->showError('USER:user.syn.error');
-
+            if (!$info) {
+                $this->showError('USER:user.syn.error');
+            }
             //success
+            $this->setOutput($this->_getUserInfo(),'data');
             $this->showMessage('USER:login.success');
         }
     }
@@ -218,13 +220,11 @@ class UserController extends MobileBaseController {
      * @return void
      * @example
      <pre>
-     post:
-     $this->_checkAccountValid() +  <br>
-     &username&password&email&code 
+     post: platformname&username&password&email&code 
      </pre>
      */
     public function openAccountRegisterAction() {
-        if( $accountData=$this->_checkAccountValid() ){
+        if( $accountData=$this->authThirdPlatform() ){
             
             list($username,$password,$email) = $this->getInput(array('username','password','email'));
 
@@ -233,6 +233,7 @@ class UserController extends MobileBaseController {
             $userDm->setUsername($username);
             $userDm->setPassword($password);
             $userDm->setEmail($email);
+            $userDm->setGender($accountData['gender']);
             $userDm->setRegdate(Pw::getTime());
             $userDm->setLastvisit(Pw::getTime());
             $userDm->setRegip(Wind::getComponent('request')->getClientIp());
@@ -245,13 +246,11 @@ class UserController extends MobileBaseController {
             if (($info = $registerService->register()) instanceof PwError) {
                 $this->showError($info->getError());
             } else {
-                if( $this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['account'],$accountData['type'])==false ){
+                //这里注册成功，要把第三方帐号的头像下载下来并处理，这里还没有做
+                if( $this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type'])==false ){
                     $this->showMessage('USER:register.success');
-                }else{
-                    $this->showError('NATIVE:error.openaccount.exist');
                 }
             }
-        //
         }
     }
 
@@ -410,63 +409,30 @@ class UserController extends MobileBaseController {
 
 
     /**
-     * 校验开放平台帐号合法性
-     *
-     * @access public
-     * @return void
-     * @example
-     <pre>
-     post: <br>
-       openid (与APP通信的用户key) <br> 
-     & openkey (session key) <br>
-     & appid <br>
-     & sig (请求串的签名) <br>
-     & pf 应用的来源平台 <br>
-     & accountType (来自那个开放平台-微信/qq/淘宝/微博)
-     response: 
-     </pre>
-     */
-    protected function _checkAccountValid(){
-        // test
-        return array(
-            'account'=>mt_rand(100000,10000000),
-            'type'=>'qq',
-        );
-
-
-        //
-        $_configParser = Wind::getComponent('configParser');
-        $_openAccountApiConf = Wind::getRealPath('APPS:mobile.conf.openaccountapi.php', true);
-
-        //
-        list($openid,$openkey,$appid,$sig,$pf,$accountType) = $this->getInput(array('openid','openkey','appid','sig','pf','accountType'));
-        if( empty($openid) || empty($openkey) || empty($appid) || empty($sig) || empty($pf) || empty($accountType)  ){
-            $this->showError('NATIVE:error.openaccount.args');
-        }
-        //
-        $apis = $_configParser->parse($_openAccountApiConf);
-        if( isset($apis['accountType']) ){
-            $this->showError('NATIVE:error.openaccount.type');
-        }
-
-    }
-
-
-    /**
-     * 第三方平台的接口url 
+     * 获得用户信息 
      * 
-     * @access protected
+     * @param mixed $uid 
+     * @access private
      * @return void
      */
-    protected function _thirdPlatformUrl(){
-        return array(
-            'weixin'=>array(
-                'access_token_uri'=>'https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code',
-                'userinfo_uri'=>'https://api.weixin.qq.com/sns/userinfo',
-            ),
-        );
-    }
+    private function _getUserInfo($uid){
+        //
+        $_userInfo = Wekit::load('user.PwUser')->getUserByUid($uid, PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
 
+        //登录成功后，加密身份key
+        $securityKey = Pw::encrypt( Pw::jsonEncode(array('username'=>$_userInfo['username'],'password'=>$_userInfo['password'])), $this->_securityKey);
+
+        //返回数据
+        $_data = array(
+            'securityKey'=>$securityKey,
+            'userinfo'=>array(
+                'username'=>$_userInfo['username'],
+                'avatar'=>'http://img1.phpwind.net/attachout/avatar/002/37/41/2374101_small.jpg',
+                'gender'=>$_userInfo['gender'],
+            ),
+        ); 
+        return $_data;
+    }
 
 
     /**

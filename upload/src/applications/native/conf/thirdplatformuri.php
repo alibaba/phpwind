@@ -43,8 +43,9 @@ return array(
      * http://www.tbsandbox.com/doc/index.html#taobao_acount
      */
     'taobao'=>array(
+        //'access_token_uri'=>'https://oauth.tbsandbox.com/token?client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s',
         'access_token_uri'=>'https://oauth.tbsandbox.com/token?client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s',
-        'userinfo_uri'=>'',
+        'userinfo_uri'=>'http://gw.api.tbsandbox.com/router/rest?session=%s&sign=%s&timestamp=%s&v=2.0&app_key=1012129701&method=taobao.user.buyer.get&partner_id=top-apitools&format=json&fields=nick%2Csex%2Cavatar',
     ),
 );
 
