@@ -167,6 +167,10 @@ class UserController extends MobileBaseController {
      * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * post: auth_code&platformname&native_name 
+     * </pre>
      */
     public function authOpenAccountAction(){
         $accountData = $this->authThirdPlatform();
@@ -182,7 +186,6 @@ class UserController extends MobileBaseController {
      * @example
      <pre>
      post: auth_code&platformname(qq|weibo|weixin|....)&native_name(回调地址)
-     $this->_checkAccountValid() +  <br>
      </pre>
      */
     public function openAccountLoginAction(){
@@ -261,19 +264,16 @@ class UserController extends MobileBaseController {
      * @example
      <pre>
      /index.php?m=native&c=user&a=doAvatar <br>
-     post: sessionid
-     postdata: avatar
-     response:
-     curl  --form "Filename=@icon1.jpg" 'http://10.101.81.197:8001/phpwind/upload/index.php?m=native&c=user&a=doAvatar&uid=3&windidkey=7d89be2e77d3acc7fd1e7ffe6946ca79&clientid=1&type=flash'
+     post: securityKey <br>
+     postdata: Filename <br>
+     curl --form "Filename=@icon1.jpg" '/index.php?m=native&c=user&a=doAvatar'
      </pre>
      */
     public function doAvatarAction(){
-        if( $this->_checkUserSessionValid() ){
-            $uid = (int)$this->getInput('uid', 'get');
+        if( $uid=$this->checkUserSessionValid() ){
             Wind::import('WSRV:upload.action.WindidAvatarUpload');
             Wind::import('LIB:upload.PwUpload');
             $bhv = new WindidAvatarUpload($uid);
-
             //
             $upload = new PwUpload($bhv);
             if (($result = $upload->check()) === true) {
@@ -288,11 +288,25 @@ class UserController extends MobileBaseController {
                 }
                 $file->filename = $upload->filterFileName($bhv->getSaveName($file));
                 $file->savedir = $bhv->getSaveDir($file);
-                $file->source = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage')->getAbsolutePath($file->filename, $file->savedir);
-                $file->source = str_replace('attachment','windid/attachment',$file->source);
-
+                $file->store = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage');
+                $file->source = str_replace('attachment','windid/attachment',$file->store->getAbsolutePath($file->filename, $file->savedir) );
+                //
                 if (!PwUpload::moveUploadedFile($value['tmp_name'], $file->source)) {
                     $this->showError('upload.fail');
+                }
+
+                $image = new PwImage($file->source);
+                if ($bhv->allowThumb()) {
+                    $thumbInfo = $bhv->getThumbInfo($file->filename, $file->savedir);
+                    foreach ($thumbInfo as $key => $value) {
+                        $thumburl = $file->store->getAbsolutePath($value[0], $value[1]); 
+                        $thumburl = str_replace('attachment','windid/attachment',$thumburl);
+                        //
+                        $result = $image->makeThumb($thumburl, $value[2], $value[3], $quality, $value[4], $value[5]);
+                        if ($result === true && $image->filename != $thumburl) {
+                            $ts = $image->getThumb();
+                        }
+                    } 
                 }
                 $this->showMessage('success');
             }
@@ -307,12 +321,11 @@ class UserController extends MobileBaseController {
      * @example
      <pre>
      /index.php?m=native&c=user&a=doSex <br>
-     post: sessionid&gender
-     response: {err:"",data:""}
+     post: securityKey&gender
      </pre>
      */
     public function doSexAction(){
-        if( $uid=$this->_checkUserSessionValid() ){
+        if( $uid=$this->checkUserSessionValid() ){
             //$userDm = new PwUserInfoDm($this->loginUser->uid);  
             $userDm = new PwUserInfoDm($uid);
             $userDm->setGender($this->getInput('gender', 'post'));
@@ -337,52 +350,52 @@ class UserController extends MobileBaseController {
      * @example
      <pre>
      /index.php?m=native&c=user&a=doPassWord <br>
-     post: sessionid&oldpassword&newpassword&repassword
-     response: {err:"",data:""}
+     post: securityKey&oldPwd&newPwd&rePwd
      </pre>
      */
-    public function doPassWordAction(){
+    public function doPasswordAction(){
+        if( $uid=$this->checkUserSessionValid() ){
+            list($newPwd, $oldPwd, $rePwd) = $this->getInput(array('newPwd', 'oldPwd', 'rePwd'), 'post');
+            if (!$oldPwd) {
+                $this->showError('USER:pwd.change.oldpwd.require');
+            }   
+            if (!$newPwd) {
+                $this->showError('USER:pwd.change.newpwd.require');
+            }   
+            if ($rePwd != $newPwd) {
+                $this->showError('USER:user.error.-20');
+            }   
+            $this->checkOldPwd($uid, $oldPwd);
 
-    }
+            Wind::import('SRC:service.user.dm.PwUserInfoDm');
+            $userDm = new PwUserInfoDm($uid);
+            $userDm->setPassword($newPwd);
+            $userDm->setOldPwd($oldPwd);
+            /* @var $userDs PwUser */
+            $userDs = Wekit::load('user.PwUser');
+            if (($result = $userDs->editUser($userDm, PwUser::FETCH_MAIN)) instanceof PwError) {
+                $this->showError($result->getError());
 
-    /**
-     * 获得session_id; 验证验证码时需要通过session_id来识别身份 
-     * /index.php?m=verify&a=get&rand=rand()
-     *
-     * @access public
-     * @return void
-     */
-    public function sessionIdAction(){
-        Wind::import('WIND:http.session.WindSession');
-        $session = new WindSession();
-        //
-        $this->setOutput(array('sid'=>$session->getCurrentId()), 'data');
-        $this->showMessage("USER:message.success");
+            }   
+            $this->loginUser->reset();
+            $this->showMessage('USER:pwd.change.success');
+        }
     }
 
     /**
      * 是否需要显示验证码 <br>
-     * 获得session_id; 验证验证码时需要通过session_id来识别身份 <br> 
+     * 需要cookie携带 PHPSESSID <br>
      * /index.php?m=verify&a=get&rand=rand()
      * 
      * @access public
      * @return boolean
      * @example
      * <pre>  
-     /index.php?m=native&c=user&a=ifshowVerifycode <br>
-    { "err":"","data":true }
-    </pre>
+     * /index.php?m=native&c=user&a=ifshowVerifycode <br>
+     * </pre>
      */
     public function ifShowVerifycodeAction(){
-        Wind::import('WIND:http.session.WindSession');
-        $session = new WindSession();
-        //
-        $data = array(
-            'session_id'=>$session->getCurrentId(),
-            'display'=>$this->_showVerify(),
-        );
-        //
-        $this->setOutput($data, 'data');
+        $this->setOutput($this->_showVerify(), 'data');
         $this->showMessage('success');
     }
 
@@ -420,7 +433,11 @@ class UserController extends MobileBaseController {
         $_userInfo = Wekit::load('user.PwUser')->getUserByUid($uid, PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
 
         //登录成功后，加密身份key
-        $securityKey = Pw::encrypt( Pw::jsonEncode(array('username'=>$_userInfo['username'],'password'=>$_userInfo['password'])), $this->_securityKey);
+        $_idInfo = array(
+            'username'=>$_userInfo['username'],
+            'password'=>$_userInfo['password'],
+        );
+        $securityKey = Pw::encrypt( serialize($_idInfo), $this->_securityKey);
 
         //返回数据
         $_data = array(

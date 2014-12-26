@@ -17,26 +17,9 @@ class MobileBaseController extends PwBaseController {
 
 	public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-
         $_config_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
         $this->_securityKey = $_config_securityKey['value'];
-
-        $_POST['_json'] = 1;
 	}
-
-    /**
-     *
-     * 测试接口，从第三方获得用户信息
-     */
-    public function testAction(){
-        $userinfo = $this->authThirdPlatform();
-        if( empty($userinfo) ){
-            $this->showMessage('operate.fail');
-        }else{
-            $this->setOutput($userSrv, 'data');
-            $this->showMessage('USER:login.success');
-        }
-    }
 
     /**
      * 校验用户是否登录; 返回appid接口数据
@@ -52,9 +35,9 @@ class MobileBaseController extends PwBaseController {
      </pre>
      */
     public function checkLoginStatusAction(){
-        if( $this->_checkUserSessionValid() ){
+        if( $this->checkUserSessionValid() ){
 
-            $data['thirdPlatformAppid'] = $this->_thirdPlatformAppid();
+            $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
             $data['userinfo'] = array(
                 'username'=>'qiwen',
                 'avatar'=>'http://img1.phpwind.net/attachout/avatar/002/37/41/2374101_small.jpg',
@@ -72,10 +55,10 @@ class MobileBaseController extends PwBaseController {
      * @access public
      * @return void
      */
-    protected function _thirdPlatformAppid(){
+    protected function thirdPlatformAppid(){
         $config = Wekit::C()->getValues('thirdPlatform');                                                                                                 
         //
-        $data = array();
+        $apidata = array();
         if( count($config) ){
             foreach($config as $k=>$v){
                 $_keys = explode('.',$k);
@@ -91,16 +74,14 @@ class MobileBaseController extends PwBaseController {
             asort($data);
             foreach($data as $k=>$v){
                 list($order,$appId) = explode('-',$v);
-                $data[] = array(
+                $apidata[] = array(
                     'platformname'=>$k,
                     'order'=>$order,
                     'appId'=>$appId,
                 );
             }
         }
-        return $data;
-        //$this->setOutput($data, 'data');
-        //$this->showMessage("USER:message.success");
+        return $apidata;
     }
 
 
@@ -124,17 +105,15 @@ class MobileBaseController extends PwBaseController {
         post: session
      </pre>
      */
-    protected function _checkUserSessionValid(){
+    protected function checkUserSessionValid(){
         $unsecurityKey = $this->getInput('securityKey');
-        $unsecurityKey ='nvKjBzbL9mn7pAjNsH1Y8DIs6Lno1j2jlUjowLt80swW31AOI/tCAb5LRflITYZ7ZQR4eqMtyM8ZEQ0E/ezW1h1InMvIO2iY';
+        //$unsecurityKey ='+ifRSZwMb80q9KIq5bkvoTpJoY6+GxNFWglsTheo4czdLFnpr6mxr6IEo7fOvqugiv4nRj4JmXCLbYjP2dVtBlC9wCCbrTBn/8qVzCu2B0m9b5z1ULk5yiSk+pw=';
         //
-        $unsecurityKey = Pw::decrypt($unsecurityKey,$this->_securityKey);
-        $securityKey   = Pw::jsonDecode($unsecurityKey);
-        
+        $securityKey = unserialize(Pw::decrypt($unsecurityKey,$this->_securityKey));
         //
         if( is_array($securityKey) && isset($securityKey['username']) && isset($securityKey['password']) ){
             $_userInfo = Wekit::load('user.PwUser')->getUserByName($securityKey['username'], PwUser::FETCH_MAIN);
-            if( $_userInfo['username']==$securityKey['username'] && $securityKey['password']==$securityKey['password'] ){
+            if( $_userInfo['username']!=$securityKey['username'] || $_userInfo['password']!=$securityKey['password'] ){
                 $this->showError('USER:login.error.pwd');
             }
             return $_userInfo['uid'];
@@ -159,9 +138,9 @@ class MobileBaseController extends PwBaseController {
         $_oauth->third_platform_name = $this->getInput('platformname');
         $_oauth->native_name = $this->getInput('native_name');
         //
-        $_oauth->auth_code='6AF5CBB5925BC219956DD3F50A5BC684';
-        $_oauth->third_platform_name = 'qq';
-        $_oauth->native_name = 'http%3A%2F%2Fwww.iiwoo.com';
+        //$_oauth->auth_code='6AF5CBB5925BC219956DD3F50A5BC684';
+        //$_oauth->third_platform_name = 'qq';
+        //$_oauth->native_name = 'http%3A%2F%2Fwww.iiwoo.com';
         //
         $info = array();
         $_method_name = $_oauth->third_platform_name.'AuthInfo';

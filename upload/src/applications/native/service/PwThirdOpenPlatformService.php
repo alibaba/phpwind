@@ -51,19 +51,16 @@ class PwThirdOpenPlatformService {
      * @return void
      */
     public function qqAuthInfo(){
-        $info = array();
         //
         $this->_appid   = $this->_third_platform_conf[$this->third_platform_name.'.appId'];
         $this->_appkey  = $this->_third_platform_conf[$this->third_platform_name.'.appKey'];
 
         //step 1
-echo        $_access_token = $this->_session->get($this->third_platform_name.'_access_token');
+        $_access_token = $this->_session->get($this->third_platform_name.'_access_token');
         if( empty($_access_token) ){
             $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['access_token_uri'],$this->_appid,$this->_appkey,$this->auth_code,$this->native_name);
             $_access_token_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
             parse_str($_access_token_result, $_args);
-
-            print_r($_args);
             if( isset($_args['access_token']) ){
                 $_access_token = $_args['access_token'];
                 $this->_session->set($this->third_platform_name.'_access_token', $_access_token);
@@ -92,6 +89,9 @@ echo        $_access_token = $this->_session->get($this->third_platform_name.'_a
                 }
             }
         }
+        if( empty($info) || !isset($info) ){
+            $this->_session->delete($this->third_platform_name.'_access_token');
+        }
         return $info;
     }
 
@@ -102,7 +102,6 @@ echo        $_access_token = $this->_session->get($this->third_platform_name.'_a
      * @return void
      */
     public function weixinAuthInfo(){
-        $info = array();
         //
         $this->_appid   = $this->_third_platform_conf[$this->third_platform_name.'.appId'];
         $this->_appkey  = $this->_third_platform_conf[$this->third_platform_name.'.appKey'];
@@ -127,12 +126,16 @@ echo        $_access_token = $this->_session->get($this->third_platform_name.'_a
             //
             if( isset($_userinfo_result['nickname']) ){
                 $info = array(
+                    'uid'       =>'',
                     'username'  =>$_userinfo_result['nickname'],
                     'gender'    =>$_userinfo_result['sex']=='1'?0:1,
                     'avatar'    =>$_userinfo_result['headimgurl'],
                 );
             }
             unset($_userinfo_result);
+        }
+        if( empty($info) || !isset($info) ){
+            $this->_session->delete($this->third_platform_name.'_access_token');
         }
         return $info;
     }
@@ -144,7 +147,6 @@ echo        $_access_token = $this->_session->get($this->third_platform_name.'_a
      * @return void
      */
     public function weiboAuthInfo(){
-        $info = array();
         //
         $this->_appid   = $this->_third_platform_conf[$this->third_platform_name.'.appId'];
         $this->_appkey  = $this->_third_platform_conf[$this->third_platform_name.'.appKey'];
@@ -171,12 +173,16 @@ echo        $_access_token = $this->_session->get($this->third_platform_name.'_a
             //
             if( isset($_userinfo_result['name']) ){
                 $info = array(
+                    'uid'       =>$_userinfo_result['id'],
                     'username'  =>$_userinfo_result['name'],
                     'gender'    =>$_userinfo_result['gender']=='m'?0:1,
                     'avatar'    =>$_userinfo_result['avatar_large'],
                 );
             }
             unset($_userinfo_result);
+        }
+        if( empty($info) || !isset($info) ){
+            $this->_session->delete($this->third_platform_name.'_access_token');
         }
         return $info;
     }
@@ -189,7 +195,6 @@ echo        $_access_token = $this->_session->get($this->third_platform_name.'_a
      * @return void
      */
     public function taobaoAuthInfo(){
-        $info = array();
         //
         $this->_appid   = $this->_third_platform_conf[$this->third_platform_name.'.appId'];
         $this->_appkey  = $this->_third_platform_conf[$this->third_platform_name.'.appKey'];
@@ -218,12 +223,16 @@ echo        $_access_token = $this->_session->get($this->third_platform_name.'_a
             //
             if( isset($_userinfo_result['name']) ){
                 $info = array(
+                    'uid'       =>'',
                     'username'  =>$_userinfo_result['name'],
                     'gender'    =>$_userinfo_result['gender']=='m'?0:1,
                     'avatar'    =>$_userinfo_result['avatar_large'],
                 );
             }
             unset($_userinfo_result);
+        }
+        if( empty($info) || !isset($info) ){
+            $this->_session->delete($this->third_platform_name.'_access_token');
         }
         return $info;
     }
