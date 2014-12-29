@@ -1,4 +1,5 @@
 image.empty.fail = "图标不能为空"
+upload.empty="请选择一个附件"
 upload.fail = "上传文件失败"
 upload.file.error = "上传文件错误"
 zlib.error = "请安装PHP压缩扩展"

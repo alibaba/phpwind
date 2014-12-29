@@ -169,7 +169,9 @@ class UserController extends MobileBaseController {
      * @return void
      * @example
      * <pre>
-     * post: auth_code&platformname&native_name 
+     * /index.php?m=native&c=user&a=authOpenAccount
+     * //post: auth_code&platformname&native_name <br>
+     * post: access_token&platformname
      * </pre>
      */
     public function authOpenAccountAction(){

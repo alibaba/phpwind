@@ -32,6 +32,8 @@ class PwThirdOpenPlatformService {
     private $_appkey;
 
     public $auth_code;
+    
+    public $access_token;
 
     public $native_name = 'www.iiwoo.com';
 
@@ -51,6 +53,7 @@ class PwThirdOpenPlatformService {
      * @return void
      */
     public function qqAuthInfo(){
+        /*
         //
         $this->_appid   = $this->_third_platform_conf[$this->third_platform_name.'.appId'];
         $this->_appkey  = $this->_third_platform_conf[$this->third_platform_name.'.appKey'];
@@ -68,6 +71,8 @@ class PwThirdOpenPlatformService {
         }
         //step 2
         if( $_access_token ){
+         */
+        if( $this->access_token ){
             $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['openid'],$_access_token);
             $_openid_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
             if( !empty($_openid_result) ){
@@ -89,9 +94,11 @@ class PwThirdOpenPlatformService {
                 }
             }
         }
+        /*
         if( empty($info) || !isset($info) ){
             $this->_session->delete($this->third_platform_name.'_access_token');
         }
+         */
         return $info;
     }
 

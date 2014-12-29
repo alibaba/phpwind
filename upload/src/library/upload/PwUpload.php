@@ -89,7 +89,7 @@ class PwUpload {
 	 */
 	public function execute() {
 		$uploaddb = array();
-		foreach ($_FILES as $key => $value) {
+        foreach ($_FILES as $key => $value) {
 			if (!self::isUploadedFile($value['tmp_name']) || !$this->bhv->allowType($key)) {
 				continue;
 			}

@@ -35,18 +35,18 @@ class MobileBaseController extends PwBaseController {
      </pre>
      */
     public function checkLoginStatusAction(){
-        if( $this->checkUserSessionValid() ){
-
-            $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
+        $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
+        if( $this->authSessionKey() ){
             $data['userinfo'] = array(
                 'username'=>'qiwen',
                 'avatar'=>'http://img1.phpwind.net/attachout/avatar/002/37/41/2374101_small.jpg',
                 'gender'=>0,
             );
-
             $this->setOutput($data, 'data');
             $this->showMessage('USER:login.success');
         }
+        $this->setOutput($data, 'data');
+        $this->showMessage('USER:login.success');
     } 
  
     /**
@@ -106,20 +106,32 @@ class MobileBaseController extends PwBaseController {
      </pre>
      */
     protected function checkUserSessionValid(){
+        if( $uid=$this->authSessionKey() ){
+            return $uid;
+        }else{
+            $this->showError("NATIVE:error.sessionkey.error");
+        }
+    }
+
+    /**
+     * 认证sessionKey是否合法 
+     * 
+     * @access protected
+     * @return integer
+     */
+    protected function authSessionKey(){
         $unsecurityKey = $this->getInput('securityKey');
         //$unsecurityKey ='+ifRSZwMb80q9KIq5bkvoTpJoY6+GxNFWglsTheo4czdLFnpr6mxr6IEo7fOvqugiv4nRj4JmXCLbYjP2dVtBlC9wCCbrTBn/8qVzCu2B0m9b5z1ULk5yiSk+pw=';
-        //
+        
         $securityKey = unserialize(Pw::decrypt($unsecurityKey,$this->_securityKey));
-        //
         if( is_array($securityKey) && isset($securityKey['username']) && isset($securityKey['password']) ){
             $_userInfo = Wekit::load('user.PwUser')->getUserByName($securityKey['username'], PwUser::FETCH_MAIN);
             if( $_userInfo['username']!=$securityKey['username'] || $_userInfo['password']!=$securityKey['password'] ){
                 $this->showError('USER:login.error.pwd');
             }
-            return $_userInfo['uid'];
-        }else{
-            $this->showError("NATIVE:error.sessionkey.error");
+            return $_userInfo['uid'];   
         }
+        return 0;
     }
 
     /**
@@ -129,14 +141,19 @@ class MobileBaseController extends PwBaseController {
      * @return array()
      * @example
      * <pre>
-     * post: auth_code&platformname&native_name
+     * //post: auth_code&platformname&native_name <br>
+     * post: access_token&platformname(如果直接传递token就只需要二个参数)
      * </pre>
      */
     protected function authThirdPlatform(){
-        $_oauth = Wekit::load("APPS:native.service.PwThirdOpenPlatformService");
-        $_oauth->auth_code = $this->getInput('auth_code');
+        //$_oauth = Wekit::load("APPS:native.service.PwThirdOpenPlatformService");
+        //$_oauth->auth_code = $this->getInput('auth_code');
+        //$_oauth->third_platform_name = $this->getInput('platformname');
+        //$_oauth->native_name = $this->getInput('native_name');
+        //
+        $_oauth->access_token = $this->getInput('access_token');
         $_oauth->third_platform_name = $this->getInput('platformname');
-        $_oauth->native_name = $this->getInput('native_name');
+        //
         //
         //$_oauth->auth_code='6AF5CBB5925BC219956DD3F50A5BC684';
         //$_oauth->third_platform_name = 'qq';

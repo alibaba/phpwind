@@ -105,6 +105,7 @@ return array(
     'admin_accountsecurity' => array('Native帐号安全', 'native/AccountSecurity/*', '', '', 'admin'),
     
     'native_accountsecurity' => array('第三方平台接入', 'native/ThirdOpenPlatform/*', '', '', 'native'),
+    'native_banner' => array('Banner管理', 'native/Banner/*', '', '', 'native'),
 
 
 

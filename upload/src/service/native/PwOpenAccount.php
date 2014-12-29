@@ -10,8 +10,6 @@
  * @desc: 
  **/
 
-Wind::import('WIND:utility.WindValidator');
-
 class PwOpenAccount {
 
     public function __construct() {
