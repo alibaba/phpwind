@@ -58,7 +58,6 @@ class ThirdOpenPlatformController extends AdminBaseController {
         $status = $type.'_status';
         $appId  = $type.'_appId';
         $appKey = $type.'_appKey';
-        $displayOrder = $type.'_displayOrder';
 
         list($$status,$$appId,$$appKey,$$displayOrder) = $this->getInput(array($status, $appId, $appKey, $displayOrder));
 

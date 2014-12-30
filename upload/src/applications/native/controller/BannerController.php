@@ -11,20 +11,36 @@
  **/
 defined('WEKIT_VERSION') || exit('Forbidden');
 
+Wind::import('SRV:native.PwBanner');
+
 class BannerController extends PwBaseController {
 
 	public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
-//		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
-	}
+    }
+
     /** 
-     * banner列表数据                                                                                                                                     
+     * native首页banner数据                                                                                                                                     
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=Banner&a=bannerData <br>
+     * response: type=(forum|tag|topic|link) 四种类型，四种跳转方式
+     * </pre>
      */
     public function bannerDataAction(){
+        $bannerData = $this->_getDao()->getBanner(PwBanner::BANNER_TYPE_NATIVE_INDEX);
+        foreach ($bannerData as &$banner) {
+            /* cursor */
+        }
 
-
+        $this->setOutput($bannerData, 'data');
+        $this->showMessage('success');
     }  
+
+    private function _getDao(){
+        return Wekit::loadDao('native.dao.PwBannerDao'); 
+    }
 
 }

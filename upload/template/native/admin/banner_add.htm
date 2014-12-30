@@ -8,9 +8,9 @@
 
 <!--用户权限编辑添加: 添加用户-->
 <form id="J_auth_form" action="{@url:native/banner/doAdd}" method="post">
-        <input type="hidden" name="pos" value="{$pos}" />
-        <input type="hidden" name="order" value="{$banner['order']}" />
-        <input type="hidden" name="path" value="{$banner['path']}" />
+        <input type="hidden" name="bid" value="{$bid}" />
+        <input type="hidden" name="vieworder" value="{$banner['vieworder']}" />
+        <input type="hidden" name="img" value="{$banner['img']}" />
 <div>
     <div class="pop_cont">
         <div class="mb15"><h4 class="mb5">Banner标题</h4><input name="title" type="text" value="{$banner['title']}" class="input" style="width:200px;"></div>
@@ -18,13 +18,13 @@
             <input type="file" name="Filename" value="" />
         </div>
         <div class="mb15"><h4 class="mb5">点击类型</h4>
-            <label><input class="J_check" type="radio" name="clickType" value="forum" <!--# echo $banner['clickType']=='forum'?'checked="true"':'' #-->><span>论坛版面</span></label>
-            <label><input class="J_check" type="radio" name="clickType" value="tag" <!--# echo $banner['clickType']=='tag'?'checked="true"':'' #-->><span>话题</span></label>
-            <label><input class="J_check" type="radio" name="clickType" value="topic" <!--# echo $banner['clickType']=='topic'?'checked="true"':'' #-->><span>贴子</span></label>
-            <label><input class="J_check" type="radio" name="clickType" value="link" <!--# echo $banner['clickType']=='link'?'checked="true"':'' #-->><span>外部链接</span></label>
+            <label><input class="J_check" type="radio" name="clickType" value="forum" <!--# echo $banner['type']=='forum'?'checked="true"':'' #-->><span>论坛版面</span></label>
+            <label><input class="J_check" type="radio" name="clickType" value="tag" <!--# echo $banner['type']=='tag'?'checked="true"':'' #-->><span>话题</span></label>
+            <label><input class="J_check" type="radio" name="clickType" value="topic" <!--# echo $banner['type']=='topic'?'checked="true"':'' #-->><span>贴子</span></label>
+            <label><input class="J_check" type="radio" name="clickType" value="link" <!--# echo $banner['type']=='link'?'checked="true"':'' #-->><span>外部链接</span></label>
         </div>
         <div class="mb15"><h4 class="mb5">点击指向</h4>
-            <input name="link" type="text" class="input" value="{$banner['link']}" style="width:396px;">
+            <input name="href" type="text" class="input" value="{$banner['href']}" style="width:396px;">
         </div>
         <ul class="fun_tips">
             <li>选择“论坛版面”，填写论坛FID</li>

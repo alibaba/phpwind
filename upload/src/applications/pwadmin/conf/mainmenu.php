@@ -102,7 +102,7 @@ return array(
 	'app_message' => array('消息群发', 'message/manage/send', '', '', 'appcenter'),
 	'app_announce' => array('公告管理', 'announce/announce/*', '', '', 'appcenter'),
     
-    'admin_accountsecurity' => array('Native帐号安全', 'native/AccountSecurity/*', '', '', 'admin'),
+    'admin_accountsecurity' => array('帐号安全', 'native/AccountSecurity/*', '', '', 'admin'),
     
     'native_accountsecurity' => array('第三方平台接入', 'native/ThirdOpenPlatform/*', '', '', 'native'),
     'native_banner' => array('Banner管理', 'native/Banner/*', '', '', 'native'),

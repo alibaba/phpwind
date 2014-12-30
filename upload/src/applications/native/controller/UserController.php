@@ -163,59 +163,94 @@ class UserController extends MobileBaseController {
     }
 
     /**
-     * 认证第三平台帐号合法性 
-     * 
-     * @access public
-     * @return void
-     * @example
-     * <pre>
-     * /index.php?m=native&c=user&a=authOpenAccount
-     * //post: auth_code&platformname&native_name <br>
-     * post: access_token&platformname
-     * </pre>
-     */
-    public function authOpenAccountAction(){
-        $accountData = $this->authThirdPlatform();
-        $this->setOutput($accountData, 'data');
-        $this->showMessage('NATIVE:error.openaccount.auth');
-    }
-
-    /**
      * 开放帐号登录; (通过第三方开放平台认证通过后,获得的帐号id在本地查找是否存在,如果存在登录成功 ) 
      * 
      * @access public
      * @return string sessionid
      * @example
      <pre>
-     post: auth_code&platformname(qq|weibo|weixin|....)&native_name(回调地址)
+     post: access_token&platformname(qq|weibo|weixin|taobao)&native_name(回调地址)
      </pre>
      */
     public function openAccountLoginAction(){
         if( $accountData=$this->authThirdPlatform() ){
-            //测试数据
-            $accountData['uid'] = 'f52e68d83f141d8b1e160d15c797d117';
-            $accountData['type'] = 'qq';
-
             //
             $accountRelationData = $this->_getUserOpenAccountDs()->getUid($accountData['uid'],$accountData['type']);
+            //还没有绑定帐号
+            if( empty($accountRelationData) ){
+                $userdata = array(
+                    //'securityKey'=>null,
+                    'userinfo'=>$accountData,
+                );
+            }else{
+                /* [验证用户名和密码是否正确] */
+                $login = new PwLoginService();
+                $this->runHook('c_login_dorun', $login);
 
-            //
-            /* [验证用户名和密码是否正确] */
-            $login = new PwLoginService();
-            $this->runHook('c_login_dorun', $login);
-
-            Wind::import('SRV:user.srv.PwRegisterService');
-            $registerService = new PwRegisterService();
-            $info = $registerService->sysUser($accountRelationData['uid']);
-
-            if (!$info) {
-                $this->showError('USER:user.syn.error');
+                Wind::import('SRV:user.srv.PwRegisterService');
+                $registerService = new PwRegisterService();
+                $info = $registerService->sysUser($accountRelationData['uid']);
+                if (!$info) {
+                    $this->showError('USER:user.syn.error');
+                }
+                $userdata = $this->_getUserInfo();
             }
             //success
-            $this->setOutput($this->_getUserInfo(),'data');
+            $this->setOutput($userdata,'data');
             $this->showMessage('USER:login.success');
         }
     }
+
+
+    public function tAction(){
+
+        Wind::import('WSRV:base.WindidUtility');
+        $_uri = 'http://b.hiphotos.baidu.com/image/pic/item/eaf81a4c510fd9f9ce2a5205262dd42a2834a498.jpg';
+        $image = WindidUtility::buildRequest($_uri,array(),true,2,'get');
+
+        //$temp_file = tempnam(sys_get_temp_dir(),'tmp_');
+        $temp_file = '/tmp/a.jpg';
+        $handle = fopen($temp_file, "w");
+        fwrite($handle, $image);
+        fclose($handle);
+
+        $value= array('name'=>'1.jpg','size'=>1024*1024*1,'tmp_name'=>$temp_file);
+
+        Wind::import('WSRV:upload.action.WindidAvatarUpload');
+        Wind::import('LIB:upload.PwUpload');
+        $bhv = new WindidAvatarUpload(3);
+
+        $upload = new PwUpload($bhv);
+
+        $file = new PwUploadFile('_0', $value);
+        $file->filename = $upload->filterFileName($bhv->getSaveName($file));
+        $file->savedir = $bhv->getSaveDir($file);
+        $file->store = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage');
+        $file->source = str_replace('attachment','windid/attachment',$file->store->getAbsolutePath($file->filename, $file->savedir) );
+
+        if (!PwUpload::moveUploadedFile($value['tmp_name'], $file->source)) {
+            $this->showError('upload.fail');
+        }   
+
+        $image = new PwImage($file->source);
+        if ($bhv->allowThumb()) {
+            $thumbInfo = $bhv->getThumbInfo($file->filename, $file->savedir);
+            foreach ($thumbInfo as $key => $value) {
+                $thumburl = $file->store->getAbsolutePath($value[0], $value[1]);
+                $thumburl = str_replace('attachment','windid/attachment',$thumburl);
+
+                $result = $image->makeThumb($thumburl, $value[2], $value[3], $quality, $value[4], $value[5]);
+                if ($result === true && $image->filename != $thumburl) {
+                    $ts = $image->getThumb();
+                }   
+            }   
+        }
+
+        unlink($temp_file);
+exit;
+    }
+
+
 
     /**
      * 
@@ -225,20 +260,22 @@ class UserController extends MobileBaseController {
      * @return void
      * @example
      <pre>
-     post: platformname&username&password&email&code 
+     post: access_token&platformname&native_name&username&email&sex
      </pre>
      */
     public function openAccountRegisterAction() {
         if( $accountData=$this->authThirdPlatform() ){
             
-            list($username,$password,$email) = $this->getInput(array('username','password','email'));
-
+            list($username,$email,$sex) = $this->getInput(array('username','email','sex'));
+            //随机密码
+            $password = substr(str_shuffle('abcdefghigklmnopqrstuvwxyz1234567890~!@#$%^&*()'),0,7);
+            //
             Wind::import('SRC:service.user.dm.PwUserInfoDm');
             $userDm = new PwUserInfoDm();
             $userDm->setUsername($username);
             $userDm->setPassword($password);
             $userDm->setEmail($email);
-            $userDm->setGender($accountData['gender']);
+            $userDm->setGender($sex);
             $userDm->setRegdate(Pw::getTime());
             $userDm->setLastvisit(Pw::getTime());
             $userDm->setRegip(Wind::getComponent('request')->getClientIp());
@@ -445,8 +482,9 @@ class UserController extends MobileBaseController {
         $_data = array(
             'securityKey'=>$securityKey,
             'userinfo'=>array(
+                'uid'=>$_userInfo['uid'],
                 'username'=>$_userInfo['username'],
-                'avatar'=>'http://img1.phpwind.net/attachout/avatar/002/37/41/2374101_small.jpg',
+                'avatar'=>Pw::getAvatar($_userInfo['uid'],''),
                 'gender'=>$_userInfo['gender'],
             ),
         ); 

@@ -5,8 +5,14 @@
 </head>
 <body>
 <div class="wrap">
-
-<template source='thirdopenplatform_tab' />
+<div class="nav">
+    <ul class="cc">
+        <li {$typeClasses['taobao']|html}><a href="{@url:native/ThirdOpenPlatform/run?type=taobao}">淘宝网</a></li>
+		<li {$typeClasses['qq']|html}><a href="{@url:native/ThirdOpenPlatform/run?type=qq}">QQ</a></li>
+		<li {$typeClasses['weibo']|html}><a href="{@url:native/ThirdOpenPlatform/run?type=weibo}">新浪微博</a></li>
+		<li {$typeClasses['weixin']|html}><a href="{@url:native/ThirdOpenPlatform/run?type=weixin}">微信</a></li>
+	</ul>
+</div>
 <form class="J_ajaxForm" action="{@url:native/ThirdOpenPlatform/doset}" method="post">
 <input type="hidden" name="type" value="{$type}" />
 <div class="table_full">
@@ -31,10 +37,28 @@
 		<td>
             <input type="text" class="input length_5 mr5" name="{$type.'_appId'}" value="{$info['appId']}">
 		</td>
-        <!--td><div class="fun_tips">请输入支付宝合作身份者id</div></td-->
+        <td><div class="fun_tips">
+                <!--# 
+                $link = '';
+                switch($type){
+                case 'taobao':
+                $link = 'http://open.taobao.com';
+                break;
+                case 'qq':
+                $link = 'http://connect.qq.com';
+                break;
+                case 'weibo':
+                $link = 'http://open.weibo.com';
+                break;
+                case 'weixin':
+                $link = 'http://open.weixin.qq.com';
+                break;
+                }
+                echo '申请地址：<a href="'.$link.'" target="_blank">'.$link.'</a>';
+                #-->
+            </div>
+        </td>
 		</tr>
-	
-	
 		<tr>
 		<th>{$lab['AppKey']}</th>
 		<td>
@@ -42,17 +66,17 @@
 		</td>
 		</tr>
 	
-		<tr>
+		<!--tr>
 		<th>显示顺序</th>
-		<td>
-            <input type="text" class="input length_5 mr5" name="{$type}_displayOrder" value="{$info['displayOrder']}">
-		</td>
-		</tr>
+		<td-->
+            <input type="hidden" class="input length_5 mr5" name="{$type}_displayOrder" value="{$info['displayOrder']}">
+		<!--/td>
+		</tr-->
 	</table>
 </div>
 <div class="btn_wrap">
 	<div class="btn_wrap_pd" id="J_sub_wrap">
-   <button type="submit" class="btn btn_submit J_ajax_submit_btn">提交</button>
+   <button type="submit" class="btn btn_submit J_ajax_submit_btn>提交</button>
 	</div>
 </div>
 {$csrf_token}

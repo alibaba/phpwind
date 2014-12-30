@@ -1,11 +1,13 @@
 <?php
 /**
+ * 第三账帐号开放平台的请求地址配置
+ *
  * @fileName: openaccountapi.php
  * @author: dongyong<dongyong.ydy@alibaba-inc.com>
  * @license: http://www.phpwind.com
  * @version: $Id
  * @lastchange: 2014-12-18 17:31:10
- * @desc:  第三账帐号开放平台的请求地址配置
+ * @desc:   
  **/
 defined('WEKIT_VERSION') or exit(403);
 
@@ -39,13 +41,10 @@ return array(
         'access_token_uri'=>'https://api.weibo.com/oauth2/access_token?client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s',
         'userinfo_uri'=>'https://api.weibo.com/2/users/show.json?access_token=%s&uid=%s&source=%s&trim_user=0',
     ),
-    /**
-     * http://www.tbsandbox.com/doc/index.html#taobao_acount
-     */
     'taobao'=>array(
         //'access_token_uri'=>'https://oauth.tbsandbox.com/token?client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s',
-        'access_token_uri'=>'https://oauth.tbsandbox.com/token?client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s',
-        'userinfo_uri'=>'http://gw.api.tbsandbox.com/router/rest?session=%s&sign=%s&timestamp=%s&v=2.0&app_key=1012129701&method=taobao.user.buyer.get&partner_id=top-apitools&format=json&fields=nick%2Csex%2Cavatar',
+        'access_token_uri'=>'https://oauth.taobao.com/token?client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s',
+        'userinfo_uri'=>'http://gw.api.taobao.com/router/rest?session=%s&sign=%s&timestamp=%s&v=2.0&app_key=1012129701&method=taobao.user.buyer.get&partner_id=top-apitools&format=json&fields=nick%2Csex%2Cavatar',
     ),
 );
 

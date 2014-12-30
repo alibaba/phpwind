@@ -9,7 +9,7 @@
 	<div class="prompt_text">
         Banner为native应用首页显示图片轮播，最多支持4个
     </div>
-    <form class="J_ajaxForm" data-role="list" action="{@url:bbs/setforum/dorun}" method="post">
+    <form class="J_ajaxForm" data-role="list" action="{@url:native/banner/dosetveiworder}" method="post">
 	<div class="mb10">
         <a href="{@url:native/Banner/add}" class="btn J_dialog" role="button"><span class="add"></span>添加Banner</a>
 	</div>
@@ -33,12 +33,12 @@
 			</thead>
 			<tbody>
 					<!--# foreach ($configData as $pos => $banner) { #-->
-			<tr id="J_forum_tr_{$banner['pos']}">
-                <td><input type="text" class="input mr5" name="" value="{$banner['order']}" style="width:20px;"><span class="mr10 J_forum_names" data-id="{$forum['fid']}"></td>
-                    <td class="tar"><img src="{$banner['img']}" /></td>
+			<tr id="J_forum_tr_{$banner['banner_id']}">
+                <td><input type="text" class="input mr5" name="bid[{$banner['banner_id']}]" value="{$banner['vieworder']}" style="width:20px;"></td>
+                <td class="tar"><img src="{@Pw::getPath($banner['img'])}" /></td>
                 <td>{$banner['title']}</td>
-                <td>{$banner['clickType']} ({$banner['link']})</td>
-                <td><a href="{@url:native/Banner/add}&pos={$pos}" class="mr5 J_dialog" role="button">[编辑]</a><a href="{@url:native/Banner/del}" class="mr5 J_ajax_del" data-pdata="{'pos': '{$pos}'}">[删除]</a></td>
+                <td>{$banner['type']} ({$banner['href']})</td>
+                <td><a href="{@url:native/Banner/add}&bid={$banner['banner_id']}" class="mr5 J_dialog" role="button">[编辑]</a><a href="{@url:native/Banner/del}" class="mr5 J_ajax_del" data-pdata="{'bid': '{$banner['banner_id']}'}">[删除]</a></td>
 			</tr>
 					<!--# } #-->
 			</tbody>

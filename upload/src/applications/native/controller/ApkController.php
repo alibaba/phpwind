@@ -15,21 +15,26 @@ class ApkController extends PwBaseController {
 
 	public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
-//		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
 	}
-	
-	public function run() {
-
-
-    }
 
     /**
-     * 验证api vesion && session key 
+     * 检查客户端与server通信加密用的key是否正确
+     * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * post: securityKey
+     * </pre>
      */
-    public function doValidateAction(){
-
+    public function checkSecurityKeyAction(){
+        $securityKey = $this->getInput('securityKey','post');
+        $config = Wekit::C()->getConfigByName('site','securityKey');
+        if( $securityKey==$config['value'] ){
+            $this->setOutput(true, 'data');
+            $this->showMessage("NATIVE:app.check.securityKey.success");
+        }
+        $this->showError("NATIVE:app.check.securityKey.failed");
     }
 
 }
