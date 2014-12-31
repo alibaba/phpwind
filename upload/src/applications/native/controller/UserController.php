@@ -164,7 +164,7 @@ class UserController extends MobileBaseController {
 
     /**
      * 开放帐号登录; (通过第三方开放平台认证通过后,获得的帐号id在本地查找是否存在,如果存在登录成功 ) 
-     * 
+     * 如果没绑定第三方账号；结果不返回securityKey，则返回第三方账号用户信息；否则返回论坛账号信息
      * @access public
      * @return string sessionid
      * @example
@@ -193,7 +193,7 @@ class UserController extends MobileBaseController {
                 if (!$info) {
                     $this->showError('USER:user.syn.error');
                 }
-                $userdata = $this->_getUserInfo();
+                $userdata = $this->_getUserInfo($info['uid']);
             }
             //success
             $this->setOutput($userdata,'data');
@@ -201,59 +201,7 @@ class UserController extends MobileBaseController {
         }
     }
 
-
-    public function tAction(){
-
-        Wind::import('WSRV:base.WindidUtility');
-        $_uri = 'http://b.hiphotos.baidu.com/image/pic/item/eaf81a4c510fd9f9ce2a5205262dd42a2834a498.jpg';
-        $image = WindidUtility::buildRequest($_uri,array(),true,2,'get');
-
-        //$temp_file = tempnam(sys_get_temp_dir(),'tmp_');
-        $temp_file = '/tmp/a.jpg';
-        $handle = fopen($temp_file, "w");
-        fwrite($handle, $image);
-        fclose($handle);
-
-        $value= array('name'=>'1.jpg','size'=>1024*1024*1,'tmp_name'=>$temp_file);
-
-        Wind::import('WSRV:upload.action.WindidAvatarUpload');
-        Wind::import('LIB:upload.PwUpload');
-        $bhv = new WindidAvatarUpload(3);
-
-        $upload = new PwUpload($bhv);
-
-        $file = new PwUploadFile('_0', $value);
-        $file->filename = $upload->filterFileName($bhv->getSaveName($file));
-        $file->savedir = $bhv->getSaveDir($file);
-        $file->store = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage');
-        $file->source = str_replace('attachment','windid/attachment',$file->store->getAbsolutePath($file->filename, $file->savedir) );
-
-        if (!PwUpload::moveUploadedFile($value['tmp_name'], $file->source)) {
-            $this->showError('upload.fail');
-        }   
-
-        $image = new PwImage($file->source);
-        if ($bhv->allowThumb()) {
-            $thumbInfo = $bhv->getThumbInfo($file->filename, $file->savedir);
-            foreach ($thumbInfo as $key => $value) {
-                $thumburl = $file->store->getAbsolutePath($value[0], $value[1]);
-                $thumburl = str_replace('attachment','windid/attachment',$thumburl);
-
-                $result = $image->makeThumb($thumburl, $value[2], $value[3], $quality, $value[4], $value[5]);
-                if ($result === true && $image->filename != $thumburl) {
-                    $ts = $image->getThumb();
-                }   
-            }   
-        }
-
-        unlink($temp_file);
-exit;
-    }
-
-
-
     /**
-     * 
      * 开放帐号注册到本系统内
      *
      * @access public
@@ -290,6 +238,10 @@ exit;
             } else {
                 //这里注册成功，要把第三方帐号的头像下载下来并处理，这里还没有做
                 if( $this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type'])==false ){
+                    $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
+                    //
+                    $userdata = $this->_getUserInfo($info['uid']);
+                    $this->setOutput($userdata,'data');
                     $this->showMessage('USER:register.success');
                 }
             }

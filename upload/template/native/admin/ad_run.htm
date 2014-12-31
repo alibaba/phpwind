@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+	<div class="wrap">
+        <div class="h_a">广告推广管理</div>
+        <div class="prompt_text">
+            广告推广即在版面、话题的帖子列表中，第6个帖子位置为固定推广位，可放置阿里妈妈橱窗广告
+        </div>
+
+		<form class="J_ajaxForm" action="{@url:native/ad/add}" method="post">
+			<div class="table_full">
+				<table width="100%">
+					<colgroup>
+						<col class="th">
+						<col width="400">
+                    </colgroup>
+
+                    <tr>
+                        <th>是否开启</th>
+                        <td>
+                            <ul class="switch_list cc">
+                                <li><label><input type="radio" name="ad.status" value="1" {@Pw::ifcheck($config['ad.status'])}><span>开启</span></label></li>
+                                <li><label><input type="radio" name="ad.status" value="0" {@Pw::ifcheck(!$config['ad.status'])}><span>关闭</span></label></li>
+                            </ul>
+                        </td>
+                        <td><div class="fun_tips"></div></td>
+                    </tr>
+
+					<tr>
+						<th>调用代码</th>
+						<td><textarea name="ad.code" class="length_6">{$config['ad.code']}</textarea></td>
+						<td>
+                            <div class="fun_tips">
+                                仅支持阿里妈妈TANX SSP的橱窗推广，推广位类型为“固定（移动网页）”，尺寸为“320x100”
+                                <br>
+                                <span class="blue"><a href="http://ssp.tanx.com/web/adm.html" target="_blank">如何获取</a></span>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="btn_wrap">
+				<div class="btn_wrap_pd">
+					<button class="btn btn_submit mr10 J_ajax_submit_btn" type="submit">提交</button>
+				</div>
+			</div>
+		</form>
+	</div>
+    <template source='TPL:admin.common.footer' />
+</body>
+</html>

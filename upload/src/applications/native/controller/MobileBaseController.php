@@ -135,6 +135,57 @@ class MobileBaseController extends PwBaseController {
     }
 
     /**
+     * 关联帐号后，下载第三方平台的头像 
+     * 
+     * @access protected
+     * @return void
+     */
+    protected function downloadThirdPlatformAvatar($uid,$avatar_url){
+        Wind::import('WSRV:base.WindidUtility');
+        $image_content = WindidUtility::buildRequest($avatar_url,array(),true,2,'get');
+
+        if( $image_content ){
+            $temp_file = tempnam(sys_get_temp_dir(),'tmp_');
+            $handle = fopen($temp_file, "w");
+            if( $handle ){
+                fwrite($handle, $image_content);
+                fclose($handle);
+
+                //
+                Wind::import('WSRV:upload.action.WindidAvatarUpload');
+                Wind::import('LIB:upload.PwUpload');
+                $bhv = new WindidAvatarUpload($uid);
+                $upload = new PwUpload($bhv);
+
+                $value= array('name'=>'avatar.jpg','size'=>1024*1024*1,'tmp_name'=>$temp_file);
+                $file = new PwUploadFile('_0', $value);
+                $file->filename = $upload->filterFileName($bhv->getSaveName($file));
+                $file->savedir = $bhv->getSaveDir($file);
+                $file->store = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage');
+                $file->source = str_replace('attachment','windid/attachment',$file->store->getAbsolutePath($file->filename, $file->savedir) );
+
+                if (PwUpload::moveUploadedFile($value['tmp_name'], $file->source)) {
+                    $image = new PwImage($file->source);
+                    if ($bhv->allowThumb()) {
+                        $thumbInfo = $bhv->getThumbInfo($file->filename, $file->savedir);
+                        foreach ($thumbInfo as $key => $value) {
+                            $thumburl = $file->store->getAbsolutePath($value[0], $value[1]);
+                            $thumburl = str_replace('attachment','windid/attachment',$thumburl);
+
+                            $result = $image->makeThumb($thumburl, $value[2], $value[3], $quality, $value[4], $value[5]);
+                            if ($result === true && $image->filename != $thumburl) {
+                                $ts = $image->getThumb();
+                            }   
+                        }   
+                    }
+                }
+                @unlink($temp_file);
+            }
+        }
+    }
+
+
+    /**
      * 第三方平台用户登录校验; 返回用户信息
      * 
      * @access protected

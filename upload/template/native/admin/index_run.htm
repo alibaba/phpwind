@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<!--# 
+$filePath = Wind::getRealPath('ADMIN:conf.openplatformurl.php', true);
+$openPlatformUrl = Wind::getComponent('configParser')->parse($filePath);
+#-->
+<div class="wrap">
+	<div id="home_toptip"></div>
+	<h2 class="h_a">移动版信息</h2>
+	<div class="home_info">
+		<ul>
+            <li>
+				<em>软件版本</em>
+				<span>{$sysinfo['wind_version']} <a href="http://www.phpwind.com/product.html" target="_blank">查看最新版本</a></span>
+			</li>
+            <li>
+				<em>移动版接口版本</em>
+				<span>{$sysinfo['native_version']} </span>
+			</li>
+			<li>
+				<em>PHP版本</em>
+				<span>{$sysinfo['php_version']}</span>
+			</li>
+			<li>
+				<em>MYSQL版本</em>
+				<span>{$sysinfo['mysql_version']}</span>
+			</li>
+        </ul>
+	</div>
+
+</div>
+<template source='TPL:admin.common.footer' />
+<script>
+</script>
+</body>
+</html>
