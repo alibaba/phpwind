@@ -261,8 +261,6 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function doAvatarAction(){
-        //print_r($_FILES);
-        //print_r($_POST);
         if( $uid=$this->checkUserSessionValid() ){
             Wind::import('WSRV:upload.action.WindidAvatarUpload');
             Wind::import('LIB:upload.PwUpload');

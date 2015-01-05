@@ -15,8 +15,6 @@ Wind::import('APPS:native.controller.MobileBaseController');
 
 class SpaceController extends MobileBaseController {
 
-    private $uid = 0;
-
     /**
      * global post: securityKey
      */
@@ -31,6 +29,11 @@ class SpaceController extends MobileBaseController {
      * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=Space&a=addFollow <br>
+     * post: securityKey&uid
+     * </pre>
      */
     public function addFollowAction(){
         $uid = $this->getInput('uid', 'post');
@@ -54,9 +57,14 @@ class SpaceController extends MobileBaseController {
      * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=Space&a=unFollow <br>
+     * post: securityKey&uid
+     * </pre>
      */
     public function unFollowAction(){
-        $uid = $this->getInput('uid', 'get');
+        $uid = $this->getInput('uid', 'post');
 		if (!$uid) {
 			$this->showError('operate.select');
         }
@@ -72,9 +80,14 @@ class SpaceController extends MobileBaseController {
      * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=Space&a=addBlack <br>
+     * post: securityKey&uid
+     * </pre>
      */
     public function addBlackAction(){
-        $uid = (int)$this->getInput('uid');
+        $uid = (int)$this->getInput('uid', 'post');
         if ($uid) {
             $user = $this->_getUserDs()->getUserByUid($uid);
             $uid = $user['uid'];
@@ -92,29 +105,23 @@ class SpaceController extends MobileBaseController {
      * 我关注的人
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=Space&a=myFollow&page=1 <br>
+     * </pre>
      */
     public function myFollowAction(){
-		
-		$type = $this->getInput('type');
         $page = intval($this->getInput('page','get'));
 		$page < 1 && $page = 1;
 		$perpage = 20;
 		list($start, $limit) = Pw::page2limit($page, $perpage);
 		$url = $classCurrent = array();
 		
-		$typeCounts = $this->_getAttentionTypeDs()->countUserType($this->uid);
-		if ($type) {
-			$tmp = $this->_getAttentionTypeDs()->getUserByType($this->uid, $type, $limit, $start);
-			$follows = $this->_getPwAttentionDs()->fetchFollows($this->uid, array_keys($tmp));
-			$count = $typeCounts[$type] ? $typeCounts[$type]['count'] : 0;
-			$url['type'] = $type;
-			$classCurrent[$type] = 'current';
-		} else {
-			$follows = $this->_getPwAttentionDs()->getFollows($this->uid, $limit, $start);
-			$count = $this->info['follows'];
-			$classCurrent[0] = 'current';
-		}
-		$uids = array_keys($follows);
+        $typeCounts = $this->_getAttentionTypeDs()->countUserType($this->uid);
+        $follows = $this->_getPwAttentionDs()->getFollows($this->uid, $limit, $start);
+        $count = $this->info['follows'];
+        $classCurrent[0] = 'current';
+        $uids = array_keys($follows);
 		$fans = $this->_getPwAttentionDs()->fetchFans($this->uid, $uids);
         $userList = Wekit::load('user.PwUser')->fetchUserByUid($uids, PwUser::FETCH_MAIN );
         //
@@ -138,6 +145,10 @@ class SpaceController extends MobileBaseController {
      * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=Space&a=myTag&page=1 <br>
+     * </pre>
      */
     public function myTagAction(){
         $page = intval($this->getInput('page','get'));
@@ -161,8 +172,10 @@ class SpaceController extends MobileBaseController {
      * @access public
      * @return void
      */
-    public function forumAction(){
-        
+    public function myForumAction(){
+        $forumList=$this->_getForumService()->getCommonForumList();
+        $this->setOutput($forumList,'data');
+        $this->showMessage('success');
     }
 
     /**
@@ -234,4 +247,9 @@ class SpaceController extends MobileBaseController {
         return Wekit::load('tag.PwTagAttention');
     }
  */
+
+    private function _getForumService(){
+        return Wekit::load('native.srv.PwForumService');
+    }
+
 }

@@ -13,6 +13,8 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 
 abstract class MobileBaseController extends PwBaseController {
 
+    protected $uid = 0;
+
     protected $_securityKey = null;
 
 	public function beforeAction($handlerAdapter) {
@@ -118,18 +120,17 @@ abstract class MobileBaseController extends PwBaseController {
      */
     protected function authSessionKey(){
         $unsecurityKey = $this->getInput('securityKey');
-        if(isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'],'multipart/form-data')!==false){
-            $unsecurityKey = urldecode($unsecurityKey);
-        }
-        $uid = 0; 
+//        if(isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'],'multipart/form-data')!==false){
+//            //$unsecurityKey = urldecode($unsecurityKey);
+//        }
         $securityKey = unserialize(Pw::decrypt($unsecurityKey,$this->_securityKey));
         if( is_array($securityKey) && isset($securityKey['username']) && isset($securityKey['password']) ){
             $_userInfo = Wekit::load('user.PwUser')->getUserByName($securityKey['username'], PwUser::FETCH_MAIN);
             if( $_userInfo['username']==$securityKey['username'] && $_userInfo['password']==$securityKey['password'] ){
-                $uid=$_userInfo['uid'];
+                $this->uid = $_userInfo['uid'];
             }
         }
-        return $uid;
+        return $this->uid;
     }
 
     /**

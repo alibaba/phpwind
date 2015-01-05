@@ -1,5 +1,4 @@
 <?php
-Wind::import('LIB:base.PwBaseController');
 /**
  * 增加喜欢、删除喜欢接口
  *
@@ -9,14 +8,18 @@ Wind::import('LIB:base.PwBaseController');
  * @version: $Id
  * @lastchange: 2014-12-16 19:08:17
  * @desc: 
- * */
-class MylikeController extends PwBaseController {
+ **/
+defined('WEKIT_VERSION') || exit('Forbidden'); 
+
+Wind::import('APPS:native.controller.MobileBaseController');
+
+class MylikeController extends MobileBaseController {
 
 	public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
-		if ($this->loginUser->uid < 1) $this->forwardRedirect(WindUrlHelper::createUrl('u/login/run/'));
+        //if ($this->uid < 1) $this->forwardRedirect(WindUrlHelper::createUrl('u/login/run/'));
+        $this->uid=3;
 	}
-        
         
 	public function run() {
 		$page = (int) $this->getInput('page', 'get');
@@ -24,17 +27,17 @@ class MylikeController extends PwBaseController {
 		$perpage = 10;
 		$page = $page > 1 ? $page : 1;
 		$service = $this->_getBuildLikeService();
-		$tagLists = $service->getTagsByUid($this->loginUser->uid);
+		$tagLists = $service->getTagsByUid($this->uid);
 		if ($tagid > 0) {
-			$resource = $this->_getLikeService()->allowEditTag($this->loginUser->uid, $tagid);
+			$resource = $this->_getLikeService()->allowEditTag($this->uid, $tagid);
 			if ($resource instanceof PwError) $this->showError($resource->getError());
 			$count = $resource['number'];
 			$logids = $service->getLogidsByTagid($tagid, $page, $perpage);
 			$logLists = $service->getLogLists($logids);
 		} else {
 			list($start, $perpage) = Pw::page2limit($page, $perpage);
-			$count = $this->_getLikeLogDs()->getLikeCount($this->loginUser->uid);
-			$logLists = $service->getLogList($this->loginUser->uid, $start, $perpage);
+			$count = $this->_getLikeLogDs()->getLikeCount($this->uid);
+			$logLists = $service->getLogList($this->uid, $start, $perpage);
 		}
 		
 		// start
@@ -94,7 +97,7 @@ class MylikeController extends PwBaseController {
 		$start >= 100 && $start = 100;
 		$perpage = 20;
 		$_data = array();
-		$logLists = $this->_getBuildLikeService()->getFollowLogList($this->loginUser->uid, $start, $perpage);
+		$logLists = $this->_getBuildLikeService()->getFollowLogList($this->uid, $start, $perpage);
 		$likeLists = $this->_getBuildLikeService()->getLikeList();
 		$likeInfos = $this->_getBuildLikeService()->getLikeInfo();
 		$replyInfos = $this->_getBuildLikeService()->getLastReplyInfo();
@@ -130,7 +133,7 @@ class MylikeController extends PwBaseController {
 
 	public function getTagListAction() {
 		$array = array();
-		$lists = $this->_getLikeTagService()->getInfoByUid($this->loginUser->uid);
+		$lists = $this->_getLikeTagService()->getInfoByUid($this->uid);
 		$this->setOutput($lists, 'data');
 		$this->showMessage('BBS:like.success');
 	}
@@ -179,7 +182,7 @@ class MylikeController extends PwBaseController {
 	public function doDelLikeAction() {
 		$logid = (int) $this->getInput('logid', 'post');
 		if (!$logid) $this->showError('BBS:like.fail');
-		$resource = $this->_getLikeService()->delLike($this->loginUser->uid, $logid);
+		$resource = $this->_getLikeService()->delLike($this->uid, $logid);
 		if ($resource) $this->showMessage('BBS:like.success');
 		$this->showError('BBS:like.fail');
 	}
@@ -204,7 +207,7 @@ class MylikeController extends PwBaseController {
 		$tagname = $this->getInput('tagname', 'post');
 		$logid = (int)$this->getInput('logid', 'post');
 		if (!$logid || !$tagname) $this->showError('BBS:like.fail');
-		$resource = $this->_getLikeService()->addTag($this->loginUser->uid,$tagname);
+		$resource = $this->_getLikeService()->addTag($this->uid,$tagname);
 		if ($resource instanceof PwError) $this->showError($resource->getError());
 		$tagid = (int)$resource;
 		$this->_getLikeService()->editLogTag($logid, $tagid, 1);
@@ -219,7 +222,7 @@ class MylikeController extends PwBaseController {
 	public function doAddTagAction() {
 		$tagname = $this->getInput('tagname', 'post');
 		if (!$tagname) $this->showError('BBS:like.fail');
-		$resource = $this->_getLikeService()->addTag($this->loginUser->uid,$tagname);
+		$resource = $this->_getLikeService()->addTag($this->uid,$tagname);
 		if ($resource instanceof PwError) $this->showError($resource->getError());
 		$this->setOutput(array('id'=>(int)$resource,'name'=>$tagname), 'data');
 		$this->showMessage('BBS:like.success');
@@ -234,7 +237,7 @@ class MylikeController extends PwBaseController {
 		if (!$tagid) {
 			$this->showError('operate.fail');
 		}
-		$info = $this->_getLikeService()->allowEditTag($this->loginUser->uid, $tagid);
+		$info = $this->_getLikeService()->allowEditTag($this->uid, $tagid);
 		if ($info instanceof PwError) $this->showError($info->getError());
 		if (!$this->_getLikeTagService()->deleteInfo($tagid)) $this->showError('BBS:like.fail');
 		$this->_getLikeRelationsService()->deleteInfos($tagid);
@@ -250,7 +253,7 @@ class MylikeController extends PwBaseController {
 		$tagname = trim($this->getInput('tagname', 'post'));
 		if (Pw::strlen($tagname) < 2) $this->showError('BBS:like.tagname.is.short');
 		if (Pw::strlen($tagname) > 10) $this->showError('BBS:like.tagname.is.lenth');
-		$tags = $this->_getLikeTagService()->getInfoByUid($this->loginUser->uid);
+		$tags = $this->_getLikeTagService()->getInfoByUid($this->uid);
 		$allow = false;
 		foreach ($tags as $tag) {
 			if ($tag['tagid'] == $tagid) $allow = true;
