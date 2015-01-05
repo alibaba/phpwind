@@ -347,7 +347,7 @@ class MessageController extends PwBaseController {
 			$uid = $user['uid'];
 		}
 		$uid or $this->showError('MESSAGE:id.empty');
-        Wekit::load('user.PwUserBlack')->setBlacklist($this->loginUser->uid,$uid);
+        $this->_getUserBlack()->setBlacklist($this->loginUser->uid,$uid);
         //同时取消关注
         Wekit::load('attention.srv.PwAttentionService')->deleteFollow($this->loginUser->uid, $uid);
         //同时让对方取消关注

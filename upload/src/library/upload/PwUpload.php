@@ -71,7 +71,17 @@ class PwUpload {
 	public function setStore() {
 		$this->store = Wind::getComponent($this->bhv->isLocal ? 'localStorage' : 'storage');
 	}
-	
+
+    /**
+     * 返回件存储对象 
+     * 
+     * @access public
+     * @return void
+     */
+    public function getStore(){
+        return $this->store;
+    }
+
 	/**
 	 * 过滤文件名
 	 *

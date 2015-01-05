@@ -73,17 +73,21 @@ class PwThirdOpenPlatformService {
         if( $_access_token ){
          */
         if( $this->access_token ){
-            $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['openid'],$_access_token);
+            $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['openid'],$this->access_token);
             $_openid_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
             if( !empty($_openid_result) ){
                 $_openid_result = substr($_openid_result, 9, count($_openid_result)-4);
                 $_openid_result = json_decode($_openid_result,true);
-                //step 3
-                $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['userinfo_uri'],$_access_token, $_openid_result['client_id'],$_openid_result['openid']);
-                $_userinfo_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
-                $_userinfo_result = json_decode($_userinfo_result,true);
+                if( isset($_openid_result['openid']) ){
+                    //step 3
+                    $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['userinfo_uri'],$this->access_token, $_openid_result['client_id'],$_openid_result['openid']);
+                    $_userinfo_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
+                    $_userinfo_result = json_decode($_userinfo_result,true);
+                }else{
+                    $_userinfo_result = null;
+                }
                 //
-                if( is_array($_userinfo_result) ){
+                if( isset($_userinfo_result['ret']) && $_userinfo_result['ret']==0  ){
                     $info = array(
                         'uid'       =>md5($_userinfo_result['figureurl_qq_2']),
                         'username'  =>$_userinfo_result['nickname'],

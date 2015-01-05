@@ -257,15 +257,17 @@ class UserController extends MobileBaseController {
      /index.php?m=native&c=user&a=doAvatar <br>
      post: securityKey <br>
      postdata: Filename <br>
-     curl --form "Filename=@icon1.jpg" '/index.php?m=native&c=user&a=doAvatar'
+     curl -X POST -F 'Filename=@icon1.jpg' -F 'csrf_token=aaa' -F '_json=1' -F 'securityKey=xx' -b 'csrf_token=aaa' '/index.php?m=native&c=user&a=doAvatar'
      </pre>
      */
     public function doAvatarAction(){
+        //print_r($_FILES);
+        //print_r($_POST);
         if( $uid=$this->checkUserSessionValid() ){
             Wind::import('WSRV:upload.action.WindidAvatarUpload');
             Wind::import('LIB:upload.PwUpload');
             $bhv = new WindidAvatarUpload($uid);
-            //
+            
             $upload = new PwUpload($bhv);
             if (($result = $upload->check()) === true) {
                 foreach ($_FILES as $key => $value) {
@@ -419,7 +421,7 @@ class UserController extends MobileBaseController {
      * @access private
      * @return void
      */
-    private function _getUserInfo($uid){
+    protected function _getUserInfo($uid){
         //
         $_userInfo = Wekit::load('user.PwUser')->getUserByUid($uid, PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
 
@@ -436,7 +438,8 @@ class UserController extends MobileBaseController {
             'userinfo'=>array(
                 'uid'=>$_userInfo['uid'],
                 'username'=>$_userInfo['username'],
-                'avatar'=>Pw::getAvatar($_userInfo['uid'],''),
+                //'avatar'=>Pw::getAvatar($_userInfo['uid'],''),
+                'avatar'=>Pw::getAvatar($_userInfo['uid'],'big'),
                 'gender'=>$_userInfo['gender'],
             ),
         ); 

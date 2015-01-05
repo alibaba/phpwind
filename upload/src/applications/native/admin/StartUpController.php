@@ -41,6 +41,11 @@ class StartUpController extends AdminBaseController {
             if (!$data = $bhv->getAttachInfo() ) {
                 $this->showError('upload.fail');
             }
+            //
+            $filepath = $upload->getStore()->getAbsolutePath($data['filename'],$data['path']);
+            $filecontent = file_get_contents($filepath);
+            //
+            $config->set('startup.imgmd5', md5($filecontent) );
             $config->set('startup.img', $data['path'].$data['filename'] );
         }
         $config
