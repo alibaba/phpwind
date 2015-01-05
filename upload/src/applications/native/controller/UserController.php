@@ -317,7 +317,6 @@ class UserController extends MobileBaseController {
      */
     public function doSexAction(){
         if( $uid=$this->checkUserSessionValid() ){
-            //$userDm = new PwUserInfoDm($this->loginUser->uid);  
             $userDm = new PwUserInfoDm($uid);
             $userDm->setGender($this->getInput('gender', 'post'));
 

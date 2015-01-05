@@ -173,7 +173,7 @@ class SpaceController extends MobileBaseController {
      * @return void
      */
     public function myForumAction(){
-        $forumList=$this->_getForumService()->getCommonForumList();
+        $forumList=$this->_getForumService()->fetchForum(array(2));
         $this->setOutput($forumList,'data');
         $this->showMessage('success');
     }
