@@ -2,7 +2,7 @@
 /**
  * 查看帖子相关接口
  *
- * @fileName: ThreadController.php
+ * @fileName: ReadController.php
  * @author: yuliang<yuliang.lyl@alibaba-inc.com>
  * @license: http://www.phpwind.com
  * @version: $Id
@@ -15,7 +15,7 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 Wind::import('SRV:forum.srv.PwThreadDisplay');
 Wind::import('SRV:credit.bo.PwCreditBo');
 
-class ThreadController extends PwBaseController {
+class ReadController extends PwBaseController {
     
 	public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
@@ -29,12 +29,13 @@ class ThreadController extends PwBaseController {
      * @return string
      * @example
      <pre>
-     /index.php?m=native&c=thread&a=read&tid=21&fid=8&page=1
+     /index.php?m=native&c=read&a=read&tid=21&fid=8&page=1
      cookie:usersession
      response: {err:"",data:""}  
      </pre>
      */
     public function readAction(){
+//        echo "readAction";exit;
         $tid = intval($this->getInput('tid'));
         list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
 

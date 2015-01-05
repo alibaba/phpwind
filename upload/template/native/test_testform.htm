@@ -1,0 +1,114 @@
+<html>
+    <head></head>
+    <body>
+        <b>删除帖子、删除回帖测试表单</b>
+        <form id="testform" action="index.php?m=native&c=masingle&a=dodelete&_json=1" method="post">
+            tid:<input type="text" id="tid" name="tid"/><br>
+            pids[](删除回帖的回帖id):<input type="text" id="pids[]" name="pids[]" value="0"/><br>
+            reason(原因必填):<input type="text" id="reason" name="reason"/><br>
+            sendnotice(是否发送通知):<input type="text" id="sendnotice" name="sendnotice" value="1"/><br>
+            deductCredit(是否扣除积分):<input type="text" id="deductCredit" name="deductCredit" value="1"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        <!-- forum_forumform.htm -->
+        <b>加入版块测试表单</b>
+        <form id="forumform" action="index.php?m=native&c=forum&a=join&_json=1" method="post">
+            fid:<input type="text" id="fid" name="fid"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        <b>取消版块关注测试表单</b>
+        <form id="forumform" action="index.php?m=native&c=forum&a=quit&_json=1" method="post">
+            fid:<input type="text" id="fid" name="fid"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <!-- list_hotform.htm -->
+        <b>管理员设置热帖测试表单</b>
+        <form id="showhot" action="index.php?m=native&c=list&a=sethot&_json=1" method="post">
+            tid:<input type="text" id="tid" name="tid"/><br>
+            开始时间：<input type="text" id="starttime" name="starttime"/><br>
+            结束时间：<input type="text" id="endtime" name="endtime"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <!-- mylike_likeform.htm -->
+        <b>我的喜欢测试表单</b>
+        <form id="likeform" action="index.php?m=native&c=mylike&a=dolike&_json=1" method="post">
+            fromid(帖子tid或者回帖的pid):<input type="text" id="fromid" name="fromid"/><br>
+            typeid（回复主贴是1；回复回帖是2）：<input type="text" id="typeid" name="typeid"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <b>取消我的喜欢测试表单</b>
+        <form id="likeform" action="index.php?m=native&c=mylike&a=doDelLike&_json=1" method="post">
+            logid(pw_like_log表的主键):<input type="text" id="logid" name="logid"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <!-- post_replyform.htm -->
+        <!--http://www.phpwind.com/index.php?c=post&a=doreply&_getHtml=1-->
+        <b>回复帖子测试表单</b>
+        <form id="replyform" action="index.php?m=native&c=post&a=doreply&_getHtml=1" method="post">
+            tid:<input type="text" id="tid" name="tid"/><br>
+            atc_content：<input type="text" id="atc_content" name="atc_content"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <!-- post_replyform2.htm -->
+        <!--http://www.phpwind.com/index.php?c=post&a=doreply&_getHtml=1-->
+        <b>回复回帖测试表单</b>
+        <form id="replyform2" action="index.php?m=native&c=post&a=doreply&_getHtml=2" method="post">
+            tid:<input type="text" id="tid" name="tid"/><br>
+            pid:<input type="text" id="pid" name="pid"/><br>
+            atc_content：<input type="text" id="atc_content" name="atc_content"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <!-- post_threadform.htm -->
+        <b>发帖测试表单</b>
+        <form id="showthread" action="index.php?m=native&c=post&a=add&fid=4" method="post" enctype="multipart/form-data">
+            atc_title:<input type="text" id="atc_title" name="atc_title"/><br>
+            atc_content：<input type="text" id="atc_content" name="atc_content"/><br>
+            tagnames：<input type="text" id="tagnames" name="tagnames"/><br>
+            pid(默认空):<input type="text" id="pid" name="pid"/><br>
+            tid（默认空）：<input type="text" id="tid" name="tid"/><br>
+            special：<input type="text" id="special" name="special" value="default"/><br>
+            reply_notice:<input type="text" id="reply_notice" name="reply_notice" value="1"/><br>  
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <!-- tag_tagform.htm -->
+        <b>关注话题测试表单</b>
+        <form id="tagform" action="index.php?m=tag&a=attention&type=add&_json=1" method="post">
+            话题id:<input type="text" id="id" name="id"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        <b>取消关注话题测试表单</b>
+        <form id="tagform" action="index.php?m=tag&a=attention&type=del&_json=1" method="post">
+            话题id:<input type="text" id="id" name="id"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <!-- upload_attachform.htm -->
+        <b>图片上传测试表单</b>
+        <form id="attachform" action="index.php?m=native&c=upload&a=dorun&_json=1" method="post" enctype="multipart/form-data">
+            Filename(图片名称):<input type="text" id="Filename" name="Filename"/><br>
+            fid（帖子分类id）：<input type="text" id="fid" name="fid"/><br>
+            Upload（默认值：Submit Query）：<input type="text" id="Upload" name="Upload" value="Submit Query"/><br>
+            图片：<input type="file" id="attach"  name="attach"/> 
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        <!-- vote_voteform.htm -->
+        <b>发起投票测试表单</b>
+        <form id="voteform" action="index.php?m=native&c=vote&_json=1" method="post">
+            apptype(默认就是0):<input type="text" id="tid" name="apptype" value="0"/><br>
+            typeid(当前帖子的tid)：<input type="text" id="typeid" name="typeid"/><br>
+            下面这些就是投票选项的值<br>
+            optionid[]：<input type="text" name="optionid[]"/><br>
+            optionid[]：<input type="text" name="optionid[]"/><br>
+            optionid[]：<input type="text" name="optionid[]"/><br>
+            <input type="submit" value="提 交"/><br>
+        </form>
+    </body>
+</html>
