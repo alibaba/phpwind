@@ -31,18 +31,28 @@ class SettingController extends PwBaseController {
      * @return void
      * @example
      * <pre>
-     * post: securityKey&apiversion
+     * post: securityKey
      * </pre>
      */
     public function checkSecurityKeyAction(){
         $securityKey = $this->getInput('securityKey','post');
-        $apiversion  = $this->getInput('apiversion','post');
         $config = Wekit::C()->getConfigByName('site','securityKey');
-        if( $securityKey==$config['value'] && $apiversion==NATIVE_VERSION ){
+        if( $securityKey==$config['value'] ){
             $this->setOutput(true, 'data');
             $this->showMessage("NATIVE:app.check.securityKey.success");
         }
         $this->showError("NATIVE:app.check.securityKey.failed");
+    }
+
+    /**
+     * 移动端api的版本号 
+     * 
+     * @access public
+     * @return void
+     */
+    public function apiVersionAction(){
+        $this->setOutput(NATIVE_VERSION,'data');
+        $this->showMessage("success");
     }
 
 

@@ -25,7 +25,6 @@ class UserController extends MobileBaseController {
 
 	public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
-//		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
 	}
 
 
@@ -80,7 +79,8 @@ class UserController extends MobileBaseController {
         if (!$info)  $this->showError('USER:user.syn.error');
 
         //
-        $this->setOutput( $this->_getUserInfo($isSuccess['uid']), 'data');
+        $this->uid=$isSuccess['uid'];
+        $this->setOutput( $this->_getUserInfo(), 'data');
         $this->showMessage('USER:login.success');
     }
 
@@ -155,8 +155,9 @@ class UserController extends MobileBaseController {
         } else {
             if (1 == Wekit::C('register', 'active.mail')) {
                 $this->showMessage('USER:active.sendemail.success');
-			} else {
-                $this->setOutput($this->_getUserInfo($info['uid']), 'data');                                                                                       
+            } else {
+                $this->uid = $info['uid'];
+                $this->setOutput($this->_getUserInfo(), 'data');                                                                                       
                 $this->showMessage('USER:register.success');
 			}
 		}
@@ -173,32 +174,32 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function openAccountLoginAction(){
-        if( $accountData=$this->authThirdPlatform() ){
-            //
-            $accountRelationData = $this->_getUserOpenAccountDs()->getUid($accountData['uid'],$accountData['type']);
-            //还没有绑定帐号
-            if( empty($accountRelationData) ){
-                $userdata = array(
-                    //'securityKey'=>null,
-                    'userinfo'=>$accountData,
-                );
-            }else{
-                /* [验证用户名和密码是否正确] */
-                $login = new PwLoginService();
-                $this->runHook('c_login_dorun', $login);
+        $accountData=$this->authThirdPlatform();
+        //
+        $accountRelationData = $this->_getUserOpenAccountDs()->getUid($accountData['uid'],$accountData['type']);
+        //还没有绑定帐号
+        if( empty($accountRelationData) ){
+            $userdata = array(
+                //'securityKey'=>null,
+                'userinfo'=>$accountData,
+            );
+        }else{
+            /* [验证用户名和密码是否正确] */
+            $login = new PwLoginService();
+            $this->runHook('c_login_dorun', $login);
 
-                Wind::import('SRV:user.srv.PwRegisterService');
-                $registerService = new PwRegisterService();
-                $info = $registerService->sysUser($accountRelationData['uid']);
-                if (!$info) {
-                    $this->showError('USER:user.syn.error');
-                }
-                $userdata = $this->_getUserInfo($info['uid']);
+            Wind::import('SRV:user.srv.PwRegisterService');
+            $registerService = new PwRegisterService();
+            $info = $registerService->sysUser($accountRelationData['uid']);
+            if (!$info) {
+                $this->showError('USER:user.syn.error');
             }
-            //success
-            $this->setOutput($userdata,'data');
-            $this->showMessage('USER:login.success');
+            $this->uid=$info['uid'];
+            $userdata = $this->_getUserInfo();
         }
+        //success
+        $this->setOutput($userdata,'data');
+        $this->showMessage('USER:login.success');
     }
 
     /**
@@ -212,38 +213,38 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function openAccountRegisterAction() {
-        if( $accountData=$this->authThirdPlatform() ){
-            
-            list($username,$email,$sex) = $this->getInput(array('username','email','sex'));
-            //随机密码
-            $password = substr(str_shuffle('abcdefghigklmnopqrstuvwxyz1234567890~!@#$%^&*()'),0,7);
-            //
-            Wind::import('SRC:service.user.dm.PwUserInfoDm');
-            $userDm = new PwUserInfoDm();
-            $userDm->setUsername($username);
-            $userDm->setPassword($password);
-            $userDm->setEmail($email);
-            $userDm->setGender($sex);
-            $userDm->setRegdate(Pw::getTime());
-            $userDm->setLastvisit(Pw::getTime());
-            $userDm->setRegip(Wind::getComponent('request')->getClientIp());
+        $accountData=$this->authThirdPlatform();
+        // 
+        list($username,$email,$sex) = $this->getInput(array('username','email','sex'));
+        //随机密码
+        $password = substr(str_shuffle('abcdefghigklmnopqrstuvwxyz1234567890~!@#$%^&*()'),0,7);
+        //
+        Wind::import('SRC:service.user.dm.PwUserInfoDm');
+        $userDm = new PwUserInfoDm();
+        $userDm->setUsername($username);
+        $userDm->setPassword($password);
+        $userDm->setEmail($email);
+        $userDm->setGender($sex);
+        $userDm->setRegdate(Pw::getTime());
+        $userDm->setLastvisit(Pw::getTime());
+        $userDm->setRegip(Wind::getComponent('request')->getClientIp());
 
-            //
-            $registerService = new PwRegisterService();
-            $registerService->setUserDm( $userDm );
-            /*[u_regsiter]:插件扩展*/
-            $this->runHook('c_register', $registerService);
-            if (($info = $registerService->register()) instanceof PwError) {
-                $this->showError($info->getError());
-            } else {
-                //这里注册成功，要把第三方帐号的头像下载下来并处理，这里还没有做
-                if( $this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type'])==false ){
-                    $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
-                    //
-                    $userdata = $this->_getUserInfo($info['uid']);
-                    $this->setOutput($userdata,'data');
-                    $this->showMessage('USER:register.success');
-                }
+        //
+        $registerService = new PwRegisterService();
+        $registerService->setUserDm( $userDm );
+        /*[u_regsiter]:插件扩展*/
+        $this->runHook('c_register', $registerService);
+        if (($info = $registerService->register()) instanceof PwError) {
+            $this->showError($info->getError());
+        } else {
+            //这里注册成功，要把第三方帐号的头像下载下来并处理，这里还没有做
+            if( $this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type'])==false ){
+                $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
+                //
+                $this->uid=$info['uid'];
+                $userdata = $this->_getUserInfo($info['uid']);
+                $this->setOutput($userdata,'data');
+                $this->showMessage('USER:register.success');
             }
         }
     }
@@ -261,48 +262,48 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function doAvatarAction(){
-        if( $uid=$this->checkUserSessionValid() ){
-            Wind::import('WSRV:upload.action.WindidAvatarUpload');
-            Wind::import('LIB:upload.PwUpload');
-            $bhv = new WindidAvatarUpload($uid);
-            
-            $upload = new PwUpload($bhv);
-            if (($result = $upload->check()) === true) {
-                foreach ($_FILES as $key => $value) {
-                    if (!PwUpload::isUploadedFile($value['tmp_name']) || !$bhv->allowType($key)) {
-                        continue;
-                    }   
-                }
-                $file = new PwUploadFile($key, $value);
-                if (($result = $upload->checkFile($file)) !== true) {
-                    $this->showError($result->getError());
-                }
-                $file->filename = $upload->filterFileName($bhv->getSaveName($file));
-                $file->savedir = $bhv->getSaveDir($file);
-                $file->store = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage');
-                $file->source = str_replace('attachment','windid/attachment',$file->store->getAbsolutePath($file->filename, $file->savedir) );
-                //
-                if (!PwUpload::moveUploadedFile($value['tmp_name'], $file->source)) {
-                    $this->showError('upload.fail');
-                }
+        $this->checkUserSessionValid();
+        //
+        Wind::import('WSRV:upload.action.WindidAvatarUpload');
+        Wind::import('LIB:upload.PwUpload');
+        $bhv = new WindidAvatarUpload($this->uid);
 
-                $image = new PwImage($file->source);
-                if ($bhv->allowThumb()) {
-                    $thumbInfo = $bhv->getThumbInfo($file->filename, $file->savedir);
-                    foreach ($thumbInfo as $key => $value) {
-                        $thumburl = $file->store->getAbsolutePath($value[0], $value[1]); 
-                        $thumburl = str_replace('attachment','windid/attachment',$thumburl);
-                        //
-                        $result = $image->makeThumb($thumburl, $value[2], $value[3], $quality, $value[4], $value[5]);
-                        if ($result === true && $image->filename != $thumburl) {
-                            $ts = $image->getThumb();
-                        }
-                    } 
-                }
-                $this->showMessage('success');
+        $upload = new PwUpload($bhv);
+        if (($result = $upload->check()) === true) {
+            foreach ($_FILES as $key => $value) {
+                if (!PwUpload::isUploadedFile($value['tmp_name']) || !$bhv->allowType($key)) {
+                    continue;
+                }   
             }
-            $this->showMessage('operate.fail');
+            $file = new PwUploadFile($key, $value);
+            if (($result = $upload->checkFile($file)) !== true) {
+                $this->showError($result->getError());
+            }
+            $file->filename = $upload->filterFileName($bhv->getSaveName($file));
+            $file->savedir = $bhv->getSaveDir($file);
+            $file->store = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage');
+            $file->source = str_replace('attachment','windid/attachment',$file->store->getAbsolutePath($file->filename, $file->savedir) );
+            //
+            if (!PwUpload::moveUploadedFile($value['tmp_name'], $file->source)) {
+                $this->showError('upload.fail');
+            }
+
+            $image = new PwImage($file->source);
+            if ($bhv->allowThumb()) {
+                $thumbInfo = $bhv->getThumbInfo($file->filename, $file->savedir);
+                foreach ($thumbInfo as $key => $value) {
+                    $thumburl = $file->store->getAbsolutePath($value[0], $value[1]); 
+                    $thumburl = str_replace('attachment','windid/attachment',$thumburl);
+                    //
+                    $result = $image->makeThumb($thumburl, $value[2], $value[3], $quality, $value[4], $value[5]);
+                    if ($result === true && $image->filename != $thumburl) {
+                        $ts = $image->getThumb();
+                    }
+                } 
+            }
+            $this->showMessage('success');
         }
+        $this->showMessage('operate.fail');
     }
 
     /**
@@ -316,20 +317,19 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function doSexAction(){
-        if( $uid=$this->checkUserSessionValid() ){
-            $userDm = new PwUserInfoDm($uid);
-            $userDm->setGender($this->getInput('gender', 'post'));
+        $this->checkUserSessionValid();
+        // 
+        $userDm = new PwUserInfoDm($this->uid);
+        $userDm->setGender($this->getInput('gender', 'post'));
 
-            /* @var $userDs PwUser */
-            $userDs = Wekit::load('user.PwUser');
-            $result = $userDs->editUser($userDm, PwUser::FETCH_MAIN + PwUser::FETCH_INFO);
+        /* @var $userDs PwUser */
+        $result = $this->_getUserDs()->editUser($userDm, PwUser::FETCH_MAIN + PwUser::FETCH_INFO);
 
-            if ($result instanceof PwError) {
-                $this->showError($result->getError());
-            }else{
-                PwSimpleHook::getInstance('profile_editUser')->runDo($dm);
-                $this->showMessage('USER:user.edit.profile.success');
-            }
+        if ($result instanceof PwError) {
+            $this->showError($result->getError());
+        }else{
+            PwSimpleHook::getInstance('profile_editUser')->runDo($dm);
+            $this->showMessage('USER:user.edit.profile.success');
         }
     }
 
@@ -344,32 +344,33 @@ class UserController extends MobileBaseController {
      </pre>
      */
     public function doPasswordAction(){
-        if( $uid=$this->checkUserSessionValid() ){
-            list($newPwd, $oldPwd, $rePwd) = $this->getInput(array('newPwd', 'oldPwd', 'rePwd'), 'post');
-            if (!$oldPwd) {
-                $this->showError('USER:pwd.change.oldpwd.require');
-            }   
-            if (!$newPwd) {
-                $this->showError('USER:pwd.change.newpwd.require');
-            }   
-            if ($rePwd != $newPwd) {
-                $this->showError('USER:user.error.-20');
-            }   
-            $this->checkOldPwd($uid, $oldPwd);
+        $this->checkUserSessionValid();
+        //
+        list($newPwd, $oldPwd, $rePwd) = $this->getInput(array('newPwd', 'oldPwd', 'rePwd'), 'post');
+        if (!$oldPwd) {
+            $this->showError('USER:pwd.change.oldpwd.require');
+        }   
+        if (!$newPwd) {
+            $this->showError('USER:pwd.change.newpwd.require');
+        }   
+        if ($rePwd != $newPwd) {
+            $this->showError('USER:user.error.-20');
+        }   
+        $this->checkOldPwd($this->uid, $oldPwd);
 
-            Wind::import('SRC:service.user.dm.PwUserInfoDm');
-            $userDm = new PwUserInfoDm($uid);
-            $userDm->setPassword($newPwd);
-            $userDm->setOldPwd($oldPwd);
-            /* @var $userDs PwUser */
-            $userDs = Wekit::load('user.PwUser');
-            if (($result = $userDs->editUser($userDm, PwUser::FETCH_MAIN)) instanceof PwError) {
-                $this->showError($result->getError());
+        Wind::import('SRC:service.user.dm.PwUserInfoDm');
+        $userDm = new PwUserInfoDm($this->uid);
+        $userDm->setPassword($newPwd);
+        $userDm->setOldPwd($oldPwd);
+        /* @var $userDs PwUser */
+        $userDs = Wekit::load('user.PwUser');
+        if (($result = $userDs->editUser($userDm, PwUser::FETCH_MAIN)) instanceof PwError) {
+            $this->showError($result->getError());
 
-            }   
-            $this->loginUser->reset();
-            $this->showMessage('USER:pwd.change.success');
         }
+        //$userdata = $this->_getUserInfo($this->uid);
+        //$this->setOutput($userdata,'data');
+        $this->showMessage('USER:pwd.change.success');
     }
 
     /**
@@ -408,39 +409,6 @@ class UserController extends MobileBaseController {
             $result = is_array($info) && $info['error_count']>3 ? true : false;
         }
         return $result;
-    }
-
-
-    /**
-     * 获得用户信息 
-     * 
-     * @param mixed $uid 
-     * @access private
-     * @return void
-     */
-    protected function _getUserInfo($uid){
-        //
-        $_userInfo = Wekit::load('user.PwUser')->getUserByUid($uid, PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
-
-        //登录成功后，加密身份key
-        $_idInfo = array(
-            'username'=>$_userInfo['username'],
-            'password'=>$_userInfo['password'],
-        );
-        $securityKey = Pw::encrypt( serialize($_idInfo), $this->_securityKey);
-
-        //返回数据
-        $_data = array(
-            'securityKey'=>$securityKey,
-            'userinfo'=>array(
-                'uid'=>$_userInfo['uid'],
-                'username'=>$_userInfo['username'],
-                //'avatar'=>Pw::getAvatar($_userInfo['uid'],''),
-                'avatar'=>Pw::getAvatar($_userInfo['uid'],'big'),
-                'gender'=>$_userInfo['gender'],
-            ),
-        ); 
-        return $_data;
     }
 
 

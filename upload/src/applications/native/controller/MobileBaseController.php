@@ -21,6 +21,8 @@ abstract class MobileBaseController extends PwBaseController {
         parent::beforeAction($handlerAdapter);
         $_config_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
         $this->_securityKey = $_config_securityKey['value'];
+        //
+        $this->authSessionKey();
 	}
 
     /**
@@ -38,8 +40,8 @@ abstract class MobileBaseController extends PwBaseController {
      */
     public function checkLoginStatusAction(){
         $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
-        if( $uid=$this->authSessionKey() ){
-            $data = array_merge($this->_getUserInfo($uid),$data) ;
+        if( $this->isLogin() ){
+            $data = array_merge($this->_getUserInfo(),$data) ;
             //
             $this->setOutput($data, 'data');
             $this->showMessage('USER:login.success');
@@ -83,6 +85,52 @@ abstract class MobileBaseController extends PwBaseController {
         return $apidata;
     }
 
+    /**
+     * 获得基本用户信息 
+     * 
+     * @param mixed $uid 
+     * @access private
+     * @return void
+     */
+    protected function _getUserInfo(){
+        //
+        $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
+
+        //登录成功后，加密身份key
+        $_idInfo = array(
+            'username'=>$_userInfo['username'],
+            'password'=>$_userInfo['password'],
+        );
+        $securityKey = Pw::encrypt( serialize($_idInfo), $this->_securityKey);
+
+        //返回数据
+        $_data = array(
+            'securityKey'=>$securityKey,
+            'userinfo'=>array(
+                'uid'=>$_userInfo['uid'],
+                'username'=>$_userInfo['username'],
+                //'avatar'=>Pw::getAvatar($_userInfo['uid'],''),
+                'avatar'=>Pw::getAvatar($_userInfo['uid'],'big'),
+                'gender'=>$_userInfo['gender'],
+            ),
+        ); 
+        return $_data;
+    }
+
+    /**
+     * 根据需求获得用户信息 
+     * 
+     * @access protected
+     * @return void
+     * @example
+     * <pre>
+     * args: PwUser::FETCH_MAIN | PwUser::FETCH_INFO | PwUser::FETCH_DATA | PwUser::FETCH_ALL
+     * </pre>
+     */
+    protected function _getUserAllInfo($range=PwUser::FETCH_MAIN){
+        return $this->uid?$this->_getUserDs()->getUserByUid($this->uid, $range):array();
+    }
+
 
     /**
      * Enter description here ...
@@ -105,8 +153,8 @@ abstract class MobileBaseController extends PwBaseController {
      </pre>
      */
     protected function checkUserSessionValid(){
-        if( $uid=$this->authSessionKey() ){
-            return $uid;
+        if( $this->isLogin() ){
+            return $this->uid;
         }else{
             $this->showError("NATIVE:error.sessionkey.error");
         }
@@ -120,16 +168,29 @@ abstract class MobileBaseController extends PwBaseController {
      */
     protected function authSessionKey(){
         $unsecurityKey = $this->getInput('securityKey');
-//        if(isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'],'multipart/form-data')!==false){
-//            //$unsecurityKey = urldecode($unsecurityKey);
-//        }
-        $securityKey = unserialize(Pw::decrypt($unsecurityKey,$this->_securityKey));
-        if( is_array($securityKey) && isset($securityKey['username']) && isset($securityKey['password']) ){
-            $_userInfo = Wekit::load('user.PwUser')->getUserByName($securityKey['username'], PwUser::FETCH_MAIN);
-            if( $_userInfo['username']==$securityKey['username'] && $_userInfo['password']==$securityKey['password'] ){
-                $this->uid = $_userInfo['uid'];
+        //
+        //        if(isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'],'multipart/form-data')!==false){
+        //            //$unsecurityKey = urldecode($unsecurityKey);
+        //        }
+        if( $unsecurityKey ){
+            $securityKey = unserialize(Pw::decrypt($unsecurityKey,$this->_securityKey));
+            if( is_array($securityKey) && isset($securityKey['username']) && isset($securityKey['password']) ){
+                $_userInfo = $this->_getUserDs()->getUserByName($securityKey['username'], PwUser::FETCH_MAIN);
+                if( $_userInfo['username']==$securityKey['username'] && $_userInfo['password']==$securityKey['password'] ){
+                    $this->uid = $_userInfo['uid'];
+                }
             }
         }
+        return $this->uid;
+    }
+
+    /**
+     * 判断是否登录 
+     * 
+     * @access protected
+     * @return void
+     */
+    protected function isLogin(){
         return $this->uid;
     }
 
@@ -212,5 +273,10 @@ abstract class MobileBaseController extends PwBaseController {
         $info['type'] = $_oauth->third_platform_name;
         return $info; 
     }
+
+    protected function _getUserDs(){
+        return Wekit::load('user.PwUser');
+    }
+
 
 }
