@@ -23,4 +23,30 @@ class SpaceController extends MobileBaseController {
 
     }
 
+    /**
+     * 空间首页列出审核过的贴子
+     * 
+     * @access public
+     * @return void
+     */
+    public function run(){
+        $spaceUid = $this->getInput('uid','get');
+        $page = $this->getInput('page','get');
+        //
+        $array = $this->_getPwNativeThreadDs()->getThreadListByUid($spaceUid, $page, 'space');
+        $myThreadList = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
+        $attList = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        //
+        $threadList = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
+        //
+        $this->setOutput($threadList, 'data');
+        $this->showMessage('success');
+    }
+
+
+    private function _getPwNativeThreadDs(){
+        return Wekit::load('native.PwNativeThread');
+    }
+
+
 }

@@ -233,22 +233,21 @@ class MyController extends MobileBaseController {
      * 我发布的帖子 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * 
+     * <pre>
      */
     public function articleAction(){
-        Wind::import('SRV:forum.srv.PwThreadList');
         $page = $this->getInput('page','get');
-        $page = $page ? $page : 1;
-        $perpage = 20; 
-        $threadList = new PwThreadList();
-
-        $threadList->setPage($page)->setPerpage($perpage);
-        Wind::import('SRV:native.srv.PwNativeMyThread');
-        $dataSource = new PwNativeMyThread($this->uid, $this->_getForumService()->fids);
-
-        $threadList->execute($dataSource);
-        $threads = $threadList->getList();
-
-        $this->setOutput($threads,'data');
+        //
+        $array = $this->_getPwNativeThreadDs()->getThreadListByUid($this->uid, $page, 'my');
+        $myThreadList = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
+        $attList = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        //
+        $threadList = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
+        //
+        $this->setOutput($threadList, 'data');
         $this->showMessage('success');
     }
 
@@ -301,6 +300,10 @@ class MyController extends MobileBaseController {
 
     private function _getForumService(){
         return Wekit::load('native.srv.PwForumService');
+    }
+
+    private function _getPwNativeThreadDs(){
+        return Wekit::load('native.PwNativeThread');
     }
 
     private function _getLikeService() {                                                                                                                     
