@@ -1,0 +1,214 @@
+<?php
+/**
+ * 管理功能
+ *
+ * @fileName: ManageController.php
+ * @author: dongyong<dongyong.ydy@alibaba-inc.com>
+ * @license: http://www.phpwind.com
+ * @version: $Id
+ * @lastchange: 2015-01-08 18:00:09
+ * @desc: 
+ **/
+defined('WEKIT_VERSION') || exit('Forbidden');
+
+Wind::import('SRV:forum.srv.PwThreadManage');
+Wind::import('SRV:forum.srv.dataSource.PwFetchTopicByTid');
+Wind::import('APPS:native.controller.MobileBaseController');
+
+class ManageController extends MobileBaseController {
+
+    public function beforeAction($handlerAdapter) {
+        $this->checkUserSessionValid();
+	}
+
+    public $manage;
+
+    /**
+     * 管理操作 
+     * 
+     * @access public
+     * @return void
+     * @example
+     * <pre>
+     * 1) /index.php?m=native&c=Manage <br>
+     * post: action=dodelete&sendnotice&(tid=|tids=1,2,3)&_json=1
+     * <br><br>
+     * 2) /index.php?m=native&c=Manage <br>
+     * post: action=doban&types[]&end_time&reason&ban_range&sendnotice&uids[]&post&pids[] <br>
+     * //全部功能参数
+     * <code>
+     * uids[]:3
+     * types[]:1
+     * types[]:2
+     * end_time:2015-01-08 20:34
+     * reason:建议已收集，谢谢反馈！
+     * sendnotice:1
+     * delete[current]:1
+     * delete[site]:1
+     * tid:28
+     * pids[]:0
+     * </code>
+     * </pre>
+     */
+    public function run(){
+        $action = $this->getInput('action');
+        if( in_array($action,array('dodelete','doban'))==false ){
+            $this->showError('fail');
+        }
+
+        $this->manage = $this->_getManage($action);
+        if (($result = $this->manage->check()) !== true) {                                                                                                   
+            if (false === $result) $this->showError(new PwError('BBS:manage.permission.deny'));
+            $this->showError($result->getError());
+        }
+
+        $this->manage->execute();
+        $sendnotice = $this->getInput('sendnotice', 'post');
+        if ($sendnotice) {
+            $this->_sendMessage($action, $this->manage->getData());
+        }  
+        $this->showMessage('operate.success');
+    }
+
+    /**
+     * 获得用户拥有的权限 //这个权限在读贴子详细内容时获取，此接口暂时不用
+     * 
+     * @access public
+     * @return void
+     * @example
+     * <pre>
+     * post: tid
+     * </pre>
+     */
+    private function permissionAction(){
+        $tid = $this->getInput('tid');
+
+        $userBo = new PwUserBo($this->uid);
+
+        Wind::import('SRV:forum.srv.PwThreadDisplay'); 
+        $threadDisplay = new PwThreadDisplay($tid, $userBo);
+        $this->runHook('c_read_run', $threadDisplay);
+
+        if (($result = $threadDisplay->check()) !== true) {
+            $this->showError($result->getError());
+
+        }   
+        $_cache = Wekit::cache()->fetch(array('level', 'group_right'));
+
+        $pwforum = $threadDisplay->getForum();
+        $isBM = $pwforum->isBM($userBo->username);
+        if ($threadPermission = $userBo->getPermission('operate_thread', $isBM, array())) {
+            $operateThread = Pw::subArray($threadPermission, array('delete','ban') );
+            $operateReply = Pw::subArray($threadPermission, array('delete', 'ban') );
+        }
+        /**
+         * if ($hasFirstPart || $hasSecondPart || $hasThirdPart) //只要是版主都可以推荐
+         * $operateThread['delete']
+         * $operateReply['ban']
+         */
+        print_r($operateThread);
+        print_r($operateReply);
+    }
+
+    protected function _getManage($action) {                                                                                                                 
+        $tids = $this->getInput('tids', 'post');
+        $tid = $this->getInput('tid', 'post');
+        if ($tids && !is_array($tids)) {
+            $tids = explode(',', $tids);
+        } elseif (!$tids && $tid) {
+            $tids = array($tid);
+        }else{
+            $tids = array();
+        }
+
+        $manage = new PwThreadManage(new PwFetchTopicByTid($tids), new PwUserBo($this->uid));
+        switch ($action) {
+        case 'dodelete':
+            $do = $this->_getDeleteManage($manage);
+            break;
+        case 'doban':
+            $do = $this->_getBanManage($manage);
+            break;
+        }   
+        if (is_array($do)) {
+            foreach ($do as $do1) {
+                $manage->appendDo($do1);
+            }
+        } else {
+            $manage->appendDo($do);
+        }   
+        return $manage;
+    }       
+
+
+    protected function _getDeleteManage($manage) {
+        Wind::import('SRV:forum.srv.manage.PwThreadManageDoDeleteTopic');
+        $do = new PwThreadManageDoDeleteTopic($manage);
+
+        //是否扣分
+        $deductCredit = 1;
+        $reason = '非法内容';
+        $do->setIsDeductCredit($deductCredit)
+            ->setReason($reason);
+        return $do;
+    }
+
+    /** 
+     * ban manage
+     *  
+     * @return PwThreadManageDoBan
+     */
+    protected function _getBanManage($manage) {
+        Wind::import('SRV:forum.srv.manage.PwThreadManageDoBan');
+        $do = new PwThreadManageDoBan($manage, new PwUserBo($this->uid));
+        
+        $banInfo = new stdClass();
+        $banInfo->types = $this->getInput('types', 'post');
+        $banInfo->end_time = $this->getInput('end_time', 'post');
+        $banInfo->reason = $this->getInput('reason', 'post');
+        $banInfo->ban_range = intval($this->getInput('ban_range', 'post'));
+        $banInfo->sendNotice = intval($this->getInput('sendnotice', 'post'));
+        $do->setBanInfo($banInfo)->setBanUids($this->getInput('uids', 'post'))->setDeletes($this->getInput('delete', 'post'));
+
+        return $do;
+    }  
+
+    /** 
+     * send messages
+     */
+    protected function _sendMessage($action, $threads) {
+        if (!is_array($threads) || !$threads || !$action || $action == 'doban') return false;
+        $noticeService = Wekit::load('message.srv.PwNoticeService');
+        $reason = $this->getInput('reason', 'post');
+        foreach ($threads as $thread) {
+            $params = array();
+            $params['manageUsername'] = $this->manage->user->username;
+            $params['manageUserid'] = $this->manage->user->uid;
+            $params['manageThreadTitle'] = $thread['subject'];
+            $params['manageThreadId'] = $thread['tid'];
+            //$this->params['_other']['reason'] && $params['manageReason'] = $this->params['_other']['reason'];
+            $reason && $params['manageReason'] = $reason;
+            if ($action == 'docombined') {
+                $actions = $this->getInput('actions', 'post');
+                $tmp = array();
+                foreach ($actions as $v){
+                    $tmp[] = $this->_getManageActionName('do' . $v);
+                }   
+                $tmp && $params['manageTypeString'] = implode(',', $tmp);
+            } else {
+                $params['manageTypeString'] = $this->_getManageActionName($action);
+            }   
+            $noticeService->sendNotice($thread['created_userid'], 'threadmanage', $thread['tid'], $params);
+        }   
+    } 
+
+    protected function _getManageActionName($action) { 
+        $resource = Wind::getComponent('i18n'); 
+        $message = $resource->getMessage("BBS:manage.operate.name.$action"); 
+        if (in_array($action, $this->doCancel)) { 
+            $message = $resource->getMessage("BBS:manage.operate.action.cancel") . $message; 
+        } 
+        return $message; 
+    } 
+
+}
