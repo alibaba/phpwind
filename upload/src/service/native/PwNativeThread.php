@@ -16,6 +16,8 @@ Wind::import('SRV:native.srv.PwNativeThreadDataSource');
 
 class PwNativeThread {
 
+    private $threadCount = 0;
+
     /**
      * 关于某一个用户发布的贴子 (审核通过的)
      *
@@ -36,17 +38,29 @@ class PwNativeThread {
 
         $threadList->execute($dataSource);
         $threads = $threadList->getList();
+        $this->threadPageCount = $threadList->maxPage;
 
         $tids = $pids = array();
         foreach ($threads as $thread) {
             $tids[] = $thread['tid'];
-            $pids[] = $thread['aids'];
+            $thread['aids'] && $pids[] = $thread['aids'];
         }
         return array(
             'tids'=>$tids,
             'pids'=>$pids,
         );
     }
+
+    /**
+     * 关于某一个用户发布的贴子 (审核通过的); 总页数 
+     * 
+     * @access public
+     * @return void
+     */
+    public function getThreadPageCount(){
+       return $this->threadPageCount; 
+    }
+
 
     /**
      * 整理合并贴子内容 

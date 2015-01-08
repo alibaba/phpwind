@@ -33,13 +33,16 @@ class SpaceController extends MobileBaseController {
         $spaceUid = $this->getInput('uid','get');
         $page = $this->getInput('page','get');
         //
-        $array = $this->_getPwNativeThreadDs()->getThreadListByUid($spaceUid, $page, 'space');
-        $myThreadList = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
-        $attList = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        $array          = $this->_getPwNativeThreadDs()->getThreadListByUid($spaceUid, $page, 'space');
+        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
+        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
         //
-        $threadList = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
-        //
-        $this->setOutput($threadList, 'data');
+        $data = array(
+            'pageCount'=>$this->_getPwNativeThreadDs()->getThreadPageCount(),
+            'threadList'=>$threadList,
+        );
+        $this->setOutput($data, 'data');
         $this->showMessage('success');
     }
 

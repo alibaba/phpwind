@@ -93,7 +93,11 @@
 		$this->space['back_image'] = array($image, $repeat, $fixed, $align);
 		$this->space['backbround'] = '';
 		if (empty($image)) return;
-		$image = Pw::getPath(''). $image;
+        $image = Pw::getPath(''). $image;
+        $image = htmlentities($image);
+        $repeat = htmlentities($repeat);
+        $fixed = htmlentities($fixed);
+        $align = htmlentities($align);
 		$this->space['backbround'] = 'style="';
 		$this->space['backbround'] .= 'background-image: url( ' . $image . ');';
 		$this->space['backbround'] .= 'background-repeat:' . $repeat . ';' ;

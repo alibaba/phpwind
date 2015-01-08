@@ -235,19 +235,22 @@ class MyController extends MobileBaseController {
      * @return void
      * @example
      * <pre>
-     * 
+     * /index.php?m=native&c=My&a=article&page=1 
      * <pre>
      */
     public function articleAction(){
         $page = $this->getInput('page','get');
         //
-        $array = $this->_getPwNativeThreadDs()->getThreadListByUid($this->uid, $page, 'my');
-        $myThreadList = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
-        $attList = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        $array          = $this->_getPwNativeThreadDs()->getThreadListByUid($this->uid, $page, 'my');
+        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
+        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
         //
-        $threadList = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
-        //
-        $this->setOutput($threadList, 'data');
+        $data = array(
+            'pageCount'=>$this->_getPwNativeThreadDs()->getThreadPageCount(),
+            'threadList'=>$threadList,
+        );
+        $this->setOutput($data, 'data');
         $this->showMessage('success');
     }
 
@@ -255,9 +258,43 @@ class MyController extends MobileBaseController {
      * 我回复的帖子 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=My&a=post&page=1 
+     * </pre>
      */
-    public function replyByIAction(){
+    public function postAction(){
+        $page = $this->getInput('page','get');
+        $perpage = 20;
+        //
+        $postCount = $this->_getNativePostExpandDao()->countDisabledPostByUidAndFids($this->uid, $this->_getForumService()->fids);
+        $pageCount = count($postCount/$perpage);
+        $page = $page ? $page : 1;
+        $page>$pageCount && $page = $pageCount;
 
+        list($start, $limit) = Pw::page2limit($page, $perpage);
+        //
+        $tids = $pids = array();
+        $threads = $this->_getNativePostExpandDao()->getDisabledPostByUid($this->uid, $this->_getForumService()->fids, $limit, $start);
+        foreach ($threads as $thread) {
+            $tids[] = $thread['tid'];
+            $thread['aids'] && $pids[] = $thread['aids'];
+        }   
+        $array = array(
+            'tids'=>$tids,
+            'pids'=>$pids,
+        );
+        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
+        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
+        //
+        $postCount = $this->_getNativePostExpandDao()->countDisabledPostByUidAndFids($this->uid, $this->_getForumService()->fids);
+        $data = array(
+            'pageCount'=>$pageCount,
+            'threadList'=>$threadList,
+        );
+        $this->setOutput($data, 'data');
+        $this->showMessage('success');
     }
 
 
@@ -308,5 +345,10 @@ class MyController extends MobileBaseController {
 
     private function _getLikeService() {                                                                                                                     
         return Wekit::load('like.srv.PwLikeService');
-    } 
+    }
+
+    public function _getNativePostExpandDao(){
+        return Wekit::loadDao('native.dao.PwNativePostExpandDao');
+    }
+
 }

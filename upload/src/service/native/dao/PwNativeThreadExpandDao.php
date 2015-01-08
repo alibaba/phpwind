@@ -22,9 +22,9 @@ class PwNativeThreadExpandDao extends PwThreadExpandDao {
 	 * @return int
 	 */
     public function countThreadByUidAndFids($uid, $fids) {
-        $sql = $this->_bindTable('SELECT COUNT(*) AS sum FROM %s WHERE created_userid=? AND fid in (?)  AND disabled = 0');
+        $sql = $this->_bindTable('SELECT COUNT(*) AS sum FROM %s WHERE created_userid=? AND fid IN '. $this->sqlImplode($fids) .' AND disabled = 0');
 		$smt = $this->getConnection()->createStatement($sql);
-		return $smt->getValue(array($uid, implode(',',$fids)));
+		return $smt->getValue(array($uid));
 	}
 	
 	/**
@@ -37,9 +37,9 @@ class PwNativeThreadExpandDao extends PwThreadExpandDao {
 	 * @return int
 	 */
     public function getThreadByUidAndFids($uid, $fids, $limit, $offset) {
-		$sql = $this->_bindSql('SELECT * FROM %s WHERE created_userid=? AND fid in (?)  AND disabled = 0 ORDER BY created_time DESC %s', $this->getTable(), $this->sqlLimit($limit, $offset));
+		$sql = $this->_bindSql('SELECT * FROM %s WHERE created_userid=? AND fid IN %s AND disabled = 0 ORDER BY created_time DESC %s', $this->getTable(), $this->sqlImplode($fids), $this->sqlLimit($limit, $offset));
 		$smt = $this->getConnection()->createStatement($sql);
-		return $smt->queryAll(array($uid, implode(',',$fids)), 'tid');
+		return $smt->queryAll(array($uid), 'tid');
 	}
    
    	/**
@@ -50,9 +50,9 @@ class PwNativeThreadExpandDao extends PwThreadExpandDao {
 	 * @return int
 	 */
     public function countDisabledThreadByUidAndFids($uid, $fids) {
-        $sql = $this->_bindTable('SELECT COUNT(*) AS sum FROM %s WHERE created_userid=? AND fid in (?)  AND disabled < 2');
+        $sql = $this->_bindTable('SELECT COUNT(*) AS sum FROM %s WHERE created_userid=? AND fid IN '. $this->sqlImplode($fids) .' AND disabled < 2');
 		$smt = $this->getConnection()->createStatement($sql);
-		return $smt->getValue(array($uid, implode(',',$fids)));
+		return $smt->getValue(array($uid));
 	}
 	
 	/**
@@ -65,8 +65,8 @@ class PwNativeThreadExpandDao extends PwThreadExpandDao {
 	 * @return int
 	 */
 	public function getDisabledThreadByUidAndFids($uid, $fids, $limit, $offset) {
-		$sql = $this->_bindSql('SELECT * FROM %s WHERE created_userid=? AND fid in (?)  AND disabled < 2 ORDER BY created_time DESC %s', $this->getTable(), $this->sqlLimit($limit, $offset));
+		$sql = $this->_bindSql('SELECT * FROM %s WHERE created_userid=? AND fid IN %s AND disabled < 2 ORDER BY created_time DESC %s', $this->getTable(), $this->sqlImplode($fids), $this->sqlLimit($limit, $offset));
 		$smt = $this->getConnection()->createStatement($sql);
-		return $smt->queryAll(array($uid, implode(',',$fids)), 'tid');
+		return $smt->queryAll(array($uid), 'tid');
 	}
 }
