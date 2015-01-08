@@ -82,12 +82,14 @@ class MasingleController extends PwBaseController {
 		return $manage;
 	}
 
-	protected function _getDeleteManage($manage) {
+    protected function _getDeleteManage($manage) {
 		Wind::import('SRV:forum.srv.manage.PwThreadManageDoDeleteReply');
 		$do = new PwThreadManageDoDeleteReply($manage);
 		if (!$this->doAction) {
 			$this->setOutput('dodelete', 'doaction');
-		} else {
+        } else {
+            print_r($_POST);
+        echo 2222;exit;
 			$deductCredit = $this->getInput('deductCredit', 'post');
 			$reason = $this->getInput('reason', 'post');
 			$do->setIsDeductCredit($deductCredit)
