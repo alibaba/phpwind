@@ -19,14 +19,38 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 
 Wind::import('SRV:user.srv.PwRegisterService');
 Wind::import('SRV:user.srv.PwLoginService');
-Wind::import('APPS:native.controller.MobileBaseController');
+Wind::import('APPS:native.controller.NativeBaseController');
 
-class UserController extends MobileBaseController {
+class UserController extends NativeBaseController {
 
 	public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
 	}
 
+    /**
+     * 校验用户是否登录; 返回appid接口数据
+     * 
+     * @access public
+     * @return void
+     * @example
+     <pre>
+     /index.php?m=native&c=user&a=checkLoginStatus
+     <br>
+     post: securityKey <br>
+     response: {"referer":"","refresh":false,"state":"success","data":{"thirdPlatformAppid":{"taobao":{"order":"0","appId":"a123456"}},"userinfo":{"username":"qiwen","avatar":"http:\/\/img1.phpwind.net\/attachout\/avatar\/002\/37\/41\/2374101_small.jpg","gender":0}},"html":"","message":["\u6b22\u8fce\u56de\u6765..."],"__error":""}
+     </pre>
+     */
+    public function checkLoginStatusAction(){
+        $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
+        if( $this->isLogin() ){
+            $data = array_merge($this->_getUserInfo(),$data) ;
+            //
+            $this->setOutput($data, 'data');
+            $this->showMessage('USER:login.success');
+        }
+        $this->setOutput($data, 'data');
+        $this->showMessage('USER:login.success');
+    } 
 
     /**
      * 登录;并校验验证码

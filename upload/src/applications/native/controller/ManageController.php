@@ -13,9 +13,9 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 
 Wind::import('SRV:forum.srv.PwThreadManage');
 Wind::import('SRV:forum.srv.dataSource.PwFetchTopicByTid');
-Wind::import('APPS:native.controller.MobileBaseController');
+Wind::import('APPS:native.controller.NativeBaseController');
 
-class ManageController extends MobileBaseController {
+class ManageController extends NativeBaseController {
 
     public function beforeAction($handlerAdapter) {
         $this->checkUserSessionValid();
@@ -40,6 +40,7 @@ class ManageController extends MobileBaseController {
      * uids[]:3
      * types[]:1
      * types[]:2
+     * types[]:4
      * end_time:2015-01-08 20:34
      * reason:建议已收集，谢谢反馈！
      * sendnotice:1
@@ -140,14 +141,13 @@ class ManageController extends MobileBaseController {
         return $manage;
     }       
 
-
     protected function _getDeleteManage($manage) {
         Wind::import('SRV:forum.srv.manage.PwThreadManageDoDeleteTopic');
         $do = new PwThreadManageDoDeleteTopic($manage);
 
         //是否扣分
         $deductCredit = 1;
-        $reason = '非法内容';
+        $reason = '任性';
         $do->setIsDeductCredit($deductCredit)
             ->setReason($reason);
         return $do;
@@ -163,12 +163,12 @@ class ManageController extends MobileBaseController {
         $do = new PwThreadManageDoBan($manage, new PwUserBo($this->uid));
         
         $banInfo = new stdClass();
-        $banInfo->types = $this->getInput('types', 'post');
+        $banInfo->types = array(1,2,4);
+        $banInfo->reason = '任性';
+        $banInfo->ban_range = 0;
+        $banInfo->sendNotice = 1;
         $banInfo->end_time = $this->getInput('end_time', 'post');
-        $banInfo->reason = $this->getInput('reason', 'post');
-        $banInfo->ban_range = intval($this->getInput('ban_range', 'post'));
-        $banInfo->sendNotice = intval($this->getInput('sendnotice', 'post'));
-        $do->setBanInfo($banInfo)->setBanUids($this->getInput('uids', 'post'))->setDeletes($this->getInput('delete', 'post'));
+        $do->setBanInfo($banInfo)->setBanUids($this->getInput('uids', 'post'));
 
         return $do;
     }  

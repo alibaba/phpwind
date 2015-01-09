@@ -2,7 +2,7 @@
 /**
  * mobile应用基础类 
  *
- * @fileName: MobileBaseController.php
+ * @fileName: NativeBaseController.php
  * @author: dongyong<dongyong.ydy@alibaba-inc.com>
  * @license: http://www.phpwind.com
  * @version: $Id
@@ -11,7 +11,7 @@
  **/
 defined('WEKIT_VERSION') || exit('Forbidden');
 
-abstract class MobileBaseController extends PwBaseController {
+abstract class NativeBaseController extends PwBaseController {
 
     protected $uid = 0;
 
@@ -25,31 +25,6 @@ abstract class MobileBaseController extends PwBaseController {
         $this->authSessionKey();
 	}
 
-    /**
-     * 校验用户是否登录; 返回appid接口数据
-     * 
-     * @access public
-     * @return void
-     * @example
-     <pre>
-     /index.php?m=native&c=user&a=checkLoginStatus
-     <br>
-     post: securityKey <br>
-     response: {"referer":"","refresh":false,"state":"success","data":{"thirdPlatformAppid":{"taobao":{"order":"0","appId":"a123456"}},"userinfo":{"username":"qiwen","avatar":"http:\/\/img1.phpwind.net\/attachout\/avatar\/002\/37\/41\/2374101_small.jpg","gender":0}},"html":"","message":["\u6b22\u8fce\u56de\u6765..."],"__error":""}
-     </pre>
-     */
-    public function checkLoginStatusAction(){
-        $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
-        if( $this->isLogin() ){
-            $data = array_merge($this->_getUserInfo(),$data) ;
-            //
-            $this->setOutput($data, 'data');
-            $this->showMessage('USER:login.success');
-        }
-        $this->setOutput($data, 'data');
-        $this->showMessage('USER:login.success');
-    } 
- 
     /**
      * 获得第三方平台的appid，用来app生成使用
      * 

@@ -10,9 +10,9 @@
  **/
 defined('WEKIT_VERSION') || exit('Forbidden');
 
-Wind::import('APPS:native.controller.MobileBaseController');
+Wind::import('APPS:native.controller.NativeBaseController');
 
-class MyController extends MobileBaseController {
+class MyController extends NativeBaseController {
 
     /**
      * global post: securityKey
