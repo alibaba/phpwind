@@ -15,7 +15,7 @@ Wind::import('SRV:collect.dao.PwCollectDao');
 class PwNativeCollectDao extends PwCollectDao {
 
     /**
-     * 获得版块的收藏贴子 
+     * 获得版块的收藏贴子总数
      * 
      * @param int $uid 
      * @param array $fids 
@@ -28,10 +28,19 @@ class PwNativeCollectDao extends PwCollectDao {
 		return $smt->getValue(array($uid));
 	}
 
-    public function getCollectByUidAndFids($uid, $fids){
-        $sql = $this->_bindTable('SELECT collect_id,tid FROM %s WHERE created_userid=? AND fid IN ? ORDER BY collect_id DESC', $this->getTable(), $this->sqlImplode($fids), $this->sqlLimit($limit, $offset) );
+    /**
+     * 获得版块的收藏贴子 
+     *
+     * @param mixed $uid 
+     * @param mixed $fids 
+     * @access public
+     * @return void
+     */
+    public function getCollectByUidAndFids($uid, $fids, $limit, $offset){
+        $sql = $this->_bindSql('SELECT collect_id,tid FROM %s WHERE created_userid=? AND fid IN %s ORDER BY collect_id DESC %s', $this->getTable(), $this->sqlImplode($fids), $this->sqlLimit($limit, $offset) );
         $smt = $this->getConnection()->createStatement($sql);
         return $smt->queryAll(array($uid)); 
     }
+
 
 }

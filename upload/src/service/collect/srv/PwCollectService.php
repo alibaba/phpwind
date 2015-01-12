@@ -9,14 +9,20 @@
  **/
 class PwCollectService {
 
-
     public function addCollect($data){
+        if( empty($data['fid']) || empty($data['tid']) ){                                                                                                                    
+            return false; 
+        }
         return $this->_getCollectDao()->addCollect($data);
     }
 
     public function delCollect($uid, $tid){
         if( !$uid || !$tid )return false;
         return $this->_getCollectDao()->deleteCollectByUidAndTid($uid, $tid);
+    }
+
+    public function getCollect($uid){
+
     }
 
     private function _getCollectDao(){

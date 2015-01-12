@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * 用户贴子收藏
  *
  * @fileName: IndexController.php
  * @author: dongyong<dongyong.ydy@alibaba-inc.com>
@@ -13,7 +13,7 @@ class IndexController extends PwBaseController {
 
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-		if ($this->loginUser->uid < 1) $this->forwardRedirect(WindUrlHelper::createUrl('u/login/run/'));
+        if ($this->loginUser->uid < 1) $this->forwardRedirect(WindUrlHelper::createUrl('u/login/run/'));
     }
 
     /**
@@ -41,7 +41,7 @@ class IndexController extends PwBaseController {
      * @access public
      * @return void
      */
-    public function doDelAction(){
+    public function dodelAction(){
         $tid = intval($this->getInput('tid'));
         if( $this->_getCollectService()->delCollect($this->loginUser->uid, $tid)!==false ){
             $this->showMessage('success');

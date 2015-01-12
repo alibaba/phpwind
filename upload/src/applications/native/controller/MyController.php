@@ -19,8 +19,7 @@ class MyController extends NativeBaseController {
      */
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        //$this->checkUserSessionValid();
-        $this->uid=3;
+        $this->checkUserSessionValid();
     }
     
     /**
@@ -299,6 +298,76 @@ class MyController extends NativeBaseController {
 
 
     /**
+     * 收藏 
+     * 
+     * @access public
+     * @return void
+     */
+    public function addCollectAction(){
+        $data = array(
+            'created_userid'=>$this->uid,
+            'fid'=>intval($this->getInput('fid')),
+            'tid'=>intval($this->getInput('tid')),
+            'created_time'=>time(),
+        );
+        if( $this->_getCollectService()->addCollect($data)!==false ){
+            $this->showMessage('success');
+        }
+        $this->showError('fail');
+    }
+
+    /**
+     * 取消收藏 
+     * 
+     * @access public
+     * @return void
+     */
+    public function delCollectAction(){
+        $tid = intval($this->getInput('tid'));
+        if( $this->_getCollectService()->delCollect($this->uid, $tid)!==false ){
+            $this->showMessage('success');
+        }
+        $this->showError('fail');
+    }
+
+    /**
+     * 收藏的贴子列表 
+     * 
+     * @access public
+     * @return void
+     */
+    public function collectAction(){
+        $page = $this->getInput('page','get');
+        $perpage = 20;
+        //
+        $collectCount = $this->_getCollectService()->countCollectByUidAndFids($this->uid, $this->_getForumService()->fids); 
+        $collectCount = count($collectCount/$perpage);
+        $page = $page ? $page : 1;
+        $page>$collectCount && $page = $collectCount;
+
+        list($start, $limit) = Pw::page2limit($page, $perpage);
+
+        $tids = array();
+        $collectList = $this->_getCollectService()->getCollectByUidAndFids($this->uid, $this->_getForumService()->fids, $limit, $offset);
+        foreach ($collectList as $collect) {
+            $tids[] = $collect['tid'];
+        }
+        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($tids);
+        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array());
+        $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
+        //
+        $data = array(
+            'pageCount'=>$collectCount,
+            'threadList'=>$threadList,
+        );
+        $this->setOutput($data, 'data');
+        $this->showMessage('success');
+
+
+    }
+
+
+    /**
      * 格式化数据  把字符串"1,版块1,2,版块2"格式化为数组
      *
      * @param string $string
@@ -350,5 +419,8 @@ class MyController extends NativeBaseController {
     public function _getNativePostExpandDao(){
         return Wekit::loadDao('native.dao.PwNativePostExpandDao');
     }
-
+    
+    private function _getCollectService(){
+        return Wekit::load('native.srv.PwNativeCollectService');
+    }
 }
