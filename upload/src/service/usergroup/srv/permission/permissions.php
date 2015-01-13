@@ -29,6 +29,7 @@ return array(
 	//'content_length_range'=> array('html', 'basic', '内容长度控制','', '字'),
 	'allow_publish_vedio'	=> array('radio', 'basic', '发视频', ''),
 	'allow_publish_music'	=> array('radio', 'basic', '发音乐', ''),
+	'allow_publish_tao'	=> array('radio', 'basic', '发导购', ''),
 	'multimedia_auto_open'	=> array('checkbox', 'basic', '多媒体自动打开', '', array('flash' => 'flash', 'wmv' => 'wmv', 'rm' => 'rm', 'mp3' => 'mp3')),
 
 	'message_allow_send'	=> array('radio', 'basic', '发送消息', '开启后，用户才有权限发送站内消息'),

@@ -14,6 +14,7 @@ return array(
 				'items' => array(
 					/*'max_title_length','content_length_range',*/'allow_publish_vedio',
 					'allow_publish_music',//'multimedia_auto_open'
+					'allow_publish_tao',//'multimedia_auto_open'
 				)
 			),
 			'message' => array(

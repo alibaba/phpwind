@@ -27,8 +27,11 @@ class UploadController extends PwBaseController {
 		if (!$user = $this->_getUser()) {
 			$this->showError('login.not');
 		}
-		$fid = $this->getInput('fid', 'post');
+        $fid = $this->getInput('fid', 'post');
 
+        //
+        $this->_accpetUploadForH5();
+        //
 		Wind::import('SRV:upload.action.PwAttMultiUpload');
 		Wind::import('LIB:upload.PwUpload');
 		$bhv = new PwAttMultiUpload($user, $fid);
@@ -69,14 +72,27 @@ class UploadController extends PwBaseController {
 		$this->showMessage('upload.success');
 	}
 
+    /**
+     * 对h5上传图片支持 
+     * 
+     * @access protected
+     * @return void
+     */
+    protected function _accpetUploadForH5(){
+        if( isset($_POST['Filename']) && isset($_FILES['Filedata']) ){
+            $Filedata = $this->getInput('Filename', 'post');
+            preg_match('/image\/jpeg/i',$Filedata) && $image_content = base64_decode(substr($Filedata, 23));
+            if( isset($image_content) && file_exists($_FILES['Filedata']['tmp_name']) ){
+                file_put_contents($_FILES['Filedata']['tmp_name'], $image_content );
+                $_FILES['Filedata']['size'] = strlen($image_content);
+            }
+        }
+    }
+
 	protected function _getUser() {
-		$authkey = 'winduser';
-		$pre = Wekit::C('site', 'cookie.pre');
-		$pre && $authkey = $pre . '_' . $authkey;
+        $winduser = Pw::getCookie('winduser');
 
-		$winduser = $this->getInput($authkey, 'post');
-
-		list($uid, $password) = explode("\t", Pw::decrypt(urldecode($winduser)));
+		list($uid, $password) = explode("\t", Pw::decrypt($winduser));
 		$user = new PwUserBo($uid);
 		if (!$user->isExists() || Pw::getPwdCode($user->info['password']) != $password) {
 			return null;
