@@ -63,7 +63,8 @@ class ReadController extends PwBaseController {
             $dataSource = new PwCommonRead($threadDisplay->thread);
         }
         $dataSource->setPage($page)
-                ->setPerpage($pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage'))
+//                ->setPerpage($pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage'))
+                ->setPerpage(30)
                 ->setDesc($desc);
 
         $threadDisplay->setImgLazy(Wekit::C('bbs', 'read.image_lazy'));
@@ -99,6 +100,9 @@ class ReadController extends PwBaseController {
                        'pwforum'=>$pwforum,
                        'threadInfo'=>$threadInfo,
                     );
+        $thread_native = Wekit::loadDao('native.dao.PwThreadsNativeDao')->getByTid($tid);
+        var_dump($thread_native);exit;
+        var_dump($threadInfo);exit;
         var_dump(1,$threadDisplay);exit;
         
         $this->setOutput($threadDisplay, 'threadDisplay');

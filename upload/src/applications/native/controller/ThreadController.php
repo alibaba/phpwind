@@ -20,7 +20,7 @@ class ThreadController extends PwBaseController {
 	protected $topictypes;
 
 	/**
-        * 获取某个板块下的帖子列表
+        * 获取某个板块下的帖子列表（标准、精华）
         * @access public
         * @return string
          <pre>
@@ -32,12 +32,15 @@ class ThreadController extends PwBaseController {
         */
 	public function run() {
 		//某个模板下的帖子列表页
-		$tab = $this->getInput('tab');
+//            echo 111;exit;
+		$tab = $this->getInput('tab');//是否是精华帖
 		$fid = intval($this->getInput('fid'));//分类id
 		$type = intval($this->getInput('type','get')); //主题分类ID
 		$page = $this->getInput('page', 'get');
 		$orderby = $this->getInput('orderby', 'get');
+// 		var_dump($tab,$fid,$type,$page,$orderby);exit;//null,2,0,null,null
 		$pwforum = new PwForumBo($fid, true);//板块信息
+//		var_dump($pwforum);exit;
 		if (!$pwforum->isForum()) {
 			$this->showError('BBS:forum.exists.not');
 		}
@@ -61,11 +64,14 @@ class ThreadController extends PwBaseController {
 		$this->_initTopictypes($fid, $type);
 
 		$threadList = new PwThreadList();//帖子列表对象
+//		var_dump($threadList);exit;
 		$this->runHook('c_thread_run', $threadList);
 
 		$threadList->setPage($page)
-			->setPerpage($pwforum->forumset['threadperpage'] ? $pwforum->forumset['threadperpage'] : Wekit::C('bbs', 'thread.perpage'))
+                        ->setPerpage(30)//帖子列表页一页展示30条
+//			->setPerpage($pwforum->forumset['threadperpage'] ? $pwforum->forumset['threadperpage'] : Wekit::C('bbs', 'thread.perpage'))
 			->setIconNew($pwforum->foruminfo['newtime']);
+//		var_dump($page,$pwforum);exit;//null,
 		$defaultOrderby = $pwforum->forumset['threadorderby'] ? 'postdate' : 'lastpost';
 		!$orderby && $orderby = $defaultOrderby;
 
@@ -84,10 +90,22 @@ class ThreadController extends PwBaseController {
 			Wind::import('SRV:forum.srv.threadList.PwCommonThread');
 			$dataSource = new PwCommonThread($pwforum);//帖子列表数据接口
 		}
+//                 var_dump($dataSource);exit;//PwCommonThread对象
 		$orderby != $defaultOrderby && $dataSource->setUrlArg('orderby', $orderby);
 		$threadList->execute($dataSource);
+                //需要合并移动端扩展表数据以及内容数据
+                $tids = array();
+                foreach($threadList->threaddb as $v){
+                    $tids[] = $v['tid'];
+                }
+                $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids,"NUM");
+                
+//                var_dump($this);exit;
+//                var_dump(get_class($pwforum),get_class_methods($pwforum));exit;
+//                var_dump($pwforum->foruminfo);exit;//获得版块数据$pwforum->isJoin($loginUser->uid)
+                var_dump($tids,$threads_list);exit;//置顶帖子包含在通用帖子当中
  		var_dump($threadList->threaddb);exit;//获得帖子数据
-                var_dump($pwforum->foruminfo);exit;//获得版块数据
+                
 		
 		$this->setOutput($threadList, 'threadList');
 		$this->setOutput($threadList->getList(), 'threaddb');

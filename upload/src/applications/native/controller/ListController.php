@@ -33,20 +33,25 @@ class ListController extends PwBaseController {
       </pre>
      */
     public function hotAction() {
+        
+//        $arr = array ('a'=>1,'b'=>2,'c'=>3,'d'=>4,'e'=>5);
+//        echo json_encode($arr);exit;
+
         $time = time();
         $num = $this->perpage;//一页显示记录数
+//        $num = 5;
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
-        $threadsHotDao = Wekit::loadDao('native.dao.PwThreadsHotDao');
-        $hot_count = $threadsHotDao->getThreadsHotCount($time);
-        $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
-        $threads = $nativeThreadsDao->fetchHotThreads($hot_count,$time,$page,$num);
-        $tids = array_keys($threads);
-        $threadsNativeDao = Wekit::loadDao('native.dao.PwThreadsNativeDao');
-        $threads_native = $threadsNativeDao->fetchByTids($tids);
-        foreach($threads as $k=>$v){
-            $threads[$k]['from_type'] = isset($threads_native[$k]['from_type']) ? $threads_native[$k]['from_type'] : 0;
-            $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
-        }
+        $hot_count = Wekit::loadDao('native.dao.PwThreadsHotDao')->getThreadsHotCount($time);
+        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadTids($hot_count,$time,$page,$num);
+        $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids);
+//        var_dump($tids,$threads_list);exit;
+        header('Content-type:application/json');
+
+
+
+        $this->setOutput($threads_list,'data');
+        $this->showMessage('NATIVE:data.success');
+        exit;
         if($res){//筛选帖子的回帖
             /*
             $tids = array();
@@ -159,13 +164,15 @@ class ListController extends PwBaseController {
      */
     public function myAction() {
 //        var_dump($this->loginUser->uid);exit;
-        if ($this->loginUser->uid < 1) {
+        if ($this->loginUser->uid < 1) {//用户未登陆展示热点话题
 //            $this->forwardRedirect(WindUrlHelper::createUrl('u/login/run', array('backurl' => WindUrlHelper::createUrl('tag/index/my'))));
-            echo "用户为登录";exit;
+//            echo "用户为登录";exit;
+            $hotTags = $this->getHotTags();
+            var_dump($hotTags);exit;
         }
         $uid = $this->loginUser->uid;     
         $tagAttentionDao = Wekit::loadDao('tag.dao.PwTagAttentionDao');
-        $res = $tagAttentionDao->getByUid($uid,30);//获得用户关注的话题最大30个
+        $res = $tagAttentionDao->getByUid($uid,50);//获得用户关注的话题最大50个
         $tag_ids = array();
         foreach($res as $v){
             $tag_ids[] = $v['tag_id'];
@@ -177,7 +184,7 @@ class ListController extends PwBaseController {
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $pos = ($page-1)*$num;
         $nativeTagRelationDao = Wekit::loadDao('native.dao.PwNativeTagRelationDao');
-        $res = $nativeTagRelationDao->fetchTids($tag_ids,$time_point,$pos,$num);//根据用户关注的话题tag_id获取文章tid
+        $res = $nativeTagRelationDao->fetchTids($tag_ids,$time_point,$pos,$num);//根据用户关注的话题tag_id获取文章tid，已筛选合法帖子数据
         $tids = array();
         foreach($res as $v){
             $tids[] = $v['param_id'];
@@ -192,8 +199,9 @@ class ListController extends PwBaseController {
             $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
         }
 //        var_dump($threads);exit;
-        if(count($res)<=3){
-            //关注的话题小于3个，展示更多话题，话题的展示规则有待商量
+        if(count($res)<5 && $page==1){
+            //关注的话题小于5个，展示更多话题，话题的展示规则有待商量
+            /*
             $tag_ids = implode(',', $tag_ids);
             $dao = $GLOBALS['acloud_object_dao'];
             $prefix = $dao->getDB()->getTablePrefix();
@@ -201,11 +209,14 @@ class ListController extends PwBaseController {
                     FROM `${prefix}tag` 
                     WHERE `tag_id` NOT IN ($tag_ids) LIMIT 10;";
             $res_tag = $dao->fetchAll($sql);
-//            var_dump($res,$res_tag);
+             * 
+             */
+            $res_tag = $this->getHotTags();
+            var_dump($threads,$res_tag);exit;
             $this->setOutput(array('threads'=>$res,'tags'=>$res_tag),'data');
             $this->showMessage('NATIVE:my.threads');
         }else{
-//            var_dump($res);
+            var_dump($res);exit;
             $this->setOutput($res,'data');
             $this->showMessage('NATIVE:my.threads');
         }
@@ -229,16 +240,11 @@ class ListController extends PwBaseController {
         $num = $this->perpage;//一页显示记录数
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $pos = ($page-1)*$num;
-        $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
-        $threads = $nativeThreadsDao->fetchNewThreads($pos,$num);
-        $tids = array_keys($threads);
-        $threadsNativeDao = Wekit::loadDao('native.dao.PwThreadsNativeDao');
-        $threads_native = $threadsNativeDao->fetchByTids($tids);
-        foreach($threads as $k=>$v){
-            $threads[$k]['from_type'] = isset($threads_native[$k]['from_type']) ? $threads_native[$k]['from_type'] : 0;
-            $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
-        }
-//        var_dump($threads);exit;
+//        $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
+//        $threads = $nativeThreadsDao->fetchNewThreadTids($pos,$num);
+        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchNewThreadTids($pos,$num);;
+        $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids);
+        var_dump($tids,$threads_list);
         if($res){
             /* 列表页不展示回帖信息
             $tids = array();
@@ -290,17 +296,9 @@ class ListController extends PwBaseController {
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $city = isset($_GET['city']) ? $_GET['city'] : '';
         $pos = ($page-1)*$num;
-        $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
-        $threads = $nativeThreadsDao->fetchCityThreads($city,$pos,$num);
-//        var_dump($threads);exit;
-        $tids = array_keys($threads);
-        $threadsNativeDao = Wekit::loadDao('native.dao.PwThreadsNativeDao');
-        $threads_native = $threadsNativeDao->fetchByTids($tids);
-        foreach($threads as $k=>$v){
-            $threads[$k]['from_type'] = isset($threads_native[$k]['from_type']) ? $threads_native[$k]['from_type'] : 0;
-            $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
-        }
-        var_dump($threads);exit;
+        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchCityThreadTids($city,$pos,$num);
+        $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids);
+        var_dump($tids,$threads_list);exit;
     }
     
     
@@ -384,7 +382,7 @@ class ListController extends PwBaseController {
             $tids = implode(',', $tids);
             $threadsWeightDao->deleteByTids($tids);
             //只保留权重最高的500条记录
-            $res = $threadsWeightDao->getWeightByPos(499);
+            $res = $threadsWeightDao->getWeightByPos(99);
             /*
             $sql = "SELECT `weight` FROM `${prefix}bbs_threads_weight` ORDER BY `weight` DESC LIMIT 499,1";
             $res = $dao->fetchOne($sql);
@@ -405,7 +403,23 @@ class ListController extends PwBaseController {
 //        var_dump($res,$last_create_time);exit;
     }
     
+    private function cmp($a, $b) {
+        return strcmp($b["weight"], $a["weight"]);
+    }
     
+    private function getHotTags() {
+        $hotTags = Wekit::load('tag.srv.PwTagService')->getHotTagsNoCache(0, 20);
+        $tagIds = array();
+        foreach ($hotTags as $k => $v) {
+            $attentions = Wekit::load('tag.PwTagAttention')->getAttentionUids($k, 0, 5);
+            $hotTags[$k]['weight'] = 0.7 * $v['content_count'] + 0.3 * $v['attention_count'];
+            $hotTags[$k]['attentions'] = array_keys($attentions);
+            $tagIds[] = $k;
+        }
+        usort($hotTags, array($this, 'cmp'));
+        return $hotTags;
+    }
+	
    
 
 }

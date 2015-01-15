@@ -178,12 +178,14 @@ class TagController extends PwBaseController {
 			$id = $tag['tag_id'];
 		}
                 /* 筛选话题下的有效帖子并且分类属于移动端板块 */
-                $nativeTagRelationDao = Wekit::loadDao('native.dao.PwNativeTagRelationDao');
-                $res = $nativeTagRelationDao->fetchTids(array($id));//默认获取30个与话题相关的帖子tids
+                $res = Wekit::loadDao('native.dao.PwNativeTagRelationDao')->fetchTids(array($id));//默认获取30个与话题相关的帖子tids
                 $tids = array();
                 foreach($res as $v){
                     $tids[] = $v['param_id'];
                 }
+                $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids);
+                var_dump($tids,$threads_list);exit;
+                /*
                 $threadsDao = Wekit::loadDao('forum.dao.PwThreadsDao');
                 $threads = $threadsDao->fetchThread($tids);
                 $threadsContentDao = Wekit::loadDao('forum.dao.PwThreadsContentDao');
@@ -197,6 +199,8 @@ class TagController extends PwBaseController {
                     $threads[$k]['from_type'] = isset($threads_native[$k]['from_type']) ? intval($threads_native[$k]['from_type']) : 0;
                     $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
                 }
+                 * 
+                 */
                 var_dump($threads);exit;//话题下帖子列表包含内容、话题、移动端信息扩展。只展示移动端分类下数据
                 
 		// 是否关注
