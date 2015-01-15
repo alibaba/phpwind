@@ -44,4 +44,14 @@ class PwThreadsNativeDao extends PwBaseDao {
             return $smt->fetchAll('tid');
         }
         
+        /**
+         * 根据帖子的tid获取单条数据
+         */
+        public function getByTid($tid){
+            if(!$tid) return array();
+            $sql = $this->_bindSql('SELECT * FROM `%s` WHERE `tid` IN (%s);', $this->getTable(),intval($tid));
+            $smt = $this->getConnection()->query($sql);//WindResultSet
+            return $smt->fetch();
+        }
+        
 }
