@@ -183,24 +183,9 @@ class TagController extends PwBaseController {
                 foreach($res as $v){
                     $tids[] = $v['param_id'];
                 }
-                $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids);
+                $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
                 var_dump($tids,$threads_list);exit;
-                /*
-                $threadsDao = Wekit::loadDao('forum.dao.PwThreadsDao');
-                $threads = $threadsDao->fetchThread($tids);
-                $threadsContentDao = Wekit::loadDao('forum.dao.PwThreadsContentDao');
-                $threads_content = $threadsContentDao->fetchThread($tids);
-                $threadsNativeDao = Wekit::loadDao('native.dao.PwThreadsNativeDao');
-                $threads_native = $threadsNativeDao->fetchByTids($tids);
-//                var_dump($tids,$threads,$threads_content,$threads_native);exit;
-                foreach($threads as $k=>$v){
-                    $threads[$k]['content'] = isset($threads_content[$k]['content']) ? $threads_content[$k]['content'] : '';
-                    $threads[$k]['tags'] = isset($threads_content[$k]['tags']) ? $threads_content[$k]['tags'] : '';
-                    $threads[$k]['from_type'] = isset($threads_native[$k]['from_type']) ? intval($threads_native[$k]['from_type']) : 0;
-                    $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
-                }
-                 * 
-                 */
+                
                 var_dump($threads);exit;//话题下帖子列表包含内容、话题、移动端信息扩展。只展示移动端分类下数据
                 
 		// 是否关注
@@ -256,14 +241,13 @@ class TagController extends PwBaseController {
                     $threads[$v['tid']] = $v;
                 }
                 $tids = array_keys($threads);                
-                $threadsNativeDao = Wekit::loadDao('native.dao.PwThreadsNativeDao');
-                $threads_native = $threadsNativeDao->fetchByTids($tids);
+                $threads_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->fetchByTids($tids);
                 foreach($threads as $k => $v){
-                    $threads[$k]['from_type'] = isset($threads_native[$k]['from_type']) ? intval($threads_native[$k]['from_type']) : 0;
-                    $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
+                    $threads[$k]['from_type'] = isset($threads_place[$k]['from_type']) ? intval($threads_place[$k]['from_type']) : 0;
+                    $threads[$k]['created_address'] = isset($threads_place[$k]['created_address']) ? $threads_place[$k]['created_address'] : '';
                 }
                 var_dump($threads);exit;//话题下帖子列表包含内容、话题、移动端信息扩展
-                var_dump($tids,$threads,$threads_native);exit;
+                var_dump($tids,$threads,$threads_place);exit;
                 
                 var_dump($contents);exit;
 	}

@@ -210,7 +210,7 @@ class PwNativeThreadsDao extends PwThreadsDao {
         $dao = $GLOBALS['acloud_object_dao'];//ACloudVerCoreDao
         $prefix = $dao->getDB()->getTablePrefix();
         $sql = "SELECT t.`tid`,t.`fid`,t.`subject`,c.`content`,c.`tags`,t.`lastpost_userid`,t.`lastpost_username`,t.`hits`,t.`replies`,t.`like_count` 
-                FROM `${prefix}bbs_threads_native` n 
+                FROM `${prefix}bbs_threads_place` n 
                 LEFT JOIN `%s` t ON n.`tid`=t.`tid` 
                 LEFT JOIN `${prefix}bbs_threads_content` c ON n.`tid`=c.`tid` 
                 WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids) AND n.`created_address`='%s'
@@ -231,7 +231,7 @@ class PwNativeThreadsDao extends PwThreadsDao {
         $dao = $GLOBALS['acloud_object_dao'];//ACloudVerCoreDao
         $prefix = $dao->getDB()->getTablePrefix();
         $sql = "SELECT t.`tid`
-                FROM `${prefix}bbs_threads_native` n 
+                FROM `${prefix}bbs_threads_place` n 
                 LEFT JOIN `%s` t 
                 ON n.`tid`=t.`tid` 
                 WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids) AND n.`created_address`='%s'

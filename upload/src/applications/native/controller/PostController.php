@@ -172,8 +172,7 @@ class PostController extends PwBaseController {
         $tid = $pwPost->getNewId();
         //在帖子移动端扩展表中插入数据
         $data = array('tid'=>$tid,'from_type'=>1,'created_address'=>$created_address);
-        $threadsNativeDao = Wekit::loadDao('native.dao.PwThreadsNativeDao');
-        $res = $threadsNativeDao->insertValue($data);
+        $res = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->insertValue($data);
         $this->showMessage('success', 'bbs/read/run/?tid=' . $tid . '&fid=' . $pwPost->forum->fid, true);
 
         /*

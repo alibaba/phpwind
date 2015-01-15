@@ -19,7 +19,7 @@ class ForumController extends AdminBaseController {
         $prefix = $dao->getDB()->getTablePrefix();
 //        $sql = "SELECT f.`fid`,f.`name`,IFNULL(fn.`isdefault`,-1) isdefault 
 //                FROM `pw_bbs_forum` f 
-//                LEFT JOIN `pw_bbs_forum_native` fn 
+//                LEFT JOIN `pw_bbs_forum_place` fn 
 //                ON f.`fid`=fn.`fid` 
 //                WHERE f.`hassub`=0;";
         $sql = "SELECT `fid`,`name`

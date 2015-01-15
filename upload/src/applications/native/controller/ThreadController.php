@@ -98,7 +98,7 @@ class ThreadController extends PwBaseController {
                 foreach($threadList->threaddb as $v){
                     $tids[] = $v['tid'];
                 }
-                $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids,"NUM");
+                $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,"NUM");
                 
 //                var_dump($this);exit;
 //                var_dump(get_class($pwforum),get_class_methods($pwforum));exit;

@@ -5,7 +5,7 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 /**
  * 移动端发帖扩展表
  *
- * @fileName: PwThreadsNativeDao.php
+ * @fileName: PwThreadsPlaceDao.php
  * @author: yuliang<yuliang.lyl@alibaba-inc.com>
  * @license: http://www.phpwind.com
  * @version: $Id
@@ -14,9 +14,9 @@ defined('WEKIT_VERSION') || exit('Forbidden');
  * */
 
 
-class PwThreadsNativeDao extends PwBaseDao {
+class PwThreadsPlaceDao extends PwBaseDao {
 	
-	protected $_table = 'bbs_threads_native';
+	protected $_table = 'bbs_threads_place';
 	protected $_pk = 'tid';
 	protected $_dataStruct = array('tid','from_type','created_address');
 	

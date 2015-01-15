@@ -3,7 +3,7 @@
 /**
  * 动态帖子列表相关接口
  *
- * @fileName: ListController.php
+ * @fileName: DynamicController.php
  * @author: yuliang<yuliang.lyl@alibaba-inc.com>
  * @license: http://www.phpwind.com
  * @version: $Id
@@ -12,7 +12,7 @@
  * */
 defined('WEKIT_VERSION') || exit('Forbidden');
 
-class ListController extends PwBaseController {
+class DynamicController extends PwBaseController {
 
     private $perpage = 30;
 
@@ -28,7 +28,7 @@ class ListController extends PwBaseController {
      * @access public
      * @return string
       <pre>
-      /index.php?m=native&c=list&a=hot&page=1&_json=1
+      /index.php?m=native&c=dynamic&a=hot&page=1&_json=1
       response: {err:"",data:""}
       </pre>
      */
@@ -43,7 +43,7 @@ class ListController extends PwBaseController {
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $hot_count = Wekit::loadDao('native.dao.PwThreadsHotDao')->getThreadsHotCount($time);
         $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadTids($hot_count,$time,$page,$num);
-        $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids);
+        $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
 //        var_dump($tids,$threads_list);exit;
         header('Content-type:application/json');
 
@@ -88,7 +88,7 @@ class ListController extends PwBaseController {
      * @access public
      * @return void
       <pre>
-      /index.php?m=native&c=list&a=sethot&_json=1
+      /index.php?m=native&c=dynamic&a=sethot&_json=1
       post: tid=1&starttime=2011-1-1&endtime=2016-1-1
       response: {err:"",data:""}
       </pre>
@@ -157,7 +157,7 @@ class ListController extends PwBaseController {
      * @return string
      * @example
       <pre>
-      /index.php?m=native&c=list&a=my&page=1&_json=1
+      /index.php?m=native&c=dynamic&a=my&page=1&_json=1
       cookie:usersession
       response: {err:"",data:""}
       </pre>
@@ -192,11 +192,10 @@ class ListController extends PwBaseController {
         $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
         $threads = $nativeThreadsDao->fetchMyThreads($tids);
 //        $tids = array_keys($threads);
-        $threadsNativeDao = Wekit::loadDao('native.dao.PwThreadsNativeDao');
-        $threads_native = $threadsNativeDao->fetchByTids($tids);
+        $threads_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->fetchByTids($tids);
         foreach($threads as $k=>$v){
-            $threads[$k]['from_type'] = isset($threads_native[$k]['from_type']) ? $threads_native[$k]['from_type'] : 0;
-            $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
+            $threads[$k]['from_type'] = isset($threads_place[$k]['from_type']) ? $threads_place[$k]['from_type'] : 0;
+            $threads[$k]['created_address'] = isset($threads_place[$k]['created_address']) ? $threads_place[$k]['created_address'] : '';
         }
 //        var_dump($threads);exit;
         if(count($res)<5 && $page==1){
@@ -231,7 +230,7 @@ class ListController extends PwBaseController {
      * @return string
      * @example
       <pre>
-      /index.php?m=native&c=list&a=new&page=1&_json=1
+      /index.php?m=native&c=dynamic&a=new&page=1&_json=1
       response: {err:"",data:""}
       </pre>
      */
@@ -243,7 +242,7 @@ class ListController extends PwBaseController {
 //        $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
 //        $threads = $nativeThreadsDao->fetchNewThreadTids($pos,$num);
         $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchNewThreadTids($pos,$num);;
-        $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids);
+        $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
         var_dump($tids,$threads_list);
         if($res){
             /* 列表页不展示回帖信息
@@ -285,7 +284,7 @@ class ListController extends PwBaseController {
      * @return string
      * @example
       <pre>
-      /index.php?m=native&c=list&a=city&city=aaa&page=1&_json=1
+      /index.php?m=native&c=dynamic&a=city&city=aaa&page=1&_json=1
       cookie:usersession
       response: {err:"",data:""}
       </pre>
@@ -297,7 +296,7 @@ class ListController extends PwBaseController {
         $city = isset($_GET['city']) ? $_GET['city'] : '';
         $pos = ($page-1)*$num;
         $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchCityThreadTids($city,$pos,$num);
-        $threads_list = Wekit::load('native.srv.PwListService')->fetchThreadsList($tids);
+        $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
         var_dump($tids,$threads_list);exit;
     }
     
@@ -308,7 +307,7 @@ class ListController extends PwBaseController {
      * @return string
      * @example
       <pre>
-      /index.php?m=mobile&c=list&a=weight
+      /index.php?m=mobile&c=dynamic&a=weight
       post:
       response: {err:"",data:""}
       </pre>

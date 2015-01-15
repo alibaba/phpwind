@@ -100,8 +100,8 @@ class ReadController extends PwBaseController {
                        'pwforum'=>$pwforum,
                        'threadInfo'=>$threadInfo,
                     );
-        $thread_native = Wekit::loadDao('native.dao.PwThreadsNativeDao')->getByTid($tid);
-        var_dump($thread_native);exit;
+        $thread_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->getByTid($tid);
+        var_dump($thread_place);exit;
         var_dump($threadInfo);exit;
         var_dump(1,$threadDisplay);exit;
         

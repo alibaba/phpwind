@@ -1,27 +1,20 @@
 <?php
-/**
- * 帖子列表业务
- *
- * @author peihong <peihong.zhangph@aliyun-inc.com>
- * @copyright ©2003-2103 phpwind.com
- * @license http://www.phpwind.com
- * @version $Id: PwTagService.php 3833 2012-02-16 03:32:27Z peihong.zhangph $
- * @package src.service.tag.srv
- */
-class PwListService {
+
+
+class PwDynamicService {
     /**
      * 获取列表页展示的帖子数据
      */
     public function fetchThreadsList($tids,$result_type='ASSOC'){
         $threads = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchThreads($tids);
-        $threads_native = Wekit::loadDao('native.dao.PwThreadsNativeDao')->fetchByTids($tids);
+        $threads_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->fetchByTids($tids);
         $threads_content = Wekit::loadDao('forum.dao.PwThreadsContentDao')->fetchThread($tids);
         $tag_names_str = '';
         foreach($threads as $k=>$v){
             $threads[$k]['content'] = isset($threads_content[$k]['content']) ? $threads_content[$k]['content'] : '';
             $threads[$k]['tags'] = isset($threads_content[$k]['tags']) ? $threads_content[$k]['tags'] : '';
-            $threads[$k]['from_type'] = isset($threads_native[$k]['from_type']) ? $threads_native[$k]['from_type'] : 0;
-            $threads[$k]['created_address'] = isset($threads_native[$k]['created_address']) ? $threads_native[$k]['created_address'] : '';
+            $threads[$k]['from_type'] = isset($threads_place[$k]['from_type']) ? $threads_place[$k]['from_type'] : 0;
+            $threads[$k]['created_address'] = isset($threads_place[$k]['created_address']) ? $threads_place[$k]['created_address'] : '';
             $threads[$k]['tags'] && $tag_names_str.=','.$threads[$k]['tags'];
         }
         $tag_names_arr = array_unique(explode(',', trim($tag_names_str,',')));
