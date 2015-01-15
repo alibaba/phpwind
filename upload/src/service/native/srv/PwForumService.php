@@ -16,8 +16,7 @@ class PwForumService {
     public $fids=array();
 
     public function __construct(){
-        //test data
-        $this->fids=array(2,8);
+        $this->fids = $this->_getForumFids();
     }
 
     
@@ -27,14 +26,19 @@ class PwForumService {
      * @access public
      * @return void
      */
-    public function getFormList(){
+    public function getForumList(){
         $forumList = $this->_getForumDs()->getCommonForumList(PwForum::FETCH_MAIN | PwForum::FETCH_STATISTICS);
+        foreach($forumList as $k=>$v){
+            if($v['type']!='forum'){
+                unset($forumList[$k]);
+            }
+        }
         return $this->_filterForumData($forumList);
     }
 
 
     /**
-     * 获得移动端显示版块 
+     * 获得移动端显示版块具体信息
      * 
      * @access public
      * @return void
@@ -44,6 +48,17 @@ class PwForumService {
         return $this->_filterForumData($forumList);
     }
 
+    /**
+     * 移动端显示的模块fids 
+     * 
+     * @access public
+     * @return void
+     */
+    private function _getForumFids(){
+        $config = Wekit::C()->getConfigByName('native','forum.fids');
+        $fids_array = unserialize($config['value']);
+        return is_array($fids_array) ? array_keys($fids_array) : array();
+    }
 
     /**
      * 过滤版块数据，不需要的字段过滤掉 

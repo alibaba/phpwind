@@ -19,7 +19,8 @@ class MyController extends NativeBaseController {
      */
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        $this->checkUserSessionValid();
+        //        $this->checkUserSessionValid();
+        $this->uid=3;
     }
     
     /**
@@ -145,7 +146,7 @@ class MyController extends NativeBaseController {
      * @return void
      * @example
      * <pre>
-     * /index.php?m=native&c=Space&a=tag&page=1 <br>
+     * /index.php?m=native&c=My&a=tag&page=1 <br>
      * </pre>
      */
     public function tagAction(){

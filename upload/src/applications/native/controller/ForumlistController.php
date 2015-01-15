@@ -25,6 +25,10 @@ class ForumListController extends PwBaseController {
      </pre>
      */
     public function run() {
+
+        $forumList = $this->_getForumService()->fetchForum($this->_getForumService()->fids);
+
+
         /* @var $forumDs PwForum */
         $forumDs = Wekit::load('forum.PwForum');
         $list = $forumDs->getCommonForumList(PwForum::FETCH_MAIN | PwForum::FETCH_STATISTICS);
@@ -85,4 +89,8 @@ class ForumListController extends PwBaseController {
         }
         return $_manage;
     }
+
+    private function _getForumService(){                                                                                           
+        return Wekit::load('native.srv.PwForumService');
+    }  
 }
