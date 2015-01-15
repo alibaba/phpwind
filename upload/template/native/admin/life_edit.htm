@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<div class="wrap">
+
+
+<form id="J_rigths_form" data-role="list" action="{@url:native/life/doedit}" method="post">
+<input type="hidden" name="fid" value="{$foruminfo['fid']}"/>
+<div class="h_a">添加商家</div>
+<div class="table_full">
+	<table width="100%">
+		<col class="th" />
+		<col width="400" />
+		<col />
+			<col width="44" />
+		<tr>
+			<th>商家名称</th>
+			<td>
+				<input type="text" class="input input_hd length_5" name="forumname" value="{$foruminfo['name']}"/>
+			</td>
+			<td><div class="fun_tips">支持HTML代码</div></td>
+			<td style="vertical-align:middle"></td>
+		</tr>
+		<tr>
+			<th>商家版主</th>
+			<td>
+				<input type="text" class="input length_5" name="manager" value="{@trim($foruminfo['manager'], ',')}"/>
+			</td>
+			<td>&nbsp;</td>
+			<td style="vertical-align:middle"><input type="checkbox" name="copyitems[]" class="J_line_highlight" style="display:none;" value="manager"></td>
+		</tr>
+	</table>
+</div>
+
+<div class="J_tabs_contents">
+	<!--=============基本设置===============-->
+	<div>
+		<div class="table_full">
+			<table width="100%">
+				<col class="th" />
+				<col width="400" />
+				<col />
+				<col width="44" />
+				<tr>
+					<th>显示顺序</th>
+					<td><input type="number" class="input length_5" name="vieworder" value="{$foruminfo['vieworder']}"></td>
+					<td></td>
+					<td style="vertical-align:middle"></td>
+				</tr>
+				
+				<tr>
+					<th>商家简介</th>
+					<td><textarea class="length_5" name="descrip">{$foruminfo['descrip']}</textarea></td>
+					<td><div class="fun_tips">支持HTML代码</div></td>
+					<td style="vertical-align:middle"><input type="checkbox" name="copyitems[]" value="descrip" class="J_line_highlight" style="display:none;"></td>
+				</tr>
+				
+				
+				<tr>
+					<th>是否在WEB论坛中显示</th>
+					<td>
+						<ul class="switch_list cc">
+							<li><label><input type="radio" value="1" name="isshow" {@Pw::ifcheck($foruminfo['isshow'])}/><span>开启</span></label></li>
+							<li><label><input type="radio" value="0" name="isshow" {@Pw::ifcheck(!$foruminfo['isshow'])}><span>关闭</span></label></li>
+						</ul>
+					</td>
+					<td><div class="fun_tips">关闭后版块不显示，但可以通过url直接访问</div></td>
+					<td style="vertical-align:middle"><input type="checkbox" name="copyitems[]" class="J_line_highlight" style="display:none;" value="isshow"></td>
+				</tr>
+				<tr>
+					<th>商家淘宝店</th>
+					<td>
+						<input type="text" class="input length_5" value="{$forumlife['url']}" name="url" placeholder="http://"/>
+					</td>
+					<td><div class="fun_tips">请输入版块需要跳转的地址，支持站内站外，外部链接必须要添加http://</div></td>
+					<td style="vertical-align:middle"><input type="checkbox" name="copyitems[]" class="J_line_highlight" style="display:none;" value="jumpurl"></td>
+				</tr>
+				
+				
+				<tr>
+					<th>商家地址</th>
+						<td>
+						<input type="text" class="input length_5"  value="{$forumlife['address']}" name="address"/>
+						</td>
+						<td><div class="fun_tips">如果需要显示成目录形式，则需要设置<a class="J_linkframe_trigger">伪静态</a>规则，否则还是会显示动态URL</div></td>
+					<td style="vertical-align:middle"></td>
+				</tr>
+			</table>
+		</div>
+
+		
+	</div>
+
+</div>
+
+
+
+<div class="btn_wrap">
+	<div class="btn_wrap_pd">
+		<button type="submit" class="btn btn_submit mr20" id="J_rights_form_btn">提交</button>
+	</div>
+</div>
+</form>
+
+
+</div>
+<template source='TPL:admin.common.footer' />
+
+</body>
+</html>

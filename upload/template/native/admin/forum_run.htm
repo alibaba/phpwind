@@ -1,0 +1,81 @@
+
+<!doctype html>
+<html>
+    <head>
+        <template source='TPL:admin.common.head' />
+    <!--<script src="{@G:url.js}/jquery.js?v{@NEXT_RELEASE}"></script>-->
+    </head>
+    <body>
+        <div class="wrap">
+            <!--# if ($forums) { #-->
+            <form method="post" action="/admin.php?m=native&c=forum&a=doEdit" >
+                <div class="h_a">*移动用户可访问版面：</div>
+                <div class="home_info">
+                <!--# 
+                $i = 0;
+                foreach($forums as $v) { 
+                    $checked = $v['isdefault'] != -1 ? 'checked' : '';
+                    $disabled = $v['isdefault'] != -1 ? '' : 'disabled';
+                #-->
+                <input type="checkbox" name="forums[{$i}][fid]" {$checked} value="{$v['fid']}" text="{$v['name']}"/>
+                <input type="text" name="forums[{$i}][order]" {$disabled} class="input mr5" style="width:25px;" value="{$v['order']}"/>
+                {$v['name']}&nbsp;&nbsp;
+                <!--# 
+                $i++;
+                } 
+                #-->
+                </div>
+                <div class="h_a">* 默认频道：<span class="red">移动端用户发帖时，如未选择任何版面则默认发到此版面</span></div>
+                
+                <div class="home_info">
+                <select name="fid_default">
+                            <option value="0">请选择默认板块</option>
+                <!--# 
+                    foreach($forums as $v) {  
+                        if($v['isdefault'] == 0){
+                #-->
+                            <option value="{$v['fid']}">{$v['name']}</option>
+                        <!--# }else if($v['isdefault'] == 1){ #-->
+                            <option value="{$v['fid']}" selected>{$v['name']}</option>
+                        <!--# } #-->
+                <!--# } #-->
+                </select>
+                </div>
+                <div class="btn_wrap">
+                        <div class="btn_wrap_pd">
+                                <button type="submit" class="btn btn_submit">保存</button>
+                                <span class="tips_error" style="display:none">请选择默认板块</span>
+                        </div>
+                </div>
+                
+            </form>
+            <!--# }else{ #-->
+            <b>当前没有可选模板，请先添加模板！</b>
+            <!--# } #-->
+        </div>
+        <template source='TPL:admin.common.footer' />
+    </body>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("input[type='checkbox']").bind('click',function(){
+                //alert($(this).attr('value')+'----'+$(this).attr('checked'));
+                var fid = $(this).attr('value');
+                if($(this).attr('checked') == 'checked'){
+                    var fname = $(this).attr('text');
+                    $(this).next().attr("disabled",false);
+                    $("select[name='fid_default']").append("<option value='"+fid+"'>"+fname+"</option>");
+                }else{
+                    $(this).next().attr("disabled",true);
+                    $("select[name='fid_default'] option[value='"+fid+"']").remove(); 
+                }
+            });
+            
+            $(".btn_submit").bind("click",function(){
+                if($("[name='fid_default']").val()==0){
+                    $(".tips_error").show();
+                    return false;
+                }
+            });
+        });
+    </script>
+</html>
