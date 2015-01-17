@@ -341,6 +341,13 @@ class PwUbbCode {
 		);
 	}
 
+    public static function parseTao($message) {
+    //public static function createTao($title, $btn_type, $price, $link, $img){
+		//echo preg_replace("/\[tao=([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]\[\/tao\]/eis", "self::createTao('\\2', '\\4', '\\3', '\\1', '\\5')", $message);
+		return preg_replace("/\[tao=([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)\]\[\/tao\]/eis", "self::createTao('\\1', '\\4', '\\3', '\\2', '\\5')", $message);
+	}
+
+
 	public static function parseRemind($message, $remindUser) {
 		return preg_replace('/@([\x7f-\xff\dA-Za-z\.\_]+)(?=\s?)/ie', "self::createRemind('\\1', \$remindUser)", $message);
 	}
@@ -428,11 +435,12 @@ class PwUbbCode {
 		$message = self::convertGlow($message);
 
 		self::_startParse();
+        $config->isConvertTao && $message = self::parseTao($message);
 		strpos($message, '[s:') !== false && $message = self::parseEmotion($message);
 		$message = self::parseAttachment($message, $config);
 		self::hasTag($message, 'img') && $message = self::parseImg($message, $config->isConverImg, $config->imgWidth, $config->imgHeight, $config->imgLazy);
 		self::hasTag($message, 'url') && $message = self::parseUrl($message);
-		self::hasTag($message, 'flash') && $message = self::parseFlash($message, $config->isConvertFlash);
+        self::hasTag($message, 'flash') && $message = self::parseFlash($message, $config->isConvertFlash);
 		$config->remindUser && $message = self::parseRemind($message, $config->remindUser);
 		$config->isConvertMedia && $message = self::parseMedia($message, $config->isConvertMedia == 2);
 		$config->isConvertIframe && self::hasTag($message, 'iframe') && $message = self::parseIframe($message, $config->isConvertIframe == 2);
@@ -734,6 +742,25 @@ class PwUbbCode {
 		$html = "<span class=\"posts_icon\"><i class=\"icon_music\"><i></span> <a target=\"_blank\" href=\"$url \">$url</a>";
 		return self::_pushCode($html);
 	}
+
+    /**
+     * createTaoCanvas 
+     * 
+     * @access public
+     * @return void
+     */
+    public static function createTao($title, $btn_type, $price, $link, $img){
+        $link = self::escapeUrl(urldecode($link));
+        $img  = self::escapeUrl(urldecode($img));
+        $html = '<dl class="taobaoCanvas">
+                    <dt><img src="'.$img.'" /></dt>
+                    <dd class="title">'.$title.'</dd>
+                    <dd class="price">'.$price.'</dd>
+                    <dd><span class="go"><a href="'.$link.'">'.$btn_type.'</a></span></dd>
+                    <dd style="clear:both;"></dd>
+                    </dl>';
+        return self::_pushCode($html);
+    }
 
 	public static function createRemind($username, $uArray) {
 		return isset($uArray[$username]) ? '<a href="'. WindUrlHelper::createUrl('space/index/run', array('uid' => $uArray[$username])) . '">@' . $username . '</a>' : '@' . $username;

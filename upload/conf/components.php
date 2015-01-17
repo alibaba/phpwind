@@ -22,7 +22,8 @@ return array(
 		'config' => array('resource' => 'CONF:pwcomponents.php'),		
 	),
 	'security' => array(
-		'path' => 'WIND:security.WindXxtea',
+		//'path' => 'WIND:security.WindXxtea',
+		'path' => 'WIND:security.WindMcryptCbc',
 		'scope' => 'singleton',
 	),
 	'windLogger' => array(

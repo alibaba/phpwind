@@ -337,6 +337,13 @@ $Id: buyiui.css 22826 2012-12-27 10:36:03Z hao.lin $
 .wind_icon:hover span.insertSell{
 	background-position:-20px -160px;
 }
+/*=====推广=====*/
+.wind_icon span.insertTao{
+    background-position:-100px -60px;
+}
+.wind_icon:hover span.insertTao{
+	background-position:-100px -160px;
+}
 /*=====隐藏=====*/
 .wind_icon span.insertHide{
 	background-position:-40px -60px;

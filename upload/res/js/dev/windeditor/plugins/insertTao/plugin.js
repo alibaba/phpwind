@@ -13,23 +13,33 @@
 		dialog = $('\
 			<div class="edit_menu">\
 				<div class="edit_menu_music">\
-					<div class="edit_menu_top"><a href="" class="edit_menu_close">关闭</a><strong>插入商品</strong></div>\
+					<div class="edit_menu_top"><a href="" class="edit_menu_close">关闭</a><strong>推广位</strong></div>\
 					<div class="edit_menu_cont">\
 						<dl class="cc">\
-							<dt>标题：</dt>\
+							<dt>文字：</dt>\
 							<dd><input type="text" class="input length_5" id="J_input_tao_title"></dd>\
+						</dl>\
+						<dl class="cc">\
+                            <dt>类型：</dt>\
+                            <dd>\
+                            <label><input name="button_type" type="radio" value="购买" checked="checked">购买</label>\
+                            <label><input name="button_type" type="radio" value="下载">下载</label>\
+                            <label><input name="button_type" type="radio" value="去看看">去看看</label>\
+                            <label><input name="button_type" type="radio" value="抢">抢</label>\
+                            </dd>\
+                        </dl>\
+                        <dl class="cc">\
+							<dt>价格：</dt>\
+							<dd><input type="text" class="input length_3" id="J_input_tao_price" placeholder="例如：￥50、免费、等等。"></dd>\
+						</dl>\
+						<dl class="cc">\
+							<dt>链接：</dt>\
+							<dd><input type="text" class="input length_5" id="J_input_tao_link"></dd>\
 						</dl>\
                         <dl class="cc">\
 							<dt>图片：</dt>\
-							<dd><canvas id="imgBrowser" width="200" height="200" style="display:none" /><input type="file" style="display:none" onchange="fileSelectEventHandle(event,\'imgBrowser\')" name="Filename" id="Filename" /><input type="button" onclick="Filename.click()" value="选择文件" /></dd>\
-						</dl>\
-                        <dl class="cc">\
-							<dt>价格：</dt>\
-							<dd><input type="text" class="input length_3" id="J_input_tao_price"></dd>\
-						</dl>\
-						<dl class="cc">\
-							<dt>地址：</dt>\
-							<dd><input type="text" class="input length_5" id="J_input_tao_link"></dd>\
+							<dd><canvas id="imgBrowser" width="160" height="160" style="display:none" />\
+                                <input type="file" style="display:none"  accept="image/png,image/jpeg" onchange="fileSelectEventHandle(event,\'imgBrowser\')" name="Filename" id="Filename" /><input type="button" onclick="Filename.click()" value="选择文件" />(160*160)</dd>\
 						</dl>\
 					</div>\
 					<div class="edit_menu_bot">\
@@ -66,16 +76,26 @@
 			dialog.find('.edit_menu_btn').on('click',function(e) {
 				e.preventDefault();
 
-                var title = $('#J_input_tao_title').val();
+                var title = $('#J_input_tao_title').val().replace(/,/g,'');
                 var link = $('#J_input_tao_link').val();
+                var price = $('#J_input_tao_price').val().replace(/,/g,'');
                 if( title.length<2 ) {
-                    alert('请描述一下商品标题');
+                    alert('文字内容不能为空！');
                     return;
                 }
-                if( link.indexOf('http')!== 0 ) {
-                    alert('商品地址不正确，请重新输入');
+                if( price.length<1 ){
+                    alert('价格不能为空！');
                     return;
                 }
+                if( link.indexOf('http://')!== 0 ) {
+                    alert('地址不正确，请重新输入');
+                    return;
+                } 
+                if( $("#Filename").val()=="" ){
+                    alert('请选择文件');
+                    return;
+                }
+                var button_type=$("input[name=button_type]:checked").val();
 
                 //first upload image
                 var formData = new FormData();
@@ -96,9 +116,14 @@
                 }).done(function(ret){
                     //console.log(ret)
                     if( ret.state=='success' ){
-                        _self.insertHTML('<table class><tbody><tr><td><img src="'+ret.data.path+'" /></td><td valign="top">美女一枚，出售，抄底价。</br>￥56.99</br><input type="button" value="购买" onclick="alert(\"ok\");"></td></tr></tbody></table>');
-
-                        //				_self.insertHTML('<img class="j_editor_tao_content" width="300" height="40" style="border:1px dashed #ccc;display:block;background:#fffeee url('+ img_path +'music_48.png) center center no-repeat;" src="'+ img_path +'blank.gif" data-url="'+ link +'" data-auto="'+ is_autoplay +'"/>').hideDialog();
+                        var _html='<dl class="taobaoCanvas">\
+                    <dt><img src="'+ret.data.path+'" /></dt>\
+                    <dd class="title">'+title+'</dd>\
+                    <dd class="price">价格：'+price+'</dd>\
+                    <dd><span class="go"><a href="'+link+'">'+button_type+'</a></span></dd>\
+                    <dd style="clear:both;"></dd>\
+                    </dl>';
+                        _self.insertHTML(_html);
                         _self.hideDialog();
                     }else{
                         alert(ret.message[0]);
@@ -109,12 +134,16 @@
 			});
 
 			function wysiwyg() {
-				var reg = /\[mp3=(\d)\]([\s\S]*?)\[\/mp3\]/ig;
+                var reg = /\[tao=([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)\]\[\/tao\]/ig;
 				var	html = $(editorDoc.body).html();
-				html = html.replace(reg,function(all, $1, $2) {
-//					return '<img class="j_editor_tao_content" width="300" height="40" style="border:1px dashed #ccc;display:block;background:#fffeee url('+ img_path +'music_48.png) center center no-repeat;" src="'+ img_path +'blank.gif" data-url="'+ $2 +'" data-auto="'+ $1 +'"/>';
-                    _self.insertHTML('<table><tbody><tr><td><img src="http://10.101.81.197:8001/phpwind/upload/attachment/thumb/mini/1501/thread/2_3_3b214088fd537f1.jpg" ></td><td valign="top">美女一枚，出售，抄底价。</br>￥56.99</br><input type="button" value="购买" onclick="alert(\"ok\");"></td></tr></tbody></table>');
-            
+				html = html.replace(reg,function(all, $1, $2, $3, $4, $5) {
+                    return '<dl class="taobaoCanvas">\
+                    <dt><img src="'+decodeURIComponent($5)+'" /></dt>\
+                    <dd class="title">'+$1+'</dd>\
+                    <dd class="price">'+$3+'</dd>\
+                    <dd><span class="go"><a href="'+decodeURIComponent($2)+'">'+$4+'</a></span></dd>\
+                    <dd style="clear:both;"></dd>\
+                    </dl>';
 				});
 				$(editorDoc.body).html(html);
 			}
@@ -130,11 +159,14 @@
 
 			//切换成代码模式或者提交时
 			$(_self).on('beforeGetContent.' + pluginName,function() {
-				$(editorDoc.body).find('img.j_editor_music_content').each(function() {
-					var url = $(this).data('url'),
-						is_autoplay = $(this).data('auto');
-					$(this).replaceWith('[mp3='+ is_autoplay +']'+ url +'[/mp3]');
-				});
+				$(editorDoc.body).find('.taobaoCanvas').each(function() {
+			        var img     = $(this).children('dt').children('img').attr('src');
+                    var title   = $(this).children('.title').text().replace(/,/g,'');
+                    var price   = $(this).children('.price').text().replace(/,/g,'');
+                    var link    = $(this).children('dd').children('.go').children('a').attr('href');
+                    var btn    = $(this).children('dd').children('.go').children('a').text();
+                    $(this).replaceWith('[tao='+title+','+encodeURIComponent(link)+','+price+','+btn+','+encodeURIComponent(img)+'][/tao]');
+                });
 			});
 
 	});

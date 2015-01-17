@@ -30,6 +30,7 @@ class PwUbbCodeConvertThread extends PwUbbCodeConvertConfig {
 		$this->isConvertPost = true;
 		$this->isConvertHide = true;
 		$this->isConvertSell = true;
+		$this->isConvertTao  = true;
 		$this->isConverImg = $config['ubb.img.open'];
 		$this->isConvertMedia = $config['ubb.media.open'] ? 2 : 1;
 		$this->isConvertFlash = $config['ubb.flash.open'];

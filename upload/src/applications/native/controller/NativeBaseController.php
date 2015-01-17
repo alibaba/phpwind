@@ -135,6 +135,13 @@ abstract class NativeBaseController extends PwBaseController {
         }
     }
 
+    public function abcAction(){
+        $unsecurityKey='XtjwaTcM57kvqpeboNlXBexvRYZA3jnGruUwa3akKI8YSrASE+avlesx9aFNiA1MHAMYMYopSpzEYcvTnVSxx7jAEkQi/E5Y/TDONzNqqCxf+HuZ70pHswN/L2lQjOmfDqtPcvQm3LM=';
+        $aaa=  Pw::decrypt($unsecurityKey,$this->_securityKey);
+        print_r( unserialize($aaa) );
+        exit;
+    }
+
     /**
      * 认证sessionKey是否合法 
      * 

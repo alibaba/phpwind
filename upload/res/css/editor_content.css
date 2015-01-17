@@ -426,9 +426,14 @@ $Id: editor_content.css 24233 2013-01-23 06:36:49Z yanchixia $
 	max-width:100%;
 }
 
-
-
-
+/*推广*/
+.taobaoCanvas{border:1px dashed #CCC;background:#f7f7f7 right top no-repeat;padding:10px;margin:1em 0;}
+.taobaoCanvas .go { border-radius: 5px; box-shadow: 0px 1px 1px #666666; font-family: Arial; color: #ffffff; font-size: 18px; background: #fc7600; padding: 2px 20px 2px 20px; text-decoration: none; }
+.taobaoCanvas .go a{text-decoration: none;color:#fff}
+.taobaoCanvas dt{float:left;width:160px;height:160px;padding:0 15px 5px; 5px;}
+.taobaoCanvas dt img{width:160px;height:160px;}
+.taobaoCanvas .title{font-size:14px;font-weight:bold;min-height:30px;}
+.taobaoCanvas .price{font-weight:bold;color:#fc7600;margin-bottom:5px}
 
 
 
