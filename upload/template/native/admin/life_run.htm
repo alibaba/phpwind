@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<div class="wrap">
+        <div class="h_a">生活服务商家频道设置</div>
+	<div class="nav">
+            <span class="mr10 J_forum_names">生活服务是为品牌商家开辟的特殊版面，在移动端除了可以在商家的版区参与活动外，还可以访问此商家的地址、淘宝店等</span>
+	</div>
+	<div class="table_full">
+            <button id="J_forum_search" class="btn btn_submit" onclick="javascript:location.href='{@url:native/life/add}'">添加商家</button></td>
+	</div>
+	<form class="J_ajaxForm" data-role="list" action="{@url:native/life/dorun}" method="post">
+	<div class="table_list">
+		<table width="100%" id="J_table_list" style="table-layout:fixed;">
+			<colgroup>
+				<col width="200">
+				<col width="200">
+				<col width="200">
+				<col width="300">
+				<col>
+			</colgroup>
+			<thead>
+				<tr>
+					<td>顺序</td>
+					<td>名称</td>
+					<td>版主</td>
+					<td>操作</td>
+				</tr>
+			</thead>
+			
+			<!--# foreach($forums as $value) { #-->
+			<tbody>
+			<tr>
+				<td><input type="text" class="input mr5" name="vieworder[{$value['fid']}]" value="{$value['vieworder']}" style="width:20px;"></td>
+				<td>{$value['name']}</td>
+				<td>{@trim($value['manager'], ',')}</td>
+				<td><a href="{@url:native/life/edit?fid=$value['fid']}" class="mr5">[编辑]</a><a href="{@url:native/life/deleteforum}" class="mr5 J_ajax_del" data-pdata="{'fid': '{$value['fid']}'}">[删除]</a></td>
+			</tr>
+			</tbody>
+			<!--# } #-->
+		</table>
+		
+	</div>
+	<div class="btn_wrap">
+		<div class="btn_wrap_pd">
+			<button type="submit" class="btn btn_submit J_ajax_submit_btn">保存</button>
+		</div>
+	</div>
+	</form>
+	
+</div>
+<template source='TPL:admin.common.footer' />
+
+</body>
+</html>

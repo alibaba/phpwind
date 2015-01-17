@@ -23,22 +23,47 @@ class NoticeController extends PwBaseController {
 		$this->setOutput($action,'_action');
 		$this->setOutput($controller,'_controller');
 	}
-
+        
+        /**
+        * 查看未读系统通知列表，并将已查看的未读消息设为已读
+        * @access public
+        * @return string
+         <pre>
+         /index.php?m=native&c=notice&type=(reply|system)&page=1&_json=1
+         type:10 未读通知；0 所有系统消息
+         response: html
+         </pre>
+        */
 	public function run() {
 		list($type,$page) = $this->getInput(array('type','page'));
+//                $type = 3;
+                if($type=='reply'){
+                    $typeids = array(10);//回复提醒
+                    $exclude = false;
+                }else{
+                    $typeids = array(1,10);//排除私信提醒、回复提醒
+                    $exclude = true;
+                }
+                
 		$page = intval($page);
 		$page < 1 && $page = 1;
 		$perpage = 20;
 		list($start, $limit) = Pw::page2limit($page, $perpage);
-		$noticeList = $this->_getNoticeDs()->getNotices($this->loginUser->uid,$type,$start, $limit);
-		$noticeList = $this->_getNoticeService()->formatNoticeList($noticeList);
-		$typeCounts = $this->_getNoticeService()->countNoticesByType($this->loginUser->uid);
+                $notice_list = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getNoticesByTypeIds($this->loginUser->uid,$typeids,$start,$limit,$exclude);                
+		$notice_list = $this->_getNoticeService()->formatNoticeList($notice_list);
+
+//                $noticeList = $this->_getNoticeDs()->getNotices($this->loginUser->uid,$type,$start, $limit);
+//		$noticeList = $this->_getNoticeService()->formatNoticeList($noticeList);
+//                var_dump($noticeList);exit;
+		$typeCounts = $this->_getNoticeService()->countNoticesByType($this->loginUser->uid);//获取用户通知总数
 		//类型
 		$typeid = intval($type);
-		//获取未读通知数
+		//获取所有NOTICE未读通知数
 		$unreadCount = $this->_getNoticeDs()->getUnreadNoticeCount($this->loginUser->uid);
-
-		$this->_readNoticeList($unreadCount,$noticeList);
+//                $unread_notice_cnt = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getUnreadCountByTypeIds($this->loginUser->uid,$typeids,$exclude);
+//		$this->_readNoticeList($unreadCount,$noticeList);//将消息设置为已读
+                $this->_readNoticeList($unreadCount,$notice_list);//将消息设置为已读
+                var_dump($notice_list,$unreadCount);exit;
 
 		//count
 		$count = intval($typeCounts[$typeid]['count']);

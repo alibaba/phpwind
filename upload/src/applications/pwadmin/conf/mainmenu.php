@@ -109,6 +109,8 @@ return array(
     'native_banner' => array('Banner管理', 'native/Banner/*', '', '', 'native'),
     'native_ad' => array('广告推广管理', 'native/Ad/*', '', '', 'native'),
     'native_accountsecurity' => array('第三方平台接入', 'native/ThirdOpenPlatform/*', '', '', 'native'),
+    'native_forum' => array('频道管理', 'native/forum/*', '', '', 'native'),
+    'native_life' => array('生活服务设置', 'native/life/*', '', '', 'native'),
 
 
 	//'platform_server' => array('平台首页', 'appcenter/server/run', '', '', 'platform'),

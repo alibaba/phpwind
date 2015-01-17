@@ -43,7 +43,7 @@ class PwForumLifeDao extends PwBaseDao {
                     JOIN `{$prefix}bbs_forum_life` l 
                     ON f.`fid`=l.`fid` 
                     WHERE f.`hassub`=0";
-            return $dao->fetchAll($sql);
+            return $dao->fetchAll($sql,'fid');
         }
 
         /**

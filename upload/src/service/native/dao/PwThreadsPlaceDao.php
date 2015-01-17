@@ -5,7 +5,7 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 /**
  * 移动端发帖扩展表
  *
- * @fileName: PwThreadsNativeDao.php
+ * @fileName: PwThreadsPlaceDao.php
  * @author: yuliang<yuliang.lyl@alibaba-inc.com>
  * @license: http://www.phpwind.com
  * @version: $Id
@@ -14,9 +14,9 @@ defined('WEKIT_VERSION') || exit('Forbidden');
  * */
 
 
-class PwThreadsNativeDao extends PwBaseDao {
+class PwThreadsPlaceDao extends PwBaseDao {
 	
-	protected $_table = 'bbs_threads_native';
+	protected $_table = 'bbs_threads_place';
 	protected $_pk = 'tid';
 	protected $_dataStruct = array('tid','from_type','created_address');
 	
@@ -42,6 +42,16 @@ class PwThreadsNativeDao extends PwBaseDao {
             $sql = $this->_bindSql('SELECT * FROM `%s` WHERE `tid` IN (%s);', $this->getTable(),$tids_str);
             $smt = $this->getConnection()->query($sql);//WindResultSet
             return $smt->fetchAll('tid');
+        }
+        
+        /**
+         * 根据帖子的tid获取单条数据
+         */
+        public function getByTid($tid){
+            if(!$tid) return array();
+            $sql = $this->_bindSql('SELECT * FROM `%s` WHERE `tid` IN (%s);', $this->getTable(),intval($tid));
+            $smt = $this->getConnection()->query($sql);//WindResultSet
+            return $smt->fetch();
         }
         
 }

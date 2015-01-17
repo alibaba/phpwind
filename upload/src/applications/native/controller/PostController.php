@@ -100,7 +100,8 @@ class PostController extends PwBaseController {
      * @example
      <pre>
      /index.php?m=native&c=post&a=add&fid=分类id
-     post: atc_title=测试title&atc_content=测试内容&tagnames=测试话题&pid=默认空&tid=默认空&special=default&reply_notice=1
+     //post: atc_title=测试title&atc_content=测试内容&tagnames=测试话题&pid=默认空&tid=默认空&special=default&reply_notice=1
+     post: atc_content=#话题#测试内容&pid=默认空&tid=默认空&special=default&reply_notice=1
      cookie:usersession
      response: {err:"",data:""}  
      </pre>
@@ -111,6 +112,13 @@ class PostController extends PwBaseController {
         //app发帖子不带标题,内容格式化，抓取分享链接内容，此处尚需要处理
         list($title, $content, $topictype, $subtopictype, $reply_notice, $hide, $created_address,$share_url) = $this->getInput(array('atc_title', 'atc_content', 'topictype', 'sub_topictype', 'reply_notice', 'hide' ,'created_address','share_url'), 'post');
         $pwPost = $this->post;
+//        var_dump($_POST);exit;
+//        $content = "#dfere#aaadsdghj#gdad#sdsd";
+//        $_POST['tagnames'] = array('群发话题11','群发话题22','群发话题33');
+        preg_match("/^(#[^#]+?#)?(.+)/i",$content, $matches);
+        isset($matches[1]) && $_POST['tagnames'] = explode('#', trim($matches[1],'#'));
+        isset($matches[2]) && $content = $matches[2];
+//        var_dump($_POST['tagnames'],$content);exit;
         $this->runHook('c_post_doadd', $pwPost);
         /*
         //抓取分享链接内容
@@ -141,14 +149,17 @@ class PostController extends PwBaseController {
 //        var_dump($encode,$str);exit;
          * 
          */
-        header("Content-Type: text/html; charset=UTF-8");
-        $title = mb_substr($content, 0,5,"UTF-8");
+//        header("Content-Type: text/html; charset=UTF-8");
+        $title = mb_substr(strip_tags($content), 0,15,"UTF-8");
         $postDm = $pwPost->getDm();
         $postDm->setTitle($title)
                 ->setContent($content)
                 ->setHide($hide)
                 ->setReplyNotice($reply_notice);
-
+//        var_dump($pwPost);
+//        echo '---------------------------------------------------';
+//        var_dump($postDm);
+//        exit;
         //set topic type
         $topictype_id = $subtopictype ? $subtopictype : $topictype;
         $topictype_id && $postDm->setTopictype($topictype_id);
@@ -161,8 +172,7 @@ class PostController extends PwBaseController {
         $tid = $pwPost->getNewId();
         //在帖子移动端扩展表中插入数据
         $data = array('tid'=>$tid,'from_type'=>1,'created_address'=>$created_address);
-        $threadsNativeDao = Wekit::loadDao('native.dao.PwThreadsNativeDao');
-        $res = $threadsNativeDao->insertValue($data);
+        $res = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->insertValue($data);
         $this->showMessage('success', 'bbs/read/run/?tid=' . $tid . '&fid=' . $pwPost->forum->fid, true);
 
         /*

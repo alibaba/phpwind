@@ -26,11 +26,11 @@ class MessageController extends PwBaseController {
 	}
 	
 	/**
-        * 获取消息未读状态(未读评论、未读消息)
+        * 获取消息未读状态(未读评论数、未读系统消息数、未读私信列表)
         * @access public
         * @return string
          <pre>
-         /index.php?m=native&c=message&_json=1
+         /index.php?m=native&c=message&page=1&_json=1
          * post:fid=版块分类id
          response: html
          </pre>
@@ -51,8 +51,13 @@ class MessageController extends PwBaseController {
 		$this->setOutput($page, 'page');
 		$this->setOutput($perpage, 'perpage');
 		$this->setOutput($dialogs, 'dialogs');
+                if($page==1){//展示系统未读消息数、回帖未读消息数
+                    $reply_notice_cnt = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getUnreadCountByTypeIds($this->loginUser->uid,array(10),false);
+                    $system_notice_cnt = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getUnreadCountByTypeIds($this->loginUser->uid,array(1,10),true);
+                }
+                var_dump($reply_notice_cnt,$system_notice_cnt,$dialogs);exit;//会话信息
 //                var_dump($count,$page,$perpage,$dialogs);exit;
-                $loginUser = Wekit::getLoginUser();
+                $loginUser = Wekit::getLoginUser();//包含未读系统通知与未读消息的数量
                 var_dump($this->loginUser);exit;
                 
                 /*
