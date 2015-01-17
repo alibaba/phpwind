@@ -72,7 +72,6 @@ class ThirdOpenPlatformController extends AdminBaseController {
         $this->showMessage('ADMIN:success');
     }
 
-
     /**
      * 显示在模板中的文本内容 
      * 
@@ -96,5 +95,35 @@ class ThirdOpenPlatformController extends AdminBaseController {
         );
         return $_labs[$type];
     }
+
+
+    /**
+     * 悟空云im接入 
+     * 
+     * @access public
+     * @return void
+     */
+    public function wukongAction(){
+        $config = Wekit::C()->getValues('native');
+        $this->setOutput($config, 'config');
+    }
+
+    /**
+     * 保存悟空云im接入设置 
+     * 
+     * @access public
+     * @return void
+     */
+    public function dosetwukongAction(){
+        list($appKey,$appSecret,$serverToken) = $this->getInput(array('wukong_appKey','wukong_appSecret','wukong_serverToken'),'post');
+        $config = new PwConfigSet('native');
+        $config
+            ->set('wukong.appKey',$appKey)
+            ->set('wukong.appSecret',$appSecret)
+            ->set('wukong.serverToken',$serverToken)
+            ->flush();
+        $this->showMessage('success');
+    }
+
 
 }

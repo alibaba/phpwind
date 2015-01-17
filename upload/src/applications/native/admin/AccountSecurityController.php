@@ -22,15 +22,6 @@ class AccountSecurityController extends AdminBaseController {
     }
 
     /**
-     * 显示设置布局 
-     * @access public
-     * @return void
-     */
-    public function sessionkeyAction(){
-
-    }
-
-    /**
      * 保存sessionkey；用于客户端加密使用 
      * @access public
      * @return json
