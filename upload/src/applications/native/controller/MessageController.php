@@ -1,5 +1,6 @@
 <?php
 Wind::import("LIB:utility.PwVerifyCode");
+Wind::import('APPS:native.controller.NativeBaseController');
 /**
  * 未读消息通知、清除消息未读状态
  *
@@ -10,12 +11,15 @@ Wind::import("LIB:utility.PwVerifyCode");
  * @lastchange: 2014-12-16 19:08:17
  * @desc: 
  * */
-class MessageController extends PwBaseController {
+class MessageController extends NativeBaseController {
 	private $perpage = 20;
 	
 	public function beforeAction($handlerAdapter){
 		parent::beforeAction($handlerAdapter);
-		if (!$this->loginUser->isExists()) {
+                $this->uid = 1; //测试uid
+                $this->loginUser = new PwUserBo($this->uid);
+                $this->loginUser->resetGid($this->loginUser->gid);
+		if (!$this->uid) {
 			$this->forwardRedirect(WindUrlHelper::createUrl('u/login/run'));
 		//	$this->forwardRedirect(WindUrlHelper::createUrl('u/login/run'));
 		}
@@ -40,7 +44,7 @@ class MessageController extends PwBaseController {
 		$page = $page ? $page : 1;
 		$perpage = $perpage ? $perpage : $this->perpage;
 		list($start, $limit) = Pw::page2limit($page, $perpage);
-		list($count, $result) = $this->_getMessageService()->getDialogs($this->loginUser->uid,$start, $limit);
+		list($count, $result) = $this->_getMessageService()->getDialogs($this->uid,$start, $limit);
 		$dialogs = array();
 		foreach ($result as $v) {
 			$v['last_message']['content'] = strip_tags($v['last_message']['content']);
@@ -51,9 +55,9 @@ class MessageController extends PwBaseController {
 		$this->setOutput($page, 'page');
 		$this->setOutput($perpage, 'perpage');
 		$this->setOutput($dialogs, 'dialogs');
-                if($page==1){//展示系统未读消息数、回帖未读消息数
-                    $reply_notice_cnt = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getUnreadCountByTypeIds($this->loginUser->uid,array(10),false);
-                    $system_notice_cnt = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getUnreadCountByTypeIds($this->loginUser->uid,array(1,10),true);
+                if($page==1){//展示系统未读消息数、回帖未读消息数（type：1表示私信消息、10表示回复消息）
+                    $reply_notice_cnt = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getUnreadCountByTypeIds($this->uid,array(10),false);
+                    $system_notice_cnt = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getUnreadCountByTypeIds($this->uid,array(1,10),true);
                 }
                 var_dump($reply_notice_cnt,$system_notice_cnt,$dialogs);exit;//会话信息
 //                var_dump($count,$page,$perpage,$dialogs);exit;
@@ -399,7 +403,7 @@ array (size=2)
 		if ($result < 1) $this->showError('WINDID:code.'.$result);
                 //更新用户信息表中的私信未读条数
                 if ($num) {
-                    $this->_updateMessageCount($this->loginUser->uid, '-' . $num);
+                    $this->_updateMessageCount($this->uid, '-' . $num);
                 }
 
                 //将系统消息设置为已读

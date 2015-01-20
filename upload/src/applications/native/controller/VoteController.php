@@ -11,12 +11,16 @@ defined('WEKIT_VERSION') || exit('Forbidden');
  * @lastchange: 2014-12-16 19:08:17
  * @desc: 
  * */
+Wind::import('APPS:native.controller.NativeBaseController');
 
-class VoteController extends PwBaseController {
+class VoteController extends NativeBaseController {
 
 	public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
-		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
+                $this->uid = 1; //测试uid
+                $this->loginUser = new PwUserBo($this->uid);
+                $this->loginUser->resetGid($this->loginUser->gid);
+		if (!$this->uid) $this->showError('VOTE:user.not.login');
 	}
         
         /* 测试投票接口表单 */

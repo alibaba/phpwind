@@ -7,7 +7,7 @@
 <div class="wrap">
 
 
-<form id="J_rigths_form" data-role="list" action="{@url:native/life/doedit}" method="post">
+<form id="J_rigths_form" data-role="list" action="{@url:native/life/doedit}" method="post" enctype="multipart/form-data">
 <input type="hidden" name="fid" value="{$foruminfo['fid']}"/>
 <div class="h_a">添加商家</div>
 <div class="table_full">
@@ -87,6 +87,25 @@
 						</td>
 						<td><div class="fun_tips">如果需要显示成目录形式，则需要设置<a class="J_linkframe_trigger">伪静态</a>规则，否则还是会显示动态URL</div></td>
 					<td style="vertical-align:middle"></td>
+				</tr>
+                                <tr>
+					<th>版块logo</th>
+					<td>
+						<div class="single_image_up">
+							 <a href="">上传图片</a>
+							 <input name="logo" type="file" class="J_upload_preview" data-preview="#j_forum_preview_logo">
+						</div>
+						<!--# if ($foruminfo['logo']) { #-->
+						<img id="j_forum_preview_logo" src="{@Pw::getPath($foruminfo['logo'])}" align="top" class="mr5" />
+						<a href="{@url:native/life/deletelogo}" class="J_ajax_del" data-pdata="{'fid': {$forumlife['fid']}}">删除</a>
+						<!--# } else { #-->
+						<img id="j_forum_preview_logo" style="display:none" />
+						<!--# } #-->
+						
+						
+					</td>
+					<td><div class="fun_tips">在帖子列表页显示版块的logo，需要模板支持</div></td>
+					<td style="vertical-align:middle"><input type="checkbox" name="copyitems[]" class="J_line_highlight" style="display:none;" value="logo"></td>
 				</tr>
 			</table>
 		</div>

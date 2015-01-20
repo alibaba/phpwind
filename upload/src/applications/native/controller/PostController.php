@@ -13,13 +13,17 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 Wind::import('SRV:forum.srv.PwPost');
 Wind::import('WIND:utility.WindJson');
 Wind::import('SRV:credit.bo.PwCreditBo');
+Wind::import('APPS:native.controller.NativeBaseController');
 
 
-class PostController extends PwBaseController {
+class PostController extends NativeBaseController {
     public $post;
     
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
+        $this->uid = 1; //测试uid
+        $this->loginUser = new PwUserBo($this->uid);
+        $this->loginUser->resetGid($this->loginUser->gid);
         $action = $handlerAdapter->getAction();
 
         if (in_array($action, array('fastreply', 'replylist'))) {
@@ -40,7 +44,7 @@ class PostController extends PwBaseController {
         //版块风格
         $pwforum = $this->post->forum;
         if ($pwforum->foruminfo['password']) {
-            if (!$this->loginUser->isExists()) {
+            if (!$this->uid) {
                 $this->forwardAction('u/login/run', array('backurl' => WindUrlHelper::createUrl('bbs/post/' . $action, array('fid' => $$pwforum->fid))));
             } elseif (Pw::getPwdCode($pwforum->foruminfo['password']) != Pw::getCookie('fp_' . $pwforum->fid)) {
                 $this->forwardAction('bbs/forum/password', array('fid' => $pwforum->fid));
@@ -110,7 +114,7 @@ class PostController extends PwBaseController {
         
 //        echo "addAction";exit;
         //app发帖子不带标题,内容格式化，抓取分享链接内容，此处尚需要处理
-        list($title, $content, $topictype, $subtopictype, $reply_notice, $hide, $created_address,$share_url) = $this->getInput(array('atc_title', 'atc_content', 'topictype', 'sub_topictype', 'reply_notice', 'hide' ,'created_address','share_url'), 'post');
+        list($title, $content, $topictype, $subtopictype, $reply_notice, $hide, $created_address,$area_code,$share_url) = $this->getInput(array('atc_title', 'atc_content', 'topictype', 'sub_topictype', 'reply_notice', 'hide' ,'created_address','area_code','share_url'), 'post');
         $pwPost = $this->post;
 //        var_dump($_POST);exit;
 //        $content = "#dfere#aaadsdghj#gdad#sdsd";
@@ -171,7 +175,7 @@ class PostController extends PwBaseController {
         }
         $tid = $pwPost->getNewId();
         //在帖子移动端扩展表中插入数据
-        $data = array('tid'=>$tid,'from_type'=>1,'created_address'=>$created_address);
+        $data = array('tid'=>$tid,'from_type'=>1,'created_address'=>$created_address,'area_code'=>$area_code);
         $res = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->insertValue($data);
         $this->showMessage('success', 'bbs/read/run/?tid=' . $tid . '&fid=' . $pwPost->forum->fid, true);
 
@@ -201,16 +205,16 @@ class PostController extends PwBaseController {
      直接回复时参数状态：/index.php?m=native&c=post&a=doreply&_getHtml=1
      点击喜欢后顺便回复时参数状态：/index.php?m=native&c=post&a=doreply&fid=分类id
      ( _getHtml: 1表示回复帖子；2表示回复回帖 | )
-     post(回复帖子): tid&atc_content
-     post(回复回帖、回复回复->相当于在本楼层回帖): tid&pid&atc_content
-     post(在点喜欢的时候顺便回复内容)：tid&pid&atc_content&from_type=like
+     post(回复帖子): tid&atc_content&created_address&area_code
+     post(回复回帖、回复回复->相当于在本楼层回帖): tid&pid&atc_content&created_address&area_code
+     post(在点喜欢的时候顺便回复内容)：tid&pid&atc_content&created_address&area_code&from_type=like
      cookie:usersession
      response: {err:"",data:""}  
      </pre>
      */
     public function doreplyAction() {
         $tid = $this->getInput('tid');
-        list($title, $content, $hide, $rpid) = $this->getInput(array('atc_title', 'atc_content', 'hide', 'pid'), 'post');
+        list($title, $content, $hide, $rpid,$created_address,$area_code) = $this->getInput(array('atc_title', 'atc_content', 'hide', 'pid' ,'created_address' ,'area_code'), 'post');
         $_getHtml = $this->getInput('_getHtml', 'get');
         $pwPost = $this->post;
         //runHook的作用？
@@ -218,12 +222,12 @@ class PostController extends PwBaseController {
 
         $info = $pwPost->getInfo();
         $title == 'Re:' . $info['subject'] && $title = '';
-        if ($rpid) {
+        if ($rpid) {//回复一个回帖
             $post = Wekit::load('thread.PwThread')->getPost($rpid);
             if ($post && $post['tid'] == $tid && $post['ischeck']) {
                 $post['content'] = $post['ifshield'] ? '此帖已被屏蔽' : trim(Pw::stripWindCode(preg_replace('/\[quote(=.+?\,\d+)?\].*?\[\/quote\]/is', '', $post['content'])));
                 $post['content'] && $content = '[quote=' . $post['created_username'] . ',' . $rpid . ']' . Pw::substrs($post['content'], 120) . '[/quote] ' . $content;
-            } else {
+            } else {//回复主贴
                 $rpid = 0;
             }
         }
@@ -240,8 +244,14 @@ class PostController extends PwBaseController {
             $this->showError($result->getError());
         }
         $pid = $pwPost->getNewId();
+        //记录回帖位置信息
+        $data = array('pid'=>$pid,'created_address'=>$created_address,'area_code'=>$area_code);
+        $res = Wekit::loadDao('native.dao.PwPostsPlaceDao')->insertValue($data);
+        $this->showMessage('success', 'bbs/read/run/?tid=' . $tid . '&fid=' . $pwPost->forum->fid, true);
+        
 //        var_dump($pid);exit;
         
+        //页面输出部分与移动端无关
         if ($_getHtml == 1) {//回复帖子
             Wind::import('SRV:forum.srv.threadDisplay.PwReplyRead');
             Wind::import('SRV:forum.srv.PwThreadDisplay');

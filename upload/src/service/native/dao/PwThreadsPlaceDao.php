@@ -18,7 +18,7 @@ class PwThreadsPlaceDao extends PwBaseDao {
 	
 	protected $_table = 'bbs_threads_place';
 	protected $_pk = 'tid';
-	protected $_dataStruct = array('tid','from_type','created_address');
+	protected $_dataStruct = array('tid','from_type','created_address','area_code');
 	
         /**
          * 新增一条数据
@@ -27,8 +27,9 @@ class PwThreadsPlaceDao extends PwBaseDao {
             $tid = isset($data['tid']) ? intval($data['tid']) : 0;
             $from_type = isset($data['from_type']) ? intval($data['from_type']) : 0;
             $created_address = isset($data['created_address']) ? $data['created_address'] : '';
+            $area_code = isset($data['area_code']) ? $data['area_code'] : '';
             if(!$tid) return 0;
-            $sql = $this->_bindSql('INSERT INTO %s (`tid`,`from_type`,`created_address`) VALUES (%s,%s,"%s")', $this->getTable(),$tid,$from_type,$created_address);
+            $sql = $this->_bindSql('INSERT INTO %s (`tid`,`from_type`,`created_address`,`area_code`) VALUES (%s,%s,"%s","%s")', $this->getTable(),$tid,$from_type,$created_address,$area_code);
             return $this->getConnection()->execute($sql);
         }
         

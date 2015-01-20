@@ -4,7 +4,7 @@ Wind::import('SRV:forum.srv.dataSource.PwFetchReplyByTidAndPids');
 Wind::import('SRV:forum.srv.PwThreadManage');
 
 /**
- * 帖子删除、删除回复相关操作
+ * 帖子删除、删除回复相关操作(此文件暂时没用)
  *
  * @fileName: MasingleController.php
  * @author: yuliang<yuliang.lyl@alibaba-inc.com>

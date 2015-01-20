@@ -3,6 +3,7 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 
 Wind::import('SRV:forum.bo.PwForumBo');
 Wind::import('SRV:forum.srv.PwThreadList');
+Wind::import('APPS:native.controller.NativeBaseController');
 
 /**
  * 获取某个板块下的帖子列表接口
@@ -15,11 +16,18 @@ Wind::import('SRV:forum.srv.PwThreadList');
  * @desc: 
  **/
 
-class ThreadController extends PwBaseController {
+class ThreadController extends NativeBaseController {
 	
 	protected $topictypes;
+        
+        public function beforeAction($handlerAdapter) {
+            parent::beforeAction($handlerAdapter);
+            $this->uid = 1; //测试uid
+            $this->loginUser = new PwUserBo($this->uid);
+            $this->loginUser->resetGid($this->loginUser->gid);
+        }
 
-	/**
+    /**
         * 获取某个板块下的帖子列表（标准、精华）
         * @access public
         * @return string

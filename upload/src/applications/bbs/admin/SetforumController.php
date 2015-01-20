@@ -79,6 +79,10 @@ class SetforumController extends AdminBaseController {
 		list($new_vieworder, $new_forumname, $new_manager, $tempid) = $this->getInput(array('new_vieworder', 'new_forumname', 'new_manager', 'tempid'), 'post');
 		$newArray = array();
 		is_array($new_vieworder) || $new_vieworder = array();
+                //判断公共账号所属的主分类是否存在
+                $configs = Wekit::C()->getValues('native');
+                $life_cid = isset($configs['forum.life_fid']) && $configs['forum.life_fid'] ? $configs['forum.life_fid'] : 0;
+                $life_forums = array();
 		foreach ($new_vieworder as $parentid => $value) {
 			foreach ($value as $key => $v) {
 				if ($tempid[$parentid][$key] && $new_forumname[$parentid][$key]) {
@@ -92,10 +96,12 @@ class SetforumController extends AdminBaseController {
 						$this->showError($result->getError(), 'bbs/setforum/run/');
 					}
 					$newArray[$tempid[$parentid][$key]] = $result;
+                                        ($life_cid && $life_cid==$parentid) && $life_forums[]=array('fid'=>$result);
 				}
 			}
 		}
-		
+		$life_forums && Wekit::loadDao('native.dao.PwForumLifeDao')->batchAddForumLife($life_forums);
+                
 		/**
 		 * 在虚拟版块下，添加子版
 		 */
@@ -120,7 +126,6 @@ class SetforumController extends AdminBaseController {
 			}
 		}
 		Wekit::load('forum.srv.PwForumMiscService')->correctData();
-
 		$this->showMessage('success', 'bbs/setforum/run/', true);
 	}
 
@@ -458,6 +463,7 @@ class SetforumController extends AdminBaseController {
 		$fid = $this->getInput('fid');
 
 		Wind::import('SRV:forum.srv.operation.PwDeleteForum');
+                $forum = Wekit::loadDao('forum.dao.PwForumDao')->getForum($fid);
 		$srv = new PwDeleteForum($fid, new PwUserBo($this->loginUser->uid));
 		if (($result = $srv->execute()) instanceof PwError) {
 			$this->showError($result->getError());
@@ -465,6 +471,16 @@ class SetforumController extends AdminBaseController {
 		$foruminfo = $srv->forum->foruminfo;
 		$foruminfo['logo'] && Pw::deleteAttach($foruminfo['logo']);
 		$foruminfo['icon'] && Pw::deleteAttach($foruminfo['icon']);
+                /* 删除生活服务表对应数据 */
+                $configs = Wekit::C()->getValues('native');
+                $life_cid = isset($configs['forum.life_fid']) && $configs['forum.life_fid'] ? $configs['forum.life_fid'] : 0;
+                if($life_cid){
+                    if($life_cid==$forum['parentid'])Wekit::loadDao('native.dao.PwForumLifeDao')->deleteForumLife($fid);
+                    if($life_cid==$fid){
+                        $config = new PwConfigSet('native');
+                        $config->set('forum.life_fid','')->flush();
+                    }
+                }     
 		$this->showMessage('success', 'bbs/setforum/run/', true);
 	}
 	

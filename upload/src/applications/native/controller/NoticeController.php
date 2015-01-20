@@ -10,12 +10,16 @@
  * @lastchange: 2014-12-16 19:08:17
  * @desc: 
  * */
+Wind::import('APPS:native.controller.NativeBaseController');
 
-class NoticeController extends PwBaseController {
+class NoticeController extends NativeBaseController {
 
 	public function beforeAction($handlerAdapter){
 		parent::beforeAction($handlerAdapter);
-		if (!$this->loginUser->isExists()) {
+                $this->uid = 1; //测试uid
+                $this->loginUser = new PwUserBo($this->uid);
+                $this->loginUser->resetGid($this->loginUser->gid);
+		if (!$this->uid) {
 			$this->forwardRedirect(WindUrlHelper::createUrl('u/login/run'));
 		}
 		$action = $handlerAdapter->getAction();
@@ -49,17 +53,17 @@ class NoticeController extends PwBaseController {
 		$page < 1 && $page = 1;
 		$perpage = 20;
 		list($start, $limit) = Pw::page2limit($page, $perpage);
-                $notice_list = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getNoticesByTypeIds($this->loginUser->uid,$typeids,$start,$limit,$exclude);                
+                $notice_list = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getNoticesByTypeIds($this->uid,$typeids,$start,$limit,$exclude);                
 		$notice_list = $this->_getNoticeService()->formatNoticeList($notice_list);
 
 //                $noticeList = $this->_getNoticeDs()->getNotices($this->loginUser->uid,$type,$start, $limit);
 //		$noticeList = $this->_getNoticeService()->formatNoticeList($noticeList);
 //                var_dump($noticeList);exit;
-		$typeCounts = $this->_getNoticeService()->countNoticesByType($this->loginUser->uid);//获取用户通知总数
+		$typeCounts = $this->_getNoticeService()->countNoticesByType($this->uid);//获取用户通知总数
 		//类型
 		$typeid = intval($type);
 		//获取所有NOTICE未读通知数
-		$unreadCount = $this->_getNoticeDs()->getUnreadNoticeCount($this->loginUser->uid);
+		$unreadCount = $this->_getNoticeDs()->getUnreadNoticeCount($this->uid);
 //                $unread_notice_cnt = Wekit::loadDao('native.dao.PwNativeMessageNoticesDao')->getUnreadCountByTypeIds($this->loginUser->uid,$typeids,$exclude);
 //		$this->_readNoticeList($unreadCount,$noticeList);//将消息设置为已读
                 $this->_readNoticeList($unreadCount,$notice_list);//将消息设置为已读
@@ -137,9 +141,9 @@ class NoticeController extends PwBaseController {
          */
         public function checkNoticeReadedAction() {
             //获取用户未读通知数（系统消息+私信消息）
-            $unreadCount = $this->_getNoticeDs()->getUnreadNoticeCount($this->loginUser->uid);
+            $unreadCount = $this->_getNoticeDs()->getUnreadNoticeCount($this->uid);
             $perpage = intval($unreadCount) ? intval($unreadCount) : 20;
-            $noticeList = $this->_getNoticeDs()->getNoticesOrderByRead($this->loginUser->uid, $perpage);//message.PwMessageNotices;根据用户UID获取通知列表 按未读升序、更新时间倒序
+            $noticeList = $this->_getNoticeDs()->getNoticesOrderByRead($this->uid, $perpage);//message.PwMessageNotices;根据用户UID获取通知列表 按未读升序、更新时间倒序
 //            var_dump($noticeList);exit;
             $noticeList = $this->_getNoticeService()->formatNoticeList($noticeList);//message.srv.PwNoticeService
 //            var_dump($unreadCount,$noticeList);exit;
@@ -247,7 +251,7 @@ class NoticeController extends PwBaseController {
 			$newUnreadCount = $unreadCount - $readnum;//所有未读消息-本次已读消息
 			if ($newUnreadCount != $unreadCount) {
 				Wind::import('SRV:user.dm.PwUserInfoDm');
-				$dm = new PwUserInfoDm($this->loginUser->uid);
+				$dm = new PwUserInfoDm($this->uid);
 				$dm->setNoticeCount($newUnreadCount);
 				$this->_getUserDs()->editUser($dm,PwUser::FETCH_DATA);
 			}

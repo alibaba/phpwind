@@ -42,7 +42,8 @@ class PwForumLifeDao extends PwBaseDao {
                     FROM `{$prefix}bbs_forum` f 
                     JOIN `{$prefix}bbs_forum_life` l 
                     ON f.`fid`=l.`fid` 
-                    WHERE f.`hassub`=0";
+                    WHERE f.`type`='forum'
+                    ORDER BY f.`vieworder` ASC";
             return $dao->fetchAll($sql,'fid');
         }
 
@@ -52,6 +53,16 @@ class PwForumLifeDao extends PwBaseDao {
 	public function addForumLife($fields) {
 		return $this->_add($fields);
 	}
+        
+        /**
+         * 批量添加生活服务商家
+         */
+	public function batchAddForumLife($forums) {
+            foreach($forums as $v){
+                $this->_add($v);
+            }
+        }
+        
         /**
          * 修改生活服务商家
          */
