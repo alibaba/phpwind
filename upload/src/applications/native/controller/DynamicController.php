@@ -12,13 +12,16 @@
  * */
 defined('WEKIT_VERSION') || exit('Forbidden');
 
-class DynamicController extends PwBaseController {
+Wind::import('APPS:native.controller.NativeBaseController');
+
+class DynamicController extends NativeBaseController {
 
     private $perpage = 30;
 
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
 //		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
+        $this->uid = 1;//测试uid
     }
 
     
@@ -42,7 +45,7 @@ class DynamicController extends PwBaseController {
 //        $num = 5;
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $hot_count = Wekit::loadDao('native.dao.PwThreadsHotDao')->getThreadsHotCount($time);
-        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadTids($hot_count,$time,$page,$num);
+        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadTids($hot_count,$time,$page,$num);//按最后回复时间排序、只展示移动端可显示版块数据，不包含生活服务
         $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
 //        var_dump($tids,$threads_list);exit;
         header('Content-type:application/json');
@@ -105,8 +108,9 @@ class DynamicController extends PwBaseController {
 //          exit;
 //          var_dump($GLOBALS['acloud_object_dao']);exit;
         //Sorry, CSRF verification failed(token missing or incorrect),refresh to try again.
-        $uid = $this->loginUser->uid;
-        $username = $this->loginUser->username;
+        $uid = $this->uid;
+        $userInfo = $this->_getUserInfo();
+        $username = $userInfo['userinfo']['username'];
         $tid = isset($_POST['tid']) ? $_POST['tid'] : 0;
         $starttime = isset($_POST['starttime']) && strtotime($_POST['starttime']) ? strtotime($_POST['starttime']) : 0;
         $endtime = isset($_POST['endtime']) && strtotime($_POST['endtime']) ? strtotime($_POST['endtime']) : strtotime("2038-1-19");
@@ -163,14 +167,13 @@ class DynamicController extends PwBaseController {
       </pre>
      */
     public function myAction() {
-//        var_dump($this->loginUser->uid);exit;
-        if ($this->loginUser->uid < 1) {//用户未登陆展示热点话题
+        if ($this->uid < 1) {//用户未登陆展示热点话题
 //            $this->forwardRedirect(WindUrlHelper::createUrl('u/login/run', array('backurl' => WindUrlHelper::createUrl('tag/index/my'))));
 //            echo "用户为登录";exit;
             $hotTags = $this->getHotTags();
             var_dump($hotTags);exit;
         }
-        $uid = $this->loginUser->uid;     
+        $uid = $this->uid;     
         $tagAttentionDao = Wekit::loadDao('tag.dao.PwTagAttentionDao');
         $res = $tagAttentionDao->getByUid($uid,50);//获得用户关注的话题最大50个
         $tag_ids = array();
@@ -183,21 +186,15 @@ class DynamicController extends PwBaseController {
         $num = $this->perpage;//一页显示记录数
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $pos = ($page-1)*$num;
-        $nativeTagRelationDao = Wekit::loadDao('native.dao.PwNativeTagRelationDao');
-        $res = $nativeTagRelationDao->fetchTids($tag_ids,$time_point,$pos,$num);//根据用户关注的话题tag_id获取文章tid，已筛选合法帖子数据
+        $res = Wekit::loadDao('native.dao.PwNativeTagRelationDao')->fetchTids($tag_ids,$time_point,$pos,$num);//根据用户关注的话题tag_id获取文章tids，只筛选移动端可展示版块数据
         $tids = array();
         foreach($res as $v){
             $tids[] = $v['param_id'];
         }
-        $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
-        $threads = $nativeThreadsDao->fetchMyThreads($tids);
-//        $tids = array_keys($threads);
-        $threads_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->fetchByTids($tids);
-        foreach($threads as $k=>$v){
-            $threads[$k]['from_type'] = isset($threads_place[$k]['from_type']) ? $threads_place[$k]['from_type'] : 0;
-            $threads[$k]['created_address'] = isset($threads_place[$k]['created_address']) ? $threads_place[$k]['created_address'] : '';
-        }
-//        var_dump($threads);exit;
+        
+        $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
+//        var_dump($tids,$threads_list);exit;
+        
         if(count($res)<5 && $page==1){
             //关注的话题小于5个，展示更多话题，话题的展示规则有待商量
             /*
@@ -211,11 +208,11 @@ class DynamicController extends PwBaseController {
              * 
              */
             $res_tag = $this->getHotTags();
-            var_dump($threads,$res_tag);exit;
+            var_dump($threads_list,$res_tag);exit;
             $this->setOutput(array('threads'=>$res,'tags'=>$res_tag),'data');
             $this->showMessage('NATIVE:my.threads');
         }else{
-            var_dump($res);exit;
+            var_dump($threads_list);exit;
             $this->setOutput($res,'data');
             $this->showMessage('NATIVE:my.threads');
         }
@@ -241,7 +238,7 @@ class DynamicController extends PwBaseController {
         $pos = ($page-1)*$num;
 //        $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
 //        $threads = $nativeThreadsDao->fetchNewThreadTids($pos,$num);
-        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchNewThreadTids($pos,$num);;
+        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchNewThreadTids($pos,$num);//按照发帖时间排序，只筛选移动端版块展示数据
         $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
         var_dump($tids,$threads_list);
         if($res){
@@ -295,7 +292,7 @@ class DynamicController extends PwBaseController {
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $city = isset($_GET['city']) ? $_GET['city'] : '';
         $pos = ($page-1)*$num;
-        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchCityThreadTids($city,$pos,$num);
+        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchCityThreadTids($city,$pos,$num);//按照最后回复时间排序，只筛选移动端版块数据
         $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
         var_dump($tids,$threads_list);exit;
     }

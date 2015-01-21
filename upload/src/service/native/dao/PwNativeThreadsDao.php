@@ -64,7 +64,7 @@ class PwNativeThreadsDao extends PwThreadsDao {
     }
     
     /**
-     * 获取动态最新的帖子tids
+     * 获取动态最新的帖子tids，按照发帖时间排序
      */
     public function fetchNewThreadTids($pos=0,$num=30){
         if(!$this->fids) return array();
@@ -170,7 +170,7 @@ class PwNativeThreadsDao extends PwThreadsDao {
                     LEFT JOIN `${prefix}bbs_threads` t
                     ON h.`tid`=t.`tid` 
                     WHERE h.`srarttime`<=$time AND h.`endtime`>=$time AND t.`disabled`=0 AND t.`fid` IN ($this->fids)
-                    ORDER BY t.`created_time` DESC
+                    ORDER BY t.`lastpost_time` DESC
                     LIMIT $start_pos,$num;";
             $res = $dao->fetchAll($sql,'tid');
             if($end_pos > $hot_count-1){//从weight表取后半段数据
@@ -235,7 +235,7 @@ class PwNativeThreadsDao extends PwThreadsDao {
                 LEFT JOIN `%s` t 
                 ON n.`tid`=t.`tid` 
                 WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids) AND n.`created_address`='%s'
-                ORDER BY t.`created_time` DESC 
+                ORDER BY t.`lastpost_time` DESC 
                 LIMIT %s,%s;";
         $sql = $this->_bindSql($sql, $this->getTable(),$city,$pos,$num);
 //        var_dump($sql);exit;
@@ -245,7 +245,7 @@ class PwNativeThreadsDao extends PwThreadsDao {
     
     public function fetchThreads($tids) {
         if(!$this->fids || !$tids) return array();
-        $sql = $this->_bindSql("SELECT * FROM %s WHERE tid IN %s AND disabled=0 AND fid IN ($this->fids) ORDER BY created_time DESC", $this->getTable(), $this->sqlImplode($tids));
+        $sql = $this->_bindSql("SELECT * FROM %s WHERE tid IN %s AND disabled=0 ORDER BY created_time DESC", $this->getTable(), $this->sqlImplode($tids));
         $smt = $this->getConnection()->createStatement($sql);
         return $smt->queryAll(array(), 'tid');
     }

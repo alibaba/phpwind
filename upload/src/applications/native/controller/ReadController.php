@@ -11,14 +11,18 @@
  **/
 defined('WEKIT_VERSION') || exit('Forbidden');
 
+Wind::import('APPS:native.controller.NativeBaseController');
 //查看帖子引入类库
 Wind::import('SRV:forum.srv.PwThreadDisplay');
 Wind::import('SRV:credit.bo.PwCreditBo');
 
-class ReadController extends PwBaseController {
+class ReadController extends NativeBaseController {
     
 	public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
+                $this->uid = 1; //测试uid
+                $this->loginUser = new PwUserBo($this->uid);
+                $this->loginUser->resetGid($this->loginUser->gid);
 //		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
 	}
 
@@ -38,7 +42,7 @@ class ReadController extends PwBaseController {
 //        echo "readAction";exit;
         $tid = intval($this->getInput('tid'));
         list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
-
+//        var_dump($this->uid ,$this->loginUser);exit;
         $threadDisplay = new PwThreadDisplay($tid, $this->loginUser);
         $this->runHook('c_read_run', $threadDisplay);
 
@@ -49,7 +53,7 @@ class ReadController extends PwBaseController {
 
         $pwforum = $threadDisplay->getForum();
         if ($pwforum->foruminfo['password']) {
-            if (!$this->loginUser->isExists()) {
+            if (!$this->uid) {
                 $this->forwardAction('u/login/run', array('backurl' => WindUrlHelper::createUrl('bbs/cate/run', array('fid' => $$pwforum->fid))));
             } elseif (Pw::getPwdCode($pwforum->foruminfo['password']) != Pw::getCookie('fp_' . $pwforum->fid)) {
                 $this->forwardAction('bbs/forum/password', array('fid' => $pwforum->fid));
@@ -89,7 +93,26 @@ class ReadController extends PwBaseController {
         }
         
         $threadInfo = $threadDisplay->getThreadInfo();//获取帖子详细内容
+        $thread_list = $threadDisplay->getList();
+        $pids = $posts_list = array();
+        foreach($thread_list as $v){
+            if(!$v['pid']) continue;
+            $pids[] = $v['pid'];
+            $posts_list[$v['pid']] = $v;
+        }
+        $thread_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->getByTid($tid);//获取发帖的位置信息
+        $posts_place = Wekit::loadDao('native.dao.PwPostsPlaceDao')->fetchByPids($pids);//获取发帖的位置信息
+        $threadInfo['from_type'] = isset($thread_place['from_type']) ? $thread_place['from_type'] : 0;
+        $threadInfo['created_address'] = isset($thread_place['created_address']) ? $thread_place['created_address'] : '';
+        $threadInfo['area_code'] = isset($thread_place['area_code']) ? $thread_place['area_code'] : '';
+//        var_dump($pids);exit;
+        foreach($posts_place as $k=>$v){
+            $posts_list[$k]['created_address'] = $v['created_address'];
+            $posts_list[$k]['area_code'] = $v['area_code'];
+        }
         
+        
+        var_dump($threadInfo,$posts_list);exit;
         $data = array(
                        'tid'=>$tid,
                        'threadDisplay'=>$threadDisplay,
@@ -98,12 +121,10 @@ class ReadController extends PwBaseController {
                        'readdb'=>$threadDisplay->getList(),
                        'users'=>$threadDisplay->getUsers(),
                        'pwforum'=>$pwforum,
-                       'threadInfo'=>$threadInfo,
                     );
-        $thread_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->getByTid($tid);
-        var_dump($thread_place);exit;
-        var_dump($threadInfo);exit;
-        var_dump(1,$threadDisplay);exit;
+//        var_dump($thread_place);exit;
+//        var_dump($threadInfo);exit;
+        var_dump(1,$threadDisplay,$thread_place);exit;
         
         $this->setOutput($threadDisplay, 'threadDisplay');
         $this->setOutput($tid, 'tid');

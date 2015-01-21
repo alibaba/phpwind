@@ -9,13 +9,15 @@ class PwDynamicService {
         $threads = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchThreads($tids);
         $threads_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->fetchByTids($tids);
         $threads_content = Wekit::loadDao('forum.dao.PwThreadsContentDao')->fetchThread($tids);
-        $tag_names_str = '';
+        $tag_names_str = '';        
         foreach($threads as $k=>$v){
             $threads[$k]['content'] = isset($threads_content[$k]['content']) ? $threads_content[$k]['content'] : '';
             $threads[$k]['tags'] = isset($threads_content[$k]['tags']) ? $threads_content[$k]['tags'] : '';
             $threads[$k]['from_type'] = isset($threads_place[$k]['from_type']) ? $threads_place[$k]['from_type'] : 0;
             $threads[$k]['created_address'] = isset($threads_place[$k]['created_address']) ? $threads_place[$k]['created_address'] : '';
+            $threads[$k]['area_code'] = isset($threads_place[$k]['area_code']) ? $threads_place[$k]['area_code'] : '';
             $threads[$k]['tags'] && $tag_names_str.=','.$threads[$k]['tags'];
+            $threads[$k]['avatar'] = Pw::getAvatar($v['created_userid'],'small');
         }
         $tag_names_arr = array_unique(explode(',', trim($tag_names_str,',')));
         $tag_names = Wekit::loadDao('tag.dao.PwTagDao')->getTagsByNames($tag_names_arr);
@@ -31,11 +33,11 @@ class PwDynamicService {
             }
         }
         $threads_tmp = array();
-        if($result_type=='ASSOC'){//按照tids的顺序重新排序结果集
+        if($result_type=='ASSOC'){//按照tids的顺序重新排序结果集，tid作为索引
             foreach($tids as $v){
                 isset($threads[$v]) && $threads_tmp[$v] = $threads[$v];
             }
-        }else{
+        }else{//tid会有重复的情况，置顶帖在列表中显示2次，数字顺序索引
             foreach($tids as $v){
                 isset($threads[$v]) && $threads_tmp[] = $threads[$v];
             }

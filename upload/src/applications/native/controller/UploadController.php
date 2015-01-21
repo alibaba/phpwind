@@ -16,7 +16,7 @@ class UploadController extends NativeBaseController  {
 
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        $this->checkUserSessionValid();
+        $this->checkUserSessionValid();//统一校验用户是否登录，未登录做跳转
     }
 
 
@@ -36,43 +36,43 @@ class UploadController extends NativeBaseController  {
 
         $user = new PwUserBo($this->uid);
 
-		$fid = $this->getInput('fid', 'post');
+        $fid = $this->getInput('fid', 'post');
 
-		Wind::import('SRV:upload.action.PwAttMultiUpload');
-		Wind::import('LIB:upload.PwUpload');
-		$bhv = new PwAttMultiUpload($user, $fid);
+        Wind::import('SRV:upload.action.PwAttMultiUpload');
+        Wind::import('LIB:upload.PwUpload');
+        $bhv = new PwAttMultiUpload($user, $fid);
 
-		$upload = new PwUpload($bhv);
-		if (($result = $upload->check()) === true) {
-			$result = $upload->execute();
-		}
-		if ($result !== true) {
-			$this->showError($result->getError());
-		}
-		if (!$data = $bhv->getAttachInfo()) {
-			$this->showError('upload.fail');
-		}
-		$this->setOutput($data, 'data');
-		$this->showMessage('upload.success');
-	}
+        $upload = new PwUpload($bhv);
+        if (($result = $upload->check()) === true) {
+            $result = $upload->execute();
+        }
+        if ($result !== true) {
+            $this->showError($result->getError());
+        }
+        if (!$data = $bhv->getAttachInfo()) {
+            $this->showError('upload.fail');
+        }
+        $this->setOutput($data, 'data');
+        $this->showMessage('upload.success');
+    }
 
-	public function replaceAction() {
-		
-		$aid = $this->getInput('aid');
-		
-		Wind::import('SRV:upload.action.PwAttReplaceUpload');
-		Wind::import('LIB:upload.PwUpload');
-		$bhv = new PwAttReplaceUpload($this->loginUser, $aid);
+    public function replaceAction() {
 
-		$upload = new PwUpload($bhv);
-		if (($result = $upload->check()) === true) {
-			$result = $upload->execute();
-		}
-		if ($result !== true) {
-			$this->showError($result->getError());
-		}
-		$this->setOutput($bhv->getAttachInfo(), 'data');
-		$this->showMessage('upload.success');
-	}
+        $aid = $this->getInput('aid');
+
+        Wind::import('SRV:upload.action.PwAttReplaceUpload');
+        Wind::import('LIB:upload.PwUpload');
+        $bhv = new PwAttReplaceUpload($this->loginUser, $aid);
+
+        $upload = new PwUpload($bhv);
+        if (($result = $upload->check()) === true) {
+            $result = $upload->execute();
+        }
+        if ($result !== true) {
+            $this->showError($result->getError());
+        }
+        $this->setOutput($bhv->getAttachInfo(), 'data');
+        $this->showMessage('upload.success');
+    }
 
 }

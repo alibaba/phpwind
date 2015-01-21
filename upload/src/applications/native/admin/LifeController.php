@@ -13,6 +13,10 @@ Wind::import('ADMIN:library.AdminBaseController');
 class LifeController extends AdminBaseController {
 
 	private $perpage = 20;
+        
+        public function beforeAction($handlerAdapter) {
+            parent::beforeAction($handlerAdapter);
+	}
 	
 	/**
 	 * 菜单管理主入口
@@ -161,11 +165,14 @@ class LifeController extends AdminBaseController {
                 //修改公共服务版面
                 list($forumname, $manager, $vieworder, $descrip,$isshow,$url,$address) = $this->getInput(array('forumname', 'manager', 'vieworder', 'descrip','isshow','url','address'), 'post');
                 $dm = new PwForumDm($fid);
+                //上传版块logo
+                $logo = $this->_uploadImage('logo', $fid);
                 $dm->setName($forumname)
                         ->setVieworder($vieworder)
                         ->setManager($manager)
                         ->setDescrip($descrip)
-                        ->setIsshow($isshow);
+                        ->setIsshow($isshow)
+                        ->setlogo($logo['path']);	
                 if (($result = $pwForum->updateForum($dm)) instanceof PwError) {
                     $this->showError($result->getError(), 'native/life/run/');
                 }
@@ -442,6 +449,7 @@ class LifeController extends AdminBaseController {
 	
 	/**
 	 * 删除板块logo
+         * lyl
 	 */
 	public function deletelogoAction() {
 
@@ -450,7 +458,7 @@ class LifeController extends AdminBaseController {
 		Wind::import('SRV:forum.bo.PwForumBo');
 		$forum = new PwForumBo($fid, true);
 		if (!$forum->isForum(true)) {
-			$this->showMessage('版块不存在', 'bbs/setforum/run', true);
+			$this->showMessage('版块不存在', 'native/life/run', true);
 		}
 
 		Wind::import('SRV:forum.dm.PwForumDm');
@@ -607,8 +615,9 @@ class LifeController extends AdminBaseController {
                 'allowtype' => array('default'),
                 'typeorder' => array('default' => 0)
             );
-            $dm = new PwForumDm();
+            
             if (!$life_fid) {//尚未创建公共账号所属分类，自动创建
+                $dm = new PwForumDm();
                 $dm->setParentid(0)
                         ->setName('生活服务')
                         ->setVieworder(0)
@@ -617,21 +626,25 @@ class LifeController extends AdminBaseController {
                 if (($result = $pwForum->addForum($dm)) instanceof PwError) {
                     $this->showError($result->getError(), 'native/life/run/');
                 }else{
+//                    var_dump($result);
                     $life_fid = $result;
                     $config = new PwConfigSet('native');
                     $config->set('forum.life_fid',$life_fid)->flush();
+//                    var_dump($life_fid);
                 }
             }
+//            exit;
             //添加公共服务版面
+            $dm_life = new PwForumDm();
             list($forumname, $manager, $vieworder, $descrip,$isshow,$url,$address) = $this->getInput(array('forumname', 'manager', 'vieworder', 'descrip','isshow','url','address'), 'post');
-            $dm->setParentid($life_fid)
+            $dm_life->setParentid($life_fid)
                     ->setName($forumname)
                     ->setVieworder($vieworder)
                     ->setManager($manager)
                     ->setDescrip($descrip)
                     ->setIsshow($isshow)
                     ->setBasicSetting($forumset);
-            if (($result = $pwForum->addForum($dm)) instanceof PwError) {
+            if (($result = $pwForum->addForum($dm_life)) instanceof PwError) {
                 $this->showError($result->getError(), 'native/life/run/');
             }
             $fid = $result;

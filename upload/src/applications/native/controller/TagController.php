@@ -1,6 +1,6 @@
 <?php
 Wind::import('LIB:base.PwBaseController');
-
+Wind::import('APPS:native.controller.NativeBaseController');
 /**
  * 获取热点话题、关注话题、取消关注话题、获取话题下帖子列表接口
  *
@@ -11,14 +11,20 @@ Wind::import('LIB:base.PwBaseController');
  * @lastchange: 2014-12-16 19:08:17
  * @desc: 
  * */
-class TagController extends PwBaseController {
+class TagController extends NativeBaseController {
 	private $hotTag = 4;
 	private $hotContents = 3;
-	private $perpage = 10;
+	private $perpage = 30;
 	private $defaultType = 'threads';
 	private $attentionTagList = 10;
 	private $hotTagList = 10;	//热门话题显示数
         
+        public function beforeAction($handlerAdapter){
+		parent::beforeAction($handlerAdapter);
+                $this->uid = 1; //测试uid
+                $this->loginUser = new PwUserBo($this->uid);
+                $this->loginUser->resetGid($this->loginUser->gid);
+	}
 
         /**
         * 获取热点话题
@@ -31,13 +37,15 @@ class TagController extends PwBaseController {
         */
 	public function run() {
 //            echo date("Y-m-d H:i:s",1419218627);exit;//7天前数据删除
+                $num = intval($this->getInput('num'));
+                $num>=1 ? ($num>200 && $num=200) : $num=20;
 		$typeName = $this->defaultType;
 		$categoryId = intval($this->getInput('categoryid','get'));
 		$alias = $this->getInput('alias','get');
 		$tagServicer = $this->_getTagService();
 // 		var_dump($tagServicer);exit;
 //		$hotTags = $tagServicer->getHotTags($categoryId,20);//PwTagService对象,getHotTagsNoCache
- 		$hotTags = $tagServicer->getHotTagsNoCache($categoryId,20);
+ 		$hotTags = $tagServicer->getHotTagsNoCache($categoryId,$num);
 // 		var_dump($hotTags);exit;
 		$tagIds = array();
 		foreach ($hotTags as $k => $v) {
@@ -63,7 +71,7 @@ class TagController extends PwBaseController {
 	}
 	
 	/**
-	 * 
+	 * 此方法暂时没用
 	 */
 	public function myAction(){
 		if ($this->loginUser->uid < 1) {
@@ -165,6 +173,8 @@ class TagController extends PwBaseController {
 	public function viewAction(){
 		list($id,$page,$perpage,$type,$tagName) = $this->getInput(array('id', 'page', 'perpage', 'type', 'name'));
 		$page = $page ? $page : 1;
+                $start_time = 0;
+                $pos = ($page-1)*$this->perpage;
 		if (!$id && $tagName) {
 			$tagName = rawurldecode($tagName);
 			$tag = $this->_getTagDs()->getTagByName($tagName);
@@ -177,8 +187,8 @@ class TagController extends PwBaseController {
 			$tag = $this->_getTagDs()->getTag($tag['parent_tag_id']);
 			$id = $tag['tag_id'];
 		}
-                /* 筛选话题下的有效帖子并且分类属于移动端板块 */
-                $res = Wekit::loadDao('native.dao.PwNativeTagRelationDao')->fetchTids(array($id));//默认获取30个与话题相关的帖子tids
+                /* 筛选话题下的有效帖子并且分类属于移动端以及生活服务 */
+                $res = Wekit::loadDao('native.dao.PwNativeTagRelationDao')->fetchTids(array($id),$start_time,$pos,$this->perpage);//默认获取30个与话题相关的帖子tids
                 $tids = array();
                 foreach($res as $v){
                     $tids[] = $v['param_id'];
@@ -236,20 +246,6 @@ class TagController extends PwBaseController {
 		$this->setOutput($tag, 'tag');
 		$this->setOutput($args, 'args');
 		
-		$threads = $tids = array();
-                foreach($contents as $v){
-                    $threads[$v['tid']] = $v;
-                }
-                $tids = array_keys($threads);                
-                $threads_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->fetchByTids($tids);
-                foreach($threads as $k => $v){
-                    $threads[$k]['from_type'] = isset($threads_place[$k]['from_type']) ? intval($threads_place[$k]['from_type']) : 0;
-                    $threads[$k]['created_address'] = isset($threads_place[$k]['created_address']) ? $threads_place[$k]['created_address'] : '';
-                }
-                var_dump($threads);exit;//话题下帖子列表包含内容、话题、移动端信息扩展
-                var_dump($tids,$threads,$threads_place);exit;
-                
-                var_dump($contents);exit;
 	}
 	
 	/**
