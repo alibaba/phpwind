@@ -241,9 +241,10 @@ class MyController extends NativeBaseController {
     public function articleAction(){
         $page = $this->getInput('page','get');
         //
-        $array          = $this->_getPwNativeThreadDs()->getThreadListByUid($this->uid, $page, 'my');
-        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
-        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        $tids           = $this->_getPwNativeThreadDs()->getThreadListByUid($this->uid, $page, 'my');
+        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($tids);
+        //pids 默认是0； 
+        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array(0) );
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
         //
         $data = array(
@@ -274,18 +275,13 @@ class MyController extends NativeBaseController {
 
         list($start, $limit) = Pw::page2limit($page, $perpage);
         //
-        $tids = $pids = array();
+        $tids = array();
         $threads = $this->_getNativePostExpandDao()->getDisabledPostByUid($this->uid, $this->_getForumService()->fids, $limit, $start);
         foreach ($threads as $thread) {
             $tids[] = $thread['tid'];
-            $thread['aids'] && $pids[] = $thread['aids'];
         }   
-        $array = array(
-            'tids'=>$tids,
-            'pids'=>$pids,
-        );
-        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
-        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        $myThreadList = $this->_getPwNativeThreadDs()->getThreadContent($tids);
+        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array(0));
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
         //
         $postCount = $this->_getNativePostExpandDao()->countDisabledPostByUidAndFids($this->uid, $this->_getForumService()->fids);

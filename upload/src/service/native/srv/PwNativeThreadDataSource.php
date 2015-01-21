@@ -38,7 +38,7 @@ class PwNativeThreadDataSource extends PwThreadDataSource {
 	 * @see PwThreadDataSource::getTotal()
 	 */
     public function getTotal() {
-        if( $type=='my' ){
+        if( $this->type=='my' ){
             return $this->_getThreadDao()->countDisabledThreadByUidAndFids($this->uid, $this->fids);
         }
         return $this->_getThreadDao()->countThreadByUidAndFids($this->uid, $this->fids);
@@ -48,8 +48,8 @@ class PwNativeThreadDataSource extends PwThreadDataSource {
 	 * @see PwThreadDataSource::getData()
 	 */
     public function getData($limit, $offset) {
-        if( $type=='my' ){
-            return $this->_getThreadDao()->countDisabledThreadByUidAndFids($this->uid, $this->fids, $limit, $offset);
+        if( $this->type=='my' ){
+            return $this->_getThreadDao()->getDisabledThreadByUidAndFids($this->uid, $this->fids, $limit, $offset);
         }
         return $this->_getThreadDao()->getThreadByUidAndFids($this->uid, $this->fids, $limit, $offset);
 	}

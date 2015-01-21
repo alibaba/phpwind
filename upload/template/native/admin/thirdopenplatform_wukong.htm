@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<div class="wrap">
+    <div class="h_a">云im接入</div>
+    <div class="prompt_text">
+    使你的app拥有im功能
+    </div>
+<form class="J_ajaxForm" action="{@url:native/ThirdOpenPlatform/dosetwukong}" method="post">
+<input type="hidden" name="type" value="{$type}" />
+<div class="table_full">
+	<table width="100%">
+		<col width="th" />
+		<col width="400"/>
+		<col />
+		<tr>
+            <th>AppKey</th>
+		<td>
+            <input type="text" class="input length_5 mr5" name="wukong.appKey" value="{$config['wukong.appKey']}">
+		</td>
+        <td><div class="fun_tips"></div>
+        </td>
+		</tr>
+		<tr>
+            <th>AppSecret</th>
+		<td>
+            <input type="text" class="input length_5 mr5" name="wukong.appSecret" value="{$config['wukong.appSecret']}">
+		</td>
+		</tr>
+        <tr>
+            <th>ServerToken</th>
+		<td>
+            <input type="text" class="input length_5 mr5" name="wukong.serverToken" value="{$config['wukong.serverToken']}">
+		</td>
+		</tr>
+	</table>
+</div>
+<div class="btn_wrap">
+	<div class="btn_wrap_pd" id="J_sub_wrap">
+   <button type="submit" class="btn btn_submit J_ajax_submit_btn">提交</button>
+	</div>
+</div>
+</div>
+{$csrf_token}
+</form>
+
+</div>
+<template source='TPL:admin.common.footer' />
+</body>
+</html>

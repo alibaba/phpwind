@@ -40,15 +40,14 @@ class PwNativeThread {
         $threads = $threadList->getList();
         $this->threadPageCount = $threadList->maxPage;
 
-        $tids = $pids = array();
-        foreach ($threads as $thread) {
-            $tids[] = $thread['tid'];
-            $thread['aids'] && $pids[] = $thread['aids'];
+        //
+        $tids = array();
+        if( $threads ){
+            foreach ($threads as $thread) {
+                $tids[] = $thread['tid'];
+            }
         }
-        return array(
-            'tids'=>$tids,
-            'pids'=>$pids,
-        );
+        return $tids;
     }
 
     /**
@@ -73,7 +72,7 @@ class PwNativeThread {
     public function gather($threadList, $attList){
         if( !is_array($threadList) || !is_array($attList) ) return array();
         foreach($threadList as $key=>$thread){
-            $pic_key = $thread['tid'].'_0';//.$thread['aids'];
+            $pic_key = $thread['tid'].'_0';
             $threadList[$key]['pic'] = isset($attList[$pic_key])?$attList[$pic_key]:array();
             //列表数据，过滤掉图片及附件url等标签
             $threadList[$key]['content'] = preg_replace('/\[[^\]]*\]/i',' ',$threadList[$key]['content']);
@@ -111,7 +110,8 @@ class PwNativeThread {
             $value['path'] = Pw::getPath($value['path'], $value['ifthumb']);
             //$result[$_key][$value['aid']] = $value;
             //只用图片地址
-            $result[$_key][$value['aid']]['path'] = $value['path'];
+            //$result[$_key][$value['aid']]['path'] = $value['path'];
+            $result[$_key][]['path'] = $value['path'];
         }
         return $result;
     }
