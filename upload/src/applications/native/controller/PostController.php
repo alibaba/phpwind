@@ -18,7 +18,9 @@ Wind::import('APPS:native.controller.NativeBaseController');
 
 class PostController extends NativeBaseController {
     public $post;
-    
+    protected $perpage = 30;
+
+
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
         $this->uid = 1; //测试uid
@@ -103,16 +105,15 @@ class PostController extends NativeBaseController {
      * @return string
      * @example
      <pre>
-     /index.php?m=native&c=post&a=add&fid=分类id
+     /index.php?m=native&c=post&a=doadd&fid=分类id
      //post: atc_title=测试title&atc_content=测试内容&tagnames=测试话题&pid=默认空&tid=默认空&special=default&reply_notice=1
-     post: atc_content=#话题#测试内容&pid=默认空&tid=默认空&special=default&reply_notice=1
+     post: atc_content=#话题#测试内容&pid=默认空&tid=默认空&special=default&reply_notice=1&flashatt[43][desc]=描述1&flashatt[44][desc]=描述2
      cookie:usersession
      response: {err:"",data:""}  
      </pre>
      */
-    public function addAction() {
+    public function doAddAction() {
         
-//        echo "addAction";exit;
         //app发帖子不带标题,内容格式化，抓取分享链接内容，此处尚需要处理
         list($title, $content, $topictype, $subtopictype, $reply_notice, $hide, $created_address,$area_code,$share_url) = $this->getInput(array('atc_title', 'atc_content', 'topictype', 'sub_topictype', 'reply_notice', 'hide' ,'created_address','area_code','share_url'), 'post');
         $pwPost = $this->post;
@@ -123,7 +124,7 @@ class PostController extends NativeBaseController {
         isset($matches[1]) && $_POST['tagnames'] = explode('#', trim($matches[1],'#'));
         isset($matches[2]) && $content = $matches[2];
 //        var_dump($_POST['tagnames'],$content);exit;
-        $this->runHook('c_post_doadd', $pwPost);
+        $this->runHook('c_post_doadd', $pwPost);//PwHook.php 组件调用机制完成附件上传、话题添加
         /*
         //抓取分享链接内容
         $options = array(
@@ -217,7 +218,6 @@ class PostController extends NativeBaseController {
         list($title, $content, $hide, $rpid,$created_address,$area_code) = $this->getInput(array('atc_title', 'atc_content', 'hide', 'pid' ,'created_address' ,'area_code'), 'post');
         $_getHtml = $this->getInput('_getHtml', 'get');
         $pwPost = $this->post;
-        //runHook的作用？
         $this->runHook('c_post_doreply', $pwPost);
 
         $info = $pwPost->getInfo();
@@ -248,7 +248,7 @@ class PostController extends NativeBaseController {
         $data = array('pid'=>$pid,'created_address'=>$created_address,'area_code'=>$area_code);
         $res = Wekit::loadDao('native.dao.PwPostsPlaceDao')->insertValue($data);
         $this->showMessage('success', 'bbs/read/run/?tid=' . $tid . '&fid=' . $pwPost->forum->fid, true);
-        
+        exit;
 //        var_dump($pid);exit;
         
         //页面输出部分与移动端无关
@@ -293,39 +293,15 @@ class PostController extends NativeBaseController {
         }
     }
 
-    /**
-     * 这个方法暂时没用    
-     */
-    public function replyAction(){
-        $pid = $this->getInput('pid');
-        $this->runHook('c_post_reply', $this->post);
-        
-        $info = $this->post->getInfo();
-        $this->setOutput('', 'atc_title');
-        $this->setOutput('Re:' . $info['subject'], 'default_title');
-        $this->setOutput('doreply', 'do');
-        $this->setOutput($info['tid'], 'tid');
-        $this->setOutput($pid, 'pid');
-        $this->setOutput('checked', 'reply_notice');
-        $this->setOutput($this->post->forum->headguide() . $this->post->forum->bulidGuide(array($info['subject'], WindUrlHelper::createUrl('bbs/read/run', array('tid' => $info['tid'], 'fid' => $this->post->forum->fid)))), 'headguide');
-        $this->_initVar();
-        $this->setTemplate('post_run');
-        // seo设置
-        Wind::import('SRV:seo.bo.PwSeoBo');
-        $seoBo = PwSeoBo::getInstance();
-        $lang = Wind::getComponent('i18n');
-        $seoBo->setCustomSeo($lang->getMessage('SEO:bbs.post.reply.title'), '', '');
-        Wekit::setV('seo', $seoBo);
-    }
     
     
      /**
-     * 针对某一个楼层的回复列表，带翻页
+     * 针对某一个楼层的简略回复列表，过滤附件内容，带翻页（不传分页参数默认展示3条）
      * @access public
      * @return string
      * @example
      <pre>
-     /index.php?m=native&c=post&a=replylist&tid=33&pid=33&page=2
+     /index.php?m=native&c=post&a=replylist&tid=33&pid=33&page=2&floor=当前楼层号
      response: {err:"",data:""}  
      </pre>
      */
@@ -365,35 +341,45 @@ class PostController extends NativeBaseController {
     }
 
     private function _replylist() {
+        /*
+        $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid(126, 5, 0);//获得回帖的回复列表
+//        $post = Wekit::load('forum.PwThread')->getPost(126);//获得回帖信息
+        $post = Wekit::load('forum.PwThread')->getPost(133);//获得回帖信息，缺少用户头像
+        $atts = Wekit::load('attach.PwThreadAttach')->fetchAttachByTid(array(87));
+        $atts = Wekit::load('attach.PwThreadAttach')->fetchAttachByTidAndPid(array(87), array(129));
+        $atts = Wekit::load('native.PwNativeThread')->getThreadAttach(array(87), array(0));
+//        var_dump($atts);exit;
+        var_dump($post,$replydb);exit;
+         * 
+         */
+        
         list($tid, $pid, $page) = $this->getInput(array('tid', 'pid', 'page'), 'get');
-
         $page = intval($page);
-        $page < 1 && $page = 1;
-        $perpage = 10;
+        $perpage = $page ? $this->perpage : 3;//没有分页参数，默认展示3条针对一个楼层的回复
+        !$page && $page = 1;
 
         $info = Wekit::load('forum.PwThread')->getThread($tid);
-        $replydb = array();
+        $replydb = $data = array();
         if ($pid) {
             $reply = Wekit::load('forum.PwThread')->getPost($pid);
             $total = $reply['replies'];
             list($start, $limit) = Pw::page2limit($page, $perpage);
             Wind::import('LIB:ubb.PwSimpleUbbCode');
             Wind::import('LIB:ubb.config.PwUbbCodeConvertThread');
-            $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);
-            $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb);
-        } else {
-            $total = 0;
-        }
-        
-        var_dump(array('page'=>$page,'perpage'=>$perpage,'count'=>$total,'pid'=>$pid,'replydb'=>$replydb,'tid'=>$info['tid']));exit;
-        
-        $this->setOutput($page, 'page');
-        $this->setOutput($perpage, 'perpage');
-        $this->setOutput($total, 'count');
+            $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);//回帖的回复，内容未格式化
+            $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb);//对回帖回复内容进行格式化并截字处理，简略回复不展示附件及图片
+            if($page == 1 && $perpage == $this->perpage){
+                $reply['created_time'] = Pw::time2str($reply['created_time'],'auto');//格式化时间
+                $reply['avatar'] = Pw::getAvatar($reply['created_userid'],'small');//获取头像
+            }else{
+                $reply = array();
+            }
+            $page_info = array('page'=>$page,'perpage'=>$perpage,'count'=>$total,'max_page'=>  ceil($total/$perpage));
+            $data = array('page_info'=>$page_info,'tid'=>$info['tid'],'post'=>$reply,'reply_list'=>$replydb);
 
-        $this->setOutput($pid, 'pid');
-        $this->setOutput($replydb, 'replydb');
-        $this->setOutput($info['tid'], 'tid');
+        } 
+        $this->setOutput($data, 'data');
+        $this->showMessage('success');
     }
 
     private function _initVar() {

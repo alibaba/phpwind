@@ -41,15 +41,36 @@ class LifeController extends NativeBaseController {
         $page = intval($page) > 1 ? intval($page) : 1;
         $pos = ($page-1)*$this->perpage;
         //获取生活服务版块列表
-        $forum_list = Wekit::loadDao('native.dao.PwNativeForumDao')->fetchForumLifeList($pos,$this->perpage);
+        $forum_list = Wekit::loadDao('native.dao.PwNativeForumDao')->fetchForumLifeList($pos,1000);
         $fids = array_keys($forum_list);
         //生活服务扩展表数据
         $forum_life_list = Wekit::loadDao('native.dao.PwForumLifeDao')->fetchForumLife($fids);
+        $join_forum_life = $unjoin_forum_life = $user_fids = $join_vieworder = $unjoin_vieworder = array();
+        if ($this->uid) {//此处涉及用户登录状态判断,获取用户关注的版块
+            $forumUserDao = Wekit::loadDao('forum.dao.PwForumUserDao');
+            $user_fids = $forumUserDao->getFroumByUid($this->uid);
+        }
         foreach($forum_list as $k=>$v){
             $forum_list[$k]['address'] = isset($forum_life_list[$k]['address']) ? $forum_life_list[$k]['address'] : '';
             $forum_list[$k]['url'] = isset($forum_life_list[$k]['url']) ? $forum_life_list[$k]['url'] : '';
+            if (array_key_exists($k, $user_fids)) {//版面fid是用户关注的
+                $join_vieworder[] = $v['vieworder'];
+                $join_forum_life[$k] = $forum_list[$k];
+                $join_forum_life[$k]['isjoin'] = true;
+            }else{
+                $unjoin_vieworder[] = $v['vieworder'];
+                $unjoin_forum_life[$k] = $forum_list[$k];
+                $unjoin_forum_life[$k]['isjoin'] = false;
+            }
         }
-        var_dump($forum_list);exit;
+        $join_forum_life && array_multisort($join_vieworder, SORT_ASC, $join_forum_life);
+        $unjoin_forum_life && array_multisort($unjoin_vieworder, SORT_ASC, $unjoin_forum_life);
+        $forum_list_merge = array_merge($join_forum_life, $unjoin_forum_life);
+//        var_dump($join_forum_life,$unjoin_forum_life,$forum_list_merge);exit;
+//        var_dump($fids_native,$user_fids,$forum_list_merge);
+        $data = array('user_info'=>array('uid'=>$this->uid),'forum_list'=>$forum_list_merge);
+        $this->setOutput($data,'data');
+        $this->showMessage('NATIVE:data.success');   
     }
    
     /**
@@ -72,17 +93,28 @@ class LifeController extends NativeBaseController {
         $forum['address'] = isset($forum_life['address']) ? $forum_life['address'] : '';
         $forum['url'] = isset($forum_life['url']) ? $forum_life['url'] : '';
         
+        $user_fids = array();
+        if ($this->uid) $user_fids = Wekit::loadDao('forum.dao.PwForumUserDao')->getFroumByUid($this->uid);
+        $isjoin = array_key_exists($fid,$user_fids) ? true : false;
+        $count = Wekit::loadDao('forum.dao.PwThreadsDao')->countThreadByFidAndType($fid, 0);
         $threads = Wekit::loadDao('forum.dao.PwThreadsDao')->getThreadByFid($fid, $this->perpage, $pos);
         $tids = array_keys($threads);
         $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
-        $result = array('forumInfo'=>$forum,'threadsList'=>$threads_list);
-        var_dump($result);exit;
+//        $result = array('forumInfo'=>$forum,'threadsList'=>$threads_list);
+//        var_dump($result);exit;
         
+        $page_info = array('page'=>$page,'perpage'=>$this->perpage,'count'=>$count,'max_page'=>ceil($count/$this->perpage));
+        $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid,'isjoin'=>$isjoin),'forum_info'=>($page==1?$forum:''),'threads_list'=>$threads_list);
+        $this->setOutput($data,'data');
+        $this->showMessage('NATIVE:data.success');
+        exit;
         /* 测试pw提供获取帖子内容service */
         $thread_content = Wekit::load('forum.PwThread')->fetchThread(array(26,45,43,44), PwThread::FETCH_ALL);//PW 提供的获取帖子内容方法
         var_dump($thread_content);exit;PW::getTime();//PW工具类
 //        $thread_content = Wekit::loadDao('forum.dao.PwThreadsContentDao')->getThread(81);
 //        var_dump($thread_content);exit;
     }
+    
+    
 
 }

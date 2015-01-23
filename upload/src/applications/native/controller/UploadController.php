@@ -16,6 +16,8 @@ class UploadController extends NativeBaseController  {
 
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
+        $this->uid = 1; //测试uid
+        $this->loginUser = new PwUserBo($this->uid);
         $this->checkUserSessionValid();//统一校验用户是否登录，未登录做跳转
     }
 

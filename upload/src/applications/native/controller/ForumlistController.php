@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 版块列表接口
+ * 版块列表相关
  *
  * @fileName: ForumListController.php
  * @author: yuliang<yuliang.lyl@alibaba-inc.com>
@@ -56,7 +56,7 @@ class ForumListController extends NativeBaseController {
      * @access public
      * @return string
      <pre>
-     /index.php?m=native&c=forumlist
+     /index.php?m=native&c=forumlist&_json=1
      response: 
      </pre>
      */
@@ -75,7 +75,6 @@ class ForumListController extends NativeBaseController {
             $forumUserDao = Wekit::loadDao('forum.dao.PwForumUserDao');
             $user_fids = $forumUserDao->getFroumByUid($this->uid);
         }
-//                var_dump($user_fids);exit;
 
         foreach ($forumList as $cat_k => $cat_v) {
             foreach ($cat_v as $forum_k => $forum_v) {
@@ -83,9 +82,11 @@ class ForumListController extends NativeBaseController {
                     if (array_key_exists($forum_v['fid'], $user_fids)) {//版面fid是用户关注的
                         $forum_list_user[$forum_k] = $forum_v;
                         $forum_list_user[$forum_k]['vieworder'] = $user_vieworder[] = $fids_native[$forum_k];
+                        $forum_list_user[$forum_k]['isjoin'] = true;
                     } else {//版面fid不是用户关注的放到通用集合
                         $forum_list_native[$forum_k] = $forum_v;
                         $forum_list_native[$forum_k]['vieworder'] = $native_vieworder[] = $fids_native[$forum_k];
+                        $forum_list_native[$forum_k]['isjoin'] = false;
                     }
                 }
             }
@@ -94,18 +95,10 @@ class ForumListController extends NativeBaseController {
         $forum_list_user && array_multisort($user_vieworder, SORT_ASC, $forum_list_user);
         $forum_list_native && array_multisort($native_vieworder, SORT_ASC, $forum_list_native);
         $forum_list_merge = array_merge($forum_list_user, $forum_list_native);
-        var_dump($fids_native,$user_fids,$forum_list_merge);
-        exit;
-        var_dump($fids_native, $user_vieworder, $native_vieworder, $forum_list_merge, $forum_list_user, $forum_list_native, $forumList);
-        exit;
-//                var_dump($bbsinfo,$cateList,$forumList);exit;
-
-        $this->setOutput($cateList, 'cateList');
-        $this->setOutput($forumList, 'forumList');
-        $this->setOutput($this->todayposts, 'todayposts');
-        $this->setOutput($this->article, 'article');
-        $this->setOutput($bbsinfo, 'bbsinfo');
-        $this->setTemplate('forum_list');
+//        var_dump($fids_native,$user_fids,$forum_list_merge);
+        $data = array('user_info'=>array('uid'=>$this->uid),'forum_list'=>$forum_list_merge);
+        $this->setOutput($data,'data');
+        $this->showMessage('NATIVE:data.success');        
     }
 
     /**

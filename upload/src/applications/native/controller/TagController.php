@@ -31,7 +31,7 @@ class TagController extends NativeBaseController {
         * @access public
         * @return string
          <pre>
-         /index.php?m=native&c=tag
+         /index.php?m=native&c=tag&_json=1
          response: html
          </pre>
         */
@@ -55,6 +55,10 @@ class TagController extends NativeBaseController {
 			$tagIds[] = $k;
 		}
 		usort($hotTags, array($this, 'cmp'));
+                $data = array('user_info'=>array('uid'=>$this->uid),'tag_info'=>$hotTags);
+                $this->setOutput($data,'data');
+                $this->showMessage('NATIVE:data.success');
+                exit;
 		var_dump($hotTags);exit;
                 
 		$myTags = $this->_getTagAttentionDs()->getAttentionByUidAndTagsIds($this->loginUser->uid,$tagIds);
@@ -187,6 +191,9 @@ class TagController extends NativeBaseController {
 			$tag = $this->_getTagDs()->getTag($tag['parent_tag_id']);
 			$id = $tag['tag_id'];
 		}
+//                var_dump($tag);exit;
+                // 是否关注
+		$isjoin = Wekit::load('tag.PwTagAttention')->isAttentioned($this->uid,$id);
                 /* 筛选话题下的有效帖子并且分类属于移动端以及生活服务 */
                 $res = Wekit::loadDao('native.dao.PwNativeTagRelationDao')->fetchTids(array($id),$start_time,$pos,$this->perpage);//默认获取30个与话题相关的帖子tids
                 $tids = array();
@@ -194,9 +201,16 @@ class TagController extends NativeBaseController {
                     $tids[] = $v['param_id'];
                 }
                 $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
-                var_dump($tids,$threads_list);exit;
+                $count = Wekit::loadDao('native.dao.PwNativeTagRelationDao')->getCount(array($id));
+//                var_dump($tids,$threads_list);exit;
                 
-                var_dump($threads);exit;//话题下帖子列表包含内容、话题、移动端信息扩展。只展示移动端分类下数据
+                $page_info = array('page'=>$page,'perpage'=>$this->perpage,'count'=>$count,'max_page'=>ceil($count/$this->perpage));
+                $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid,'isjoin'=>$isjoin),'tag_info'=>($page==1?$tag:''),'threads_list'=>$threads_list);
+                $this->setOutput($data,'data');
+                $this->showMessage('NATIVE:data.success');
+                exit;
+                
+//                var_dump($threads);exit;//话题下帖子列表包含内容、话题、移动端信息扩展。只展示移动端分类下数据
                 
 		// 是否关注
 		$tag['attention'] = $this->_getTagAttentionDs()->isAttentioned($this->loginUser->uid,$id);

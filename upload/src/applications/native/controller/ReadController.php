@@ -1,6 +1,6 @@
 <?php
 /**
- * 查看帖子相关接口
+ * 查看帖子相关
  *
  * @fileName: ReadController.php
  * @author: yuliang<yuliang.lyl@alibaba-inc.com>
@@ -17,8 +17,9 @@ Wind::import('SRV:forum.srv.PwThreadDisplay');
 Wind::import('SRV:credit.bo.PwCreditBo');
 
 class ReadController extends NativeBaseController {
-    
-	public function beforeAction($handlerAdapter) {
+    protected $perpage = 30; 
+
+    public function beforeAction($handlerAdapter) {
 		parent::beforeAction($handlerAdapter);
                 $this->uid = 1; //测试uid
                 $this->loginUser = new PwUserBo($this->uid);
@@ -37,8 +38,128 @@ class ReadController extends NativeBaseController {
      cookie:usersession
      response: {err:"",data:""}  
      </pre>
-     */
+     */ 
     public function readAction(){
+        $tid = intval($this->getInput('tid'));
+        list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
+        !$page && $page==1;
+        $threadDisplay = new PwThreadDisplay($tid, $this->loginUser);
+        $this->runHook('c_read_run', $threadDisplay);
+
+        if (($result = $threadDisplay->check()) !== true) {
+            $this->showError($result->getError());
+        }
+        $_cache = Wekit::cache()->fetch(array('level', 'group_right'));
+
+        $pwforum = $threadDisplay->getForum();
+        if ($pwforum->foruminfo['password']) {
+            if (!$this->uid) {
+                $this->forwardAction('u/login/run', array('backurl' => WindUrlHelper::createUrl('bbs/cate/run', array('fid' => $$pwforum->fid))));
+            } elseif (Pw::getPwdCode($pwforum->foruminfo['password']) != Pw::getCookie('fp_' . $pwforum->fid)) {
+                $this->forwardAction('bbs/forum/password', array('fid' => $pwforum->fid));
+            }
+        }
+        if ($uid) {
+            Wind::import('SRV:forum.srv.threadDisplay.PwUserRead');
+            $dataSource = new PwUserRead($threadDisplay->thread, $uid);
+        } else {
+            Wind::import('SRV:forum.srv.threadDisplay.PwCommonRead');
+            $dataSource = new PwCommonRead($threadDisplay->thread);
+        }
+        $dataSource->setPage($page)
+//                ->setPerpage($pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage'))
+                ->setPerpage($this->perpage)
+                ->setDesc($desc);
+
+        $threadDisplay->setImgLazy(Wekit::C('bbs', 'read.image_lazy'));
+//        var_dump($threadDisplay);exit;
+        $threadDisplay->execute($dataSource);
+
+        $operateReply = $operateThread = array();
+        $isBM = $pwforum->isBM($this->loginUser->username);
+        if ($threadPermission = $this->loginUser->getPermission('operate_thread', $isBM, array())) {
+            $operateReply = Pw::subArray(
+                            $threadPermission, array('toppedreply', /* 'unite', 'split',  */ 'remind', 'shield', 'delete', 'ban', 'inspect', 'read')
+            );
+            $operateThread = Pw::subArray(
+                            $threadPermission, array(
+                        'digest', 'topped', 'up', 'highlight',
+                        'copy',
+                        'type', 'move', /* 'unite', 'print' */ 'lock',
+                        'down',
+                        'delete',
+                        'ban'
+                            )
+            );
+        }
+                
+//        $threadInfo = $threadDisplay->getThreadInfo();//获取帖子详细内容
+//        $thread_list = $threadDisplay->getList();
+        
+        
+        
+        $posts_num = $page==1 ? $this->perpage - 1 : $this->perpage;
+        $start_floor = ($page-1)*$this->perpage;
+        $start_pos = ($page-1)*$this->perpage - 1;
+        $start_pos < 0 && $start_pos = 0;
+        if($uid){//只看楼主回复
+            $posts_list = Wekit::load('forum.PwThread')->getPostByTidAndUid($tid,$uid,$posts_num,$start_pos);//获取帖子的回复
+        }else{
+            $posts_list = Wekit::load('forum.PwThread')->getPostByTid($tid,$posts_num,$start_pos);//获取帖子的回复
+        }
+        $thread_info = '';
+        if($page==1){//第一页展示主贴
+            $thread_info = Wekit::load('forum.PwThread')->getThread($tid,PwThread::FETCH_ALL);
+            $thread_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->getByTid($tid);//获取发帖的位置信息
+            $posts_list[0] = $thread_info;
+            ksort($posts_list);
+        }
+        $pids = array_keys($posts_list);
+        $PwThreadService = Wekit::load('forum.srv.PwThreadService');
+        $imgs_list = Wekit::load('native.PwNativeThread')->getThreadAttach(array($tid),$pids);//获取主贴和回帖的所有图片信息
+        $posts_place = Wekit::loadDao('native.dao.PwPostsPlaceDao')->fetchByPids($pids);//获取回帖的位置信息
+        foreach($posts_list as $k=>$v){
+            $content = $v['content'];
+            $posts_list[$k]['created_time'] = Pw::time2str($v['created_time'],'auto');
+            $posts_list[$k]['avatar'] = Pw::getAvatar($v['created_userid'],'small');
+            $posts_list[$k]['floor'] = $start_floor++;//楼层
+            $imgs = isset($imgs_list[$tid.'_'.$k]) ? $imgs_list[$tid.'_'.$k] : array();
+            ksort($imgs);
+            
+            if($k){//回帖
+                $text = str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim($PwThreadService->displayContent($content,1,array(),strlen($content)),'.'));//帖子内容文本
+                $posts_list[$k]['created_address'] = isset($posts_place[$k]['created_address']) ? $posts_place[$k]['created_address'] : '';
+                $posts_list[$k]['area_code'] = isset($posts_place[$k]['area_code']) ? $posts_place[$k]['area_code'] : '';
+            }else{//主贴
+                $posts_list[$k]['lastpost_time'] = Pw::time2str($v['lastpost_time'],'auto');//最后回复时间
+                $v['tags'] && $posts_list[$k]['tags'] = explode(',', $v['tags']);//帖子话题
+                $text = str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim($PwThreadService->displayContent($content,1,array(),strlen($content)),'.'));//帖子内容文本
+                $posts_list[$k]['from_type'] = isset($thread_place['from_type']) ? $thread_place['from_type'] : 0;
+                $posts_list[$k]['created_address'] = isset($thread_place['created_address']) ? $thread_place['created_address'] : '';
+                $posts_list[$k]['area_code'] = isset($thread_place['area_code']) ? $thread_place['area_code'] : '';
+            }
+            
+            preg_match("/\[mp3.*?\](.*?)\[\/mp3\]/i",$content, $mp3);
+            preg_match("/\[flash.*?\](.*?)\[\/flash\]/i",$content, $flash);
+            $posts_list[$k]['content'] = array(
+                                            'text'=>$text,
+                                            'flash'=>isset($flash[1]) ? $flash[1] : '',
+                                            'mp3'=>isset($mp3[1]) ? $mp3[1] : '',
+                                            'imgs'=>$imgs,//获取内容图片
+                                            'share'=>'',//帖子分享链接中的内容(待定)
+                                            'product'=>'',//推广待定
+                                            );
+            $posts_list[$k]['content_origin'] = $content;
+        }
+        $count = $threadDisplay->total;
+        $page_info = array('page'=>$page,'perpage'=>$this->perpage,'count'=>$count,'max_page'=>ceil($count/$this->perpage));
+        $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'forum_info'=>($page==1?$pwforum->foruminfo:''),'posts_list'=>$posts_list);
+        $this->setOutput($data,'data');
+        $this->showMessage('NATIVE:data.success');
+    }
+    
+    /* 此方法暂时没用 */
+    public function readAction_tmp(){
 //        echo "readAction";exit;
         $tid = intval($this->getInput('tid'));
         list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
@@ -68,10 +189,11 @@ class ReadController extends NativeBaseController {
         }
         $dataSource->setPage($page)
 //                ->setPerpage($pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage'))
-                ->setPerpage(30)
+                ->setPerpage($this->perpage)
                 ->setDesc($desc);
 
         $threadDisplay->setImgLazy(Wekit::C('bbs', 'read.image_lazy'));
+//        var_dump($threadDisplay);exit;
         $threadDisplay->execute($dataSource);
 
         $operateReply = $operateThread = array();
@@ -92,6 +214,8 @@ class ReadController extends NativeBaseController {
             );
         }
         
+        var_dump($threadDisplay);exit;
+        
         $threadInfo = $threadDisplay->getThreadInfo();//获取帖子详细内容
         $thread_list = $threadDisplay->getList();
         $pids = $posts_list = array();
@@ -111,7 +235,7 @@ class ReadController extends NativeBaseController {
             $posts_list[$k]['area_code'] = $v['area_code'];
         }
         
-        
+//        var_dump($threadDisplay);exit;
         var_dump($threadInfo,$posts_list);exit;
         $data = array(
                        'tid'=>$tid,
@@ -194,8 +318,5 @@ class ReadController extends NativeBaseController {
         $this->runReadDesign($threadDisplay->fid);
         $this->updateReadOnline($threadDisplay->fid, $tid);
     }
-    
-  
-    
     
 }

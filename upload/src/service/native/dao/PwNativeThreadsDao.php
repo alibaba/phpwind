@@ -37,7 +37,7 @@ class PwNativeThreadsDao extends PwThreadsDao {
                 ON t.`tid`=p.`tid` 
                 WHERE t.`created_time`>%s AND t.`disabled`=0 AND t.`fid` IN ($this->fids)
                 GROUP BY t.`tid`
-                ORDER BY t.`replies` DESC ,`lastpost_time` DESC
+                ORDER BY t.`replies` DESC ,t.`lastpost_time` DESC
                 LIMIT %s,%s";
         $sql = $this->_bindSql($sql, $this->getTable(),$stop_time,$start,$num);
 //        echo $sql;exit;
@@ -78,6 +78,22 @@ class PwNativeThreadsDao extends PwThreadsDao {
         $sql = $this->_bindSql($sql, $this->getTable(),$pos,$num);
         $smt = $this->getConnection()->query($sql);
         return array_keys($smt->fetchAll('tid'));
+    }
+    
+    /**
+     * 获取动态最新的帖子数量
+     */
+    public function getNewThreadCount(){
+        if(!$this->fids) return 0;
+        $dao = $GLOBALS['acloud_object_dao'];
+        $prefix = $dao->getDB()->getTablePrefix();
+        $sql = "SELECT COUNT(*) count
+                FROM `%s` t
+                WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids);";
+        $sql = $this->_bindSql($sql, $this->getTable());
+        $smt = $this->getConnection()->query($sql);
+        $res = $smt->fetch();
+        return $res['count'];
     }
     
     /**
@@ -158,50 +174,38 @@ class PwNativeThreadsDao extends PwThreadsDao {
     /**
      * 获取动态最热帖子tids
      */
-    public function fetchHotThreadTids($hot_count,$time,$page,$num){
-        if(!$this->fids) return array();
-        $start_pos = ($page-1)*$num;//起始数据偏移量
-        $end_pos = $page*$num-1;//结束数据偏移量
-        $dao = $GLOBALS['acloud_object_dao'];//ACloudVerCoreDao
+    public function fetchHotThreadTids($start_pos, $num) {
+        if (!$this->fids) return array();
+        $dao = $GLOBALS['acloud_object_dao']; //ACloudVerCoreDao
         $prefix = $dao->getDB()->getTablePrefix();
-        if($hot_count-1>=$start_pos){//从hot表取数据
-            $sql = "SELECT t.`tid`
-                    FROM `${prefix}bbs_threads_hot` h 
-                    LEFT JOIN `${prefix}bbs_threads` t
-                    ON h.`tid`=t.`tid` 
-                    WHERE h.`srarttime`<=$time AND h.`endtime`>=$time AND t.`disabled`=0 AND t.`fid` IN ($this->fids)
-                    ORDER BY t.`lastpost_time` DESC
-                    LIMIT $start_pos,$num;";
-            $res = $dao->fetchAll($sql,'tid');
-            if($end_pos > $hot_count-1){//从weight表取后半段数据
-                $num = $page*$num-$hot_count;
-                $sql = "SELECT t.`tid`
-                        FROM `${prefix}bbs_threads_weight` w
-                        LEFT JOIN `${prefix}bbs_threads` t
-                        ON w.`tid`=t.`tid`
-                        WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids)
-                        ORDER BY w.`weight` DESC
-                        LIMIT 0,$num;";
-                $res_weight = $dao->fetchAll($sql,'tid');
-                foreach($res_weight as $k=>$v){
-                    $res[$k] = $v;
-                }
-            }
-        }else{//从weight表取数据
-            $start_pos = $start_pos-$hot_count;
-            $sql = "SELECT t.`tid`
-                    FROM  `${prefix}bbs_threads_weight` w
-                    LEFT JOIN `${prefix}bbs_threads` t
-                    ON w.`tid`=t.`tid`
-                    WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids)
-                    ORDER BY w.`weight` DESC
-                    LIMIT $start_pos,$num;";
-            $res = $dao->fetchAll($sql,'tid');
-        }
-        
+        $sql = "SELECT t.`tid`
+                FROM  `${prefix}bbs_threads_weight` w
+                LEFT JOIN `${prefix}bbs_threads` t
+                ON w.`tid`=t.`tid`
+                WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids)
+                ORDER BY w.`weight` DESC
+                LIMIT $start_pos,$num;";
+        $res = $dao->fetchAll($sql, 'tid');
         return array_keys($res);
     }
     
+    /**
+     * 获取动态最热帖子数量
+     */
+    public function fetchHotThreadCount() {
+        if (!$this->fids) return 0;
+        $dao = $GLOBALS['acloud_object_dao']; //ACloudVerCoreDao
+        $prefix = $dao->getDB()->getTablePrefix();
+        $sql = "SELECT COUNT(*) count
+                FROM  `${prefix}bbs_threads_weight` w
+                LEFT JOIN `${prefix}bbs_threads` t
+                ON w.`tid`=t.`tid`
+                WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids);";
+        $res = $dao->fetchOne($sql);
+        return $res['count'];
+    }
+    
+
     /**
      * 获取同城帖子列表
      */
@@ -241,6 +245,24 @@ class PwNativeThreadsDao extends PwThreadsDao {
 //        var_dump($sql);exit;
         $smt = $this->getConnection()->query($sql);
         return array_keys($smt->fetchAll('tid'));
+    }
+    
+    /**
+     * 获取同城帖子数量
+     */
+    public function getCityThreadCount($city){
+        if(!$this->fids || !$city) 0;
+        $dao = $GLOBALS['acloud_object_dao'];//ACloudVerCoreDao
+        $prefix = $dao->getDB()->getTablePrefix();
+        $sql = "SELECT COUNT(*) count
+                FROM `${prefix}bbs_threads_place` n 
+                LEFT JOIN `%s` t 
+                ON n.`tid`=t.`tid` 
+                WHERE t.`disabled`=0 AND t.`fid` IN ($this->fids) AND n.`created_address`='%s';";
+        $sql = $this->_bindSql($sql, $this->getTable(),$city);
+        $smt = $this->getConnection()->query($sql);
+        $res = $smt->fetch();
+        return $res['count'];
     }
     
     public function fetchThreads($tids) {

@@ -1,4 +1,16 @@
 <?php
+
+/**
+ * 版块下帖子列表相关
+ *
+ * @fileName: ThreadController.php
+ * @author: yuliang<yuliang.lyl@alibaba-inc.com>
+ * @license: http://www.phpwind.com
+ * @version: $Id
+ * @lastchange: 2014-12-16 19:08:17
+ * @desc: 
+ * */
+
 defined('WEKIT_VERSION') || exit('Forbidden');
 
 Wind::import('SRV:forum.bo.PwForumBo');
@@ -19,6 +31,7 @@ Wind::import('APPS:native.controller.NativeBaseController');
 class ThreadController extends NativeBaseController {
 	
 	protected $topictypes;
+        protected $perpage = 30;
         
         public function beforeAction($handlerAdapter) {
             parent::beforeAction($handlerAdapter);
@@ -40,11 +53,11 @@ class ThreadController extends NativeBaseController {
         */
 	public function run() {
 		//某个模板下的帖子列表页
-//            echo 111;exit;
 		$tab = $this->getInput('tab');//是否是精华帖
 		$fid = intval($this->getInput('fid'));//分类id
 		$type = intval($this->getInput('type','get')); //主题分类ID
 		$page = $this->getInput('page', 'get');
+                !$page && $page=1;
 		$orderby = $this->getInput('orderby', 'get');
 // 		var_dump($tab,$fid,$type,$page,$orderby);exit;//null,2,0,null,null
 		$pwforum = new PwForumBo($fid, true);//板块信息
@@ -76,7 +89,7 @@ class ThreadController extends NativeBaseController {
 		$this->runHook('c_thread_run', $threadList);
 
 		$threadList->setPage($page)
-                        ->setPerpage(30)//帖子列表页一页展示30条
+                        ->setPerpage($this->perpage)//帖子列表页一页展示30条
 //			->setPerpage($pwforum->forumset['threadperpage'] ? $pwforum->forumset['threadperpage'] : Wekit::C('bbs', 'thread.perpage'))
 			->setIconNew($pwforum->foruminfo['newtime']);
 //		var_dump($page,$pwforum);exit;//null,
@@ -107,14 +120,23 @@ class ThreadController extends NativeBaseController {
                     $tids[] = $v['tid'];
                 }
                 $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,"NUM");
-                
-//                var_dump($this);exit;
+                $count = $threadList->total;
+                $forum_isjoin = $pwforum->isJoin(1);
+//                var_dump($forum_isjoin);exit;
+//                var_dump($threadList);exit;//帖子列表数据
 //                var_dump(get_class($pwforum),get_class_methods($pwforum));exit;
+//                var_dump($pwforum);exit;
 //                var_dump($pwforum->foruminfo);exit;//获得版块数据$pwforum->isJoin($loginUser->uid)
-                var_dump($tids,$threads_list);exit;//置顶帖子包含在通用帖子当中
- 		var_dump($threadList->threaddb);exit;//获得帖子数据
+//                var_dump($tids,$threads_list);exit;//置顶帖子包含在通用帖子当中
+// 		var_dump($threadList->threaddb);exit;//获得帖子数据
                 
-		
+                $page_info = array('page'=>$page,'perpage'=>$this->perpage,'count'=>$count,'max_page'=>ceil($count/$this->perpage));
+                $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid,'isjoin'=>$forum_isjoin),'forum_info'=>($page==1?$pwforum->foruminfo:''),'threads_list'=>$threads_list);
+                $this->setOutput($data,'data');
+                $this->showMessage('NATIVE:data.success');
+		exit;
+                
+                
 		$this->setOutput($threadList, 'threadList');
 		$this->setOutput($threadList->getList(), 'threaddb');
 		$this->setOutput($fid, 'fid');
