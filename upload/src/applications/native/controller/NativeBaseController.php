@@ -136,7 +136,7 @@ abstract class NativeBaseController extends PwBaseController {
     }
 
     public function abcAction(){
-        $unsecurityKey='XtjwaTcM57kvqpeboNlXBexvRYZA3jnGruUwa3akKI8YSrASE+avlesx9aFNiA1MHAMYMYopSpzEYcvTnVSxx7jAEkQi/E5Y/TDONzNqqCxf+HuZ70pHswN/L2lQjOmfDqtPcvQm3LM=';
+        $unsecurityKey='3OxfjquTlxNKTbMrru7JeNtZ119TGcCpXIB1sJxLi8HXQWwqyyQKij0CTuPxn/2BC/h9H+EmVWnjCFkXsV3J0GCBVw3YulFeUhLk5Xlil76ViLGx8hgCdGSQCpJr8fYZ1ZuYY/X99p+UBJecDhAlyZjy+UHIYB2XQPnPQEDoYzAuHf1M44hpJoROkVhbaE3RSxq0VnZ5QIhmSPedLgz+QfqekdfqWr6CK3KheVO2N+QfOFz4Oka37Ymqi3zJoCYzQhP571DW8utZu2NddRa0F/m3H+8ID4XhKYMkTYIcqawXMZwTpmg8fOZ/zDMIWTMhe2rZsHXYyGwEf/93N+B2jBLnPwG/PQnkD022IQVt+5g7iTYXB6bVbAD8j3dlwbL6POAFoFZRFRhbxvvPNYoOuR5CSwjXRX5iMiaFBtvUQ4NwP9H1/3++B4RZHK+fllJUsok9hz3WUOslIQA3r7yLTd8EwdOl3zEQHv4HgzK0gqx+aa6shDRlAg==';
         $aaa=  Pw::decrypt($unsecurityKey,$this->_securityKey);
         print_r( unserialize($aaa) );
         exit;

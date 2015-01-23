@@ -14,17 +14,18 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 Wind::import('APPS:native.controller.NativeBaseController');
 //查看帖子引入类库
 Wind::import('SRV:forum.srv.PwThreadDisplay');
+Wind::import('SRV:native.srv.PwNativeThreadDisplay');
 Wind::import('SRV:credit.bo.PwCreditBo');
 
 class ReadController extends NativeBaseController {
     
-	public function beforeAction($handlerAdapter) {
-		parent::beforeAction($handlerAdapter);
-                $this->uid = 1; //测试uid
-                $this->loginUser = new PwUserBo($this->uid);
-                $this->loginUser->resetGid($this->loginUser->gid);
-//		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
-	}
+    public function beforeAction($handlerAdapter) {
+        parent::beforeAction($handlerAdapter);
+        $this->uid = 3; //测试uid
+        $this->loginUser = new PwUserBo($this->uid);
+        $this->loginUser->resetGid($this->loginUser->gid);
+        //		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
+    }
 
 
     /**
@@ -38,12 +39,12 @@ class ReadController extends NativeBaseController {
      response: {err:"",data:""}  
      </pre>
      */
-    public function readAction(){
-//        echo "readAction";exit;
-        $tid = intval($this->getInput('tid'));
+    public function run(){
+        $tid = intval($this->getInput('tid','get'));
         list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
-//        var_dump($this->uid ,$this->loginUser);exit;
-        $threadDisplay = new PwThreadDisplay($tid, $this->loginUser);
+        
+        //$threadDisplay = new PwThreadDisplay($tid, $this->loginUser);
+        $threadDisplay = new PwNativeThreadDisplay($tid, $this->loginUser);
         $this->runHook('c_read_run', $threadDisplay);
 
         if (($result = $threadDisplay->check()) !== true) {
@@ -68,7 +69,7 @@ class ReadController extends NativeBaseController {
         }
         $dataSource->setPage($page)
 //                ->setPerpage($pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage'))
-                ->setPerpage(30)
+                ->setPerpage(20)
                 ->setDesc($desc);
 
         $threadDisplay->setImgLazy(Wekit::C('bbs', 'read.image_lazy'));
@@ -78,24 +79,27 @@ class ReadController extends NativeBaseController {
         $isBM = $pwforum->isBM($this->loginUser->username);
         if ($threadPermission = $this->loginUser->getPermission('operate_thread', $isBM, array())) {
             $operateReply = Pw::subArray(
-                            $threadPermission, array('toppedreply', /* 'unite', 'split',  */ 'remind', 'shield', 'delete', 'ban', 'inspect', 'read')
+                $threadPermission, array('toppedreply', /* 'unite', 'split',  */ 'remind', 'shield', 'delete', 'ban', 'inspect', 'read')
             );
             $operateThread = Pw::subArray(
-                            $threadPermission, array(
-                        'digest', 'topped', 'up', 'highlight',
-                        'copy',
-                        'type', 'move', /* 'unite', 'print' */ 'lock',
-                        'down',
-                        'delete',
-                        'ban'
-                            )
+                $threadPermission, array(
+                    'digest', 'topped', 'up', 'highlight',
+                    'copy',
+                    'type', 'move', /* 'unite', 'print' */ 'lock',
+                    'down',
+                    'delete',
+                    'ban'
+                )
             );
         }
-        
+
         $threadInfo = $threadDisplay->getThreadInfo();//获取帖子详细内容
         $thread_list = $threadDisplay->getList();
         $pids = $posts_list = array();
-        foreach($thread_list as $v){
+        foreach($thread_list as $key=>$v){
+            $threadInfo['created_user_avatar'] = Pw::getAvatar($v['created_userid'],'small');
+            $threadInfo['created_time'] = Pw::time2str($v['created_time'], 'auto');
+            //
             if(!$v['pid']) continue;
             $pids[] = $v['pid'];
             $posts_list[$v['pid']] = $v;
@@ -105,26 +109,50 @@ class ReadController extends NativeBaseController {
         $threadInfo['from_type'] = isset($thread_place['from_type']) ? $thread_place['from_type'] : 0;
         $threadInfo['created_address'] = isset($thread_place['created_address']) ? $thread_place['created_address'] : '';
         $threadInfo['area_code'] = isset($thread_place['area_code']) ? $thread_place['area_code'] : '';
-//        var_dump($pids);exit;
-        foreach($posts_place as $k=>$v){
-            $posts_list[$k]['created_address'] = $v['created_address'];
-            $posts_list[$k]['area_code'] = $v['area_code'];
+        //        var_dump($pids);exit;
+        foreach($posts_place as $key=>$v){
+            $posts_list[$key]['created_address'] = $v['created_address'];
+            $posts_list[$key]['area_code'] = $v['area_code'];
+        }    
+        foreach( $posts_list as $key=>$v ){
+            $posts_list[$key]['created_user_avatar'] = Pw::getAvatar($v['created_userid'],'small');
+            $posts_list[$key]['lastpost_time'] = Pw::time2str($v['created_time'], 'auto');
         }
-        
-        
-        var_dump($threadInfo,$posts_list);exit;
+        //
+        $threadAttachs = array();
+        if( isset($threadDisplay->attach->attachs[0]) ){
+            foreach( $threadDisplay->attach->attachs[0] as $key=>$img){
+                $threadAttachs[$key]['url'] = $img['url'];
+            }
+        }
+        unset($threadDisplay->attach);
+
+        //
         $data = array(
-                       'tid'=>$tid,
-                       'threadDisplay'=>$threadDisplay,
-                       'fid'=>$threadDisplay->fid,
-                       'threadInfo'=>$threadInfo,
-                       'readdb'=>$threadDisplay->getList(),
-                       'users'=>$threadDisplay->getUsers(),
-                       'pwforum'=>$pwforum,
-                    );
-//        var_dump($thread_place);exit;
-//        var_dump($threadInfo);exit;
-        var_dump(1,$threadDisplay,$thread_place);exit;
+            'threadInfo'    =>$threadInfo,
+            'postList'      =>$posts_list,
+            'threadAttachs' =>$threadAttachs,
+        );
+        $this->setOutput($data,'data');
+        $this->showMessage('success');
+
+
+        /*
+        $data = array(
+            'tid'=>$tid,
+        //    'threadDisplay'=>$threadDisplay,
+            'fid'=>$threadDisplay->fid,
+            'threadInfo'=>$threadInfo,
+            'readdb'=>$threadDisplay->getList(),
+            'users'=>$threadDisplay->getUsers(),
+            'pwforum'=>$pwforum,
+        );
+         */ 
+//        print_r($threadDisplay->getUsers());
+        print_r($threadDisplay->getList());
+        //print_r($data);
+        //exit;
+
         
         $this->setOutput($threadDisplay, 'threadDisplay');
         $this->setOutput($tid, 'tid');
@@ -159,29 +187,14 @@ class ReadController extends NativeBaseController {
         $this->setOutput($this->loginUser->getPermission('look_thread_log', $isBM, array()), 'canLook');
         $this->setOutput($this->_getFpage($threadDisplay->fid), 'fpage');
 
+        $this->showMessage('success');
+        
         //版块风格
         if ($pwforum->foruminfo['style']) {
             $this->setTheme('forum', $pwforum->foruminfo['style']);
             //$this->addCompileDir($pwforum->foruminfo['style']);
         }
 
-        // seo设置
-        Wind::import('SRV:seo.bo.PwSeoBo');
-        $seoBo = PwSeoBo::getInstance();
-        $lang = Wind::getComponent('i18n');
-        $threadDisplay->page <= 1 && $seoBo->setDefaultSeo($lang->getMessage('SEO:bbs.read.run.title'), '', $lang->getMessage('SEO:bbs.read.run.description'));
-        $seoBo->init('bbs', 'read');
-        $seoBo->set(
-                array(
-                    '{forumname}' => $threadDisplay->forum->foruminfo['name'],
-                    '{title}' => $threadDisplay->thread->info['subject'],
-                    '{description}' => Pw::substrs($threadDisplay->thread->info['content'], 100, 0, false),
-                    '{classfication}' => $threadDisplay->thread->info['topic_type'],
-                    '{tags}' => $threadInfo['tags'],
-                    '{page}' => $threadDisplay->page
-                )
-        );
-        Wekit::setV('seo', $seoBo);
         //是否显示回复
         $showReply = true;
         //锁定时间

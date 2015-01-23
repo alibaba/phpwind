@@ -76,6 +76,10 @@ class PwNativeThread {
             $threadList[$key]['pic'] = isset($attList[$pic_key])?$attList[$pic_key]:array();
             //列表数据，过滤掉图片及附件url等标签
             $threadList[$key]['content'] = preg_replace('/\[[^\]]*\]/i',' ',$threadList[$key]['content']);
+            $threadList[$key]['content'] = mb_substr($threadList[$key]['content'],0,90);
+            //
+            $threadList[$key]['created_user_avatar'] = Pw::getAvatar($threadList[$key]['created_userid'],'small');
+            $threadList[$key]['lastpost_time'] = Pw::time2str($threadList[$key]['lastpost_time'], 'auto');
         }
         krsort($threadList, SORT_NUMERIC);
         return $threadList;
@@ -103,7 +107,12 @@ class PwNativeThread {
     public function getThreadAttach($tids, $pids){
         $result = array();
         $array = $this->_getThreadAttachDs()->fetchAttachByTidAndPid($tids, $pids);
-        foreach ($array as $key => $value) {                                                                                                                 
+        $i=0;
+        foreach ($array as $key => $value) {
+            //只取9个
+            if( $i>9 ){break;}
+            $i++;
+
             //只取图片
             if ($value['type'] != 'img' || ($value['special'] > 0 && $value['cost'] > 0)) continue;
             $_key = $value['tid'] . '_' . $value['pid'];
