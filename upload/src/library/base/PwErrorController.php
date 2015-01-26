@@ -88,7 +88,7 @@ class PwErrorController extends WindErrorHandler {
 			isset($vars['referer']) && $vars['referer'] = rawurlencode($vars['referer']);
 			foreach ($vars as $key => $value) {
 				if ($key == 'html') continue;
-				$vars[$key] = WindSecurity::escapeArrayHTML($value);
+				//$vars[$key] = WindSecurity::escapeArrayHTML($value);
             }
             //jsonp
             $callback = $this->getInput('callback','get');
