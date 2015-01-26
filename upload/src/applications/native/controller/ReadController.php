@@ -67,10 +67,12 @@ class ReadController extends NativeBaseController {
             Wind::import('SRV:forum.srv.threadDisplay.PwCommonRead');
             $dataSource = new PwCommonRead($threadDisplay->thread);
         }
+        
+        //数据分页
+        $perpage = $pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage');
         $dataSource->setPage($page)
-//                ->setPerpage($pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage'))
-                ->setPerpage(20)
-                ->setDesc($desc);
+            ->setPerpage($perpage)
+            ->setDesc($desc);
 
         $threadDisplay->setImgLazy(Wekit::C('bbs', 'read.image_lazy'));
         $threadDisplay->execute($dataSource);
@@ -93,111 +95,64 @@ class ReadController extends NativeBaseController {
             );
         }
 
-        $threadInfo = $threadDisplay->getThreadInfo();//获取帖子详细内容
-        $thread_list = $threadDisplay->getList();
-        $pids = $posts_list = array();
-        foreach($thread_list as $key=>$v){
-            $threadInfo['created_user_avatar'] = Pw::getAvatar($v['created_userid'],'small');
-            $threadInfo['created_time'] = Pw::time2str($v['created_time'], 'auto');
+        //帖子数据列表
+        $threadList = $threadDisplay->getList();
+        
+        //回复帖子列表
+        $pids = array();
+        foreach($threadList as $key=>$v){
+            $threadList[$key]['created_user_avatar'] = Pw::getAvatar($v['created_userid'],'small');
+            $threadList[$key]['created_time'] = Pw::time2str($v['created_time'], 'auto');
             //
-            if(!$v['pid']) continue;
-            $pids[] = $v['pid'];
-            $posts_list[$v['pid']] = $v;
+            if( isset($v['pid']) ){
+                $pids[] = $v['pid'];
+            }
         }
 
         //位置
         $threadPlace = $this->_getThreadPlaceService()->fetchByTids( array($tid) );
         $postPlace = $this->_getPostPlaceService()->fetchByPids( $pids );
-
         
         //附件
         $threadAttachs = array();
-        if( isset($threadDisplay->attach->attachs[0]) ){
-            foreach( $threadDisplay->attach->attachs[0] as $key=>$img){
-                $threadAttachs[$key]['url'] = $img['url'];
+        if( isset($threadDisplay->attach->attachs) ){
+            foreach( $threadDisplay->attach->attachs as $k=>$v){
+                foreach( $v as $kk=>$vv ){
+                    $threadAttachs['attachs'][$k][$kk]=array(
+                        'aid'=>$vv['aid'],
+                        'name'=>$vv['name'],
+                        'type'=>$vv['type'],
+                        'url'=>$vv['url'],
+                    );
+                }
+            }
+            foreach( $threadDisplay->attach->showlist as $k=>$v){
+                foreach( $v as $kk=>$vv ){
+                    foreach( $vv as $kkk=>$vvv ){
+                        $threadAttachs['showlist'][$k][$kk]=array(
+                            'aid'=>$vvv['aid'],
+                            'name'=>$vvv['name'],
+                            'type'=>$vvv['type'],
+                            'url'=>$vvv['url'],
+                        );
+                    }
+                }
             }
         }
+//        print_r($threadAttachs);
         unset($threadDisplay->attach);
 
         //
         $data = array(
-            'threadInfo'    =>$threadInfo,
-            'postList'      =>$posts_list,
+            'threadList'    =>$page<=$perpage?$threadList:array(),
+            'pageCount'     =>ceil($threadDisplay->total/$perpage),
             'threadAttachs' =>$threadAttachs,
+            'threadPlace'   =>$threadPlace,
+            'postPlace'     =>$postPlace,
         );
         $this->setOutput($data,'data');
         $this->showMessage('success');
 
-
-        /*
-        $data = array(
-            'tid'=>$tid,
-        //    'threadDisplay'=>$threadDisplay,
-            'fid'=>$threadDisplay->fid,
-            'threadInfo'=>$threadInfo,
-            'readdb'=>$threadDisplay->getList(),
-            'users'=>$threadDisplay->getUsers(),
-            'pwforum'=>$pwforum,
-        );
-         */ 
-//        print_r($threadDisplay->getUsers());
-        print_r($threadDisplay->getList());
-        //print_r($data);
-        //exit;
-
-        
-        $this->setOutput($threadDisplay, 'threadDisplay');
-        $this->setOutput($tid, 'tid');
-        $this->setOutput($threadDisplay->fid, 'fid');
-        $this->setOutput($threadInfo, 'threadInfo');
-        $this->setOutput($threadDisplay->getList(), 'readdb');
-        $this->setOutput($threadDisplay->getUsers(), 'users');
-        $this->setOutput($pwforum, 'pwforum');
-        $this->setOutput(PwCreditBo::getInstance(), 'creditBo');
-        $this->setOutput($threadDisplay->getHeadguide(), 'headguide');
-        $this->setOutput(Wekit::C('bbs', 'read.display_member_info'), 'displayMemberInfo');
-        $this->setOutput(Wekit::C('bbs', 'read.display_info'), 'displayInfo');
-        $this->setOutput(Wekit::C('bbs', 'thread.hotthread_replies'), 'hotIcon');
-
-        $this->setOutput($threadPermission, 'threadPermission');
-        $this->setOutput($operateThread, 'operateThread');
-        $this->setOutput($operateReply, 'operateReply');
-        $this->setOutput((!$this->loginUser->uid && !$this->allowPost($pwforum)) ? ' J_qlogin_trigger' : '', 'postNeedLogin');
-        $this->setOutput((!$this->loginUser->uid && !$this->allowReply($pwforum)) ? ' J_qlogin_trigger' : '', 'replyNeedLogin');
-
-        $this->setOutput($_cache['level']['ltitle'], 'ltitle');
-        $this->setOutput($_cache['level']['lpic'], 'lpic');
-        $this->setOutput($_cache['level']['lneed'], 'lneed');
-        $this->setOutput($_cache['group_right'], 'groupRight');
-
-        $this->setOutput($threadDisplay->page, 'page');
-        $this->setOutput($threadDisplay->perpage, 'perpage');
-        $this->setOutput($threadDisplay->total, 'count');
-        $this->setOutput($threadDisplay->maxpage, 'totalpage');
-        $this->setOutput($threadDisplay->getUrlArgs(), 'urlargs');
-        $this->setOutput($threadDisplay->getUrlArgs('desc'), 'urlDescArgs');
-        $this->setOutput($this->loginUser->getPermission('look_thread_log', $isBM, array()), 'canLook');
-        $this->setOutput($this->_getFpage($threadDisplay->fid), 'fpage');
-
-        $this->showMessage('success');
-        
-        //版块风格
-        if ($pwforum->foruminfo['style']) {
-            $this->setTheme('forum', $pwforum->foruminfo['style']);
-            //$this->addCompileDir($pwforum->foruminfo['style']);
-        }
-
-        //是否显示回复
-        $showReply = true;
-        //锁定时间
-        if ($pwforum->forumset['locktime'] && ($threadInfo['created_time'] + $pwforum->forumset['locktime'] * 86400) < Pw::getTime()) {
-            $showReply = false;
-        } elseif (Pw::getstatus($threadInfo['tpcstatus'], PwThread::STATUS_LOCKED) && !$this->loginUser->getPermission('reply_locked_threads')) {
-            $showReply = false;
-        }
-        $this->setOutput($showReply, 'showReply');
-        $this->runReadDesign($threadDisplay->fid);
-        $this->updateReadOnline($threadDisplay->fid, $tid);
     }
 
     protected function _getThreadPlaceService(){

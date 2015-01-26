@@ -18,12 +18,11 @@ Wind::import('APPS:native.controller.NativeBaseController');
 
 class PostController extends NativeBaseController {
     public $post;
-    protected $perpage = 30;
-
+    protected $perpage = 10;
 
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        $this->uid = 1; //测试uid
+        $this->uid = 3; //测试uid
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
         $action = $handlerAdapter->getAction();
@@ -342,30 +341,32 @@ class PostController extends NativeBaseController {
 
     private function _replylist() {
         /*
-        $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid(126, 5, 0);//获得回帖的回复列表
-//        $post = Wekit::load('forum.PwThread')->getPost(126);//获得回帖信息
+            $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid(126, 5, 0);//获得回帖的回复列表
+        //        $post = Wekit::load('forum.PwThread')->getPost(126);//获得回帖信息
         $post = Wekit::load('forum.PwThread')->getPost(133);//获得回帖信息，缺少用户头像
         $atts = Wekit::load('attach.PwThreadAttach')->fetchAttachByTid(array(87));
         $atts = Wekit::load('attach.PwThreadAttach')->fetchAttachByTidAndPid(array(87), array(129));
         $atts = Wekit::load('native.PwNativeThread')->getThreadAttach(array(87), array(0));
-//        var_dump($atts);exit;
+        //        var_dump($atts);exit;
         var_dump($post,$replydb);exit;
-         * 
+        * 
          */
-        
-        list($tid, $pid, $page) = $this->getInput(array('tid', 'pid', 'page'), 'get');
-        $page = intval($page);
-        $perpage = $page ? $this->perpage : 3;//没有分页参数，默认展示3条针对一个楼层的回复
-        !$page && $page = 1;
 
-        $info = Wekit::load('forum.PwThread')->getThread($tid);
+        list($tid, $pid, $page, $simple) = $this->getInput(array('tid', 'pid', 'page', 'simple'), 'get');
+        $page = intval($page);
+        !$page && $page = 1;
+        $perpage = $page ? $this->perpage : 10;//没有分页参数，默认展示3条针对一个楼层的回复
+
+        //$info = Wekit::load('forum.PwThread')->getThread($tid);
         $replydb = $data = array();
         if ($pid) {
             $reply = Wekit::load('forum.PwThread')->getPost($pid);
             $total = $reply['replies'];
+            
+/*
             list($start, $limit) = Pw::page2limit($page, $perpage);
-            Wind::import('LIB:ubb.PwSimpleUbbCode');
-            Wind::import('LIB:ubb.config.PwUbbCodeConvertThread');
+            //Wind::import('LIB:ubb.PwSimpleUbbCode');
+            //Wind::import('LIB:ubb.config.PwUbbCodeConvertThread');
             $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);//回帖的回复，内容未格式化
             $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb);//对回帖回复内容进行格式化并截字处理，简略回复不展示附件及图片
             if($page == 1 && $perpage == $this->perpage){
@@ -376,7 +377,31 @@ class PostController extends NativeBaseController {
             }
             $page_info = array('page'=>$page,'perpage'=>$perpage,'count'=>$total,'max_page'=>  ceil($total/$perpage));
             $data = array('page_info'=>$page_info,'tid'=>$info['tid'],'post'=>$reply,'reply_list'=>$replydb);
+            */
+            list($start, $limit) = Pw::page2limit($page, $perpage);
+            $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);
+            $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb);
 
+            //
+            $replyList = array();
+            foreach ($replydb as $key=>$v) {
+                $replyList[$key] = array(
+                    'created_time'      =>Pw::time2str($reply['created_time'],'auto'),
+                    'created_username'  =>$v['created_username'],
+                    'content'           =>$v['content'],
+                );
+                if( $simple ){
+                    $replyList[$key]['content'] = mb_substr($replyList[$key]['content'], 0, 30);
+                }
+            }
+            $data = array(
+                'total'     =>(int)$total,
+                'perpage'   =>$perpage,
+                'pageCount' =>ceil($total/$perpage),
+                'replyList' =>$replyList,
+
+            );
+//            print_r($data);
         } 
         $this->setOutput($data, 'data');
         $this->showMessage('success');
