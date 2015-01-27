@@ -18,7 +18,8 @@ Wind::import('APPS:native.controller.NativeBaseController');
 class ManageController extends NativeBaseController {
 
     public function beforeAction($handlerAdapter) {
-        $this->checkUserSessionValid();
+//        $this->checkUserSessionValid();
+        $this->uid=1;
 	}
 
     public $manage;
@@ -53,7 +54,7 @@ class ManageController extends NativeBaseController {
      */
     public function run(){
         $action = $this->getInput('action');
-        if( in_array($action,array('dodelete','doban'))==false ){
+        if( in_array($action,array('dodelete','doban','dodelete_reply'))==false ){
             $this->showError('fail');
         }
 
@@ -64,7 +65,7 @@ class ManageController extends NativeBaseController {
         }
 
         $this->manage->execute();
-        $sendnotice = $this->getInput('sendnotice', 'post');
+        $sendnotice = $this->getInput('sendnotice');
         if ($sendnotice) {
             $this->_sendMessage($action, $this->manage->getData());
         }  
@@ -107,13 +108,13 @@ class ManageController extends NativeBaseController {
          * $operateThread['delete']
          * $operateReply['ban']
          */
-        print_r($operateThread);
-        print_r($operateReply);
+//        print_r($operateThread);
+//        print_r($operateReply);
     }
 
     protected function _getManage($action) {                                                                                                                 
-        $tids = $this->getInput('tids', 'post');
-        $tid = $this->getInput('tid', 'post');
+        $tids = $this->getInput('tids');
+        $tid = $this->getInput('tid');
         if ($tids && !is_array($tids)) {
             $tids = explode(',', $tids);
         } elseif (!$tids && $tid) {
@@ -121,7 +122,6 @@ class ManageController extends NativeBaseController {
         }else{
             $tids = array();
         }
-
         $manage = new PwThreadManage(new PwFetchTopicByTid($tids), new PwUserBo($this->uid));
         switch ($action) {
         case 'dodelete':
@@ -130,7 +130,13 @@ class ManageController extends NativeBaseController {
         case 'doban':
             $do = $this->_getBanManage($manage);
             break;
-        }   
+        case 'dodelete_reply':
+            Wind::import('SRV:forum.srv.dataSource.PwFetchReplyByTidAndPids');
+            $pids = $this->getInput('pids');
+            $manage = new PwThreadManage(new PwFetchReplyByTidAndPids($tid, $pids), new PwUserBo($this->uid));
+            $do = $this->_getDeleteReplyManage($manage);
+            break;
+        } 
         if (is_array($do)) {
             foreach ($do as $do1) {
                 $manage->appendDo($do1);
@@ -167,11 +173,28 @@ class ManageController extends NativeBaseController {
         $banInfo->reason = '任性';
         $banInfo->ban_range = 0;
         $banInfo->sendNotice = 1;
-        $banInfo->end_time = $this->getInput('end_time', 'post');
-        $do->setBanInfo($banInfo)->setBanUids($this->getInput('uids', 'post'));
+        $banInfo->end_time = $this->getInput('end_time');
+        $do->setBanInfo($banInfo)->setBanUids($this->getInput('uids'));
 
         return $do;
-    }  
+    }
+
+    /**
+     * 删除回复
+     *
+     * @param mixed $manage 
+     * @access protected
+     * @return void
+     */
+    protected function _getDeleteReplyManage($manage) {
+		Wind::import('SRV:forum.srv.manage.PwThreadManageDoDeleteReply');
+        $do = new PwThreadManageDoDeleteReply($manage);
+        $deductCredit = $this->getInput('deductCredit');
+        $reason = '任性';
+        $do->setIsDeductCredit($deductCredit)->setReason($reason);
+        return $do;
+	}
+
 
     /** 
      * send messages
@@ -179,7 +202,7 @@ class ManageController extends NativeBaseController {
     protected function _sendMessage($action, $threads) {
         if (!is_array($threads) || !$threads || !$action || $action == 'doban') return false;
         $noticeService = Wekit::load('message.srv.PwNoticeService');
-        $reason = $this->getInput('reason', 'post');
+        $reason = $this->getInput('reason');
         foreach ($threads as $thread) {
             $params = array();
             $params['manageUsername'] = $this->manage->user->username;
@@ -189,7 +212,7 @@ class ManageController extends NativeBaseController {
             //$this->params['_other']['reason'] && $params['manageReason'] = $this->params['_other']['reason'];
             $reason && $params['manageReason'] = $reason;
             if ($action == 'docombined') {
-                $actions = $this->getInput('actions', 'post');
+                $actions = $this->getInput('actions');
                 $tmp = array();
                 foreach ($actions as $v){
                     $tmp[] = $this->_getManageActionName('do' . $v);

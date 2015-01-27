@@ -88,8 +88,6 @@ class MasingleController extends PwBaseController {
 		if (!$this->doAction) {
 			$this->setOutput('dodelete', 'doaction');
         } else {
-            print_r($_POST);
-        echo 2222;exit;
 			$deductCredit = $this->getInput('deductCredit', 'post');
 			$reason = $this->getInput('reason', 'post');
 			$do->setIsDeductCredit($deductCredit)

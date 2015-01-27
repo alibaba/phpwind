@@ -78,7 +78,8 @@ class PwNativeThread {
             $threadList[$key]['content'] = preg_replace('/\[[^\]]*\]/i',' ',$threadList[$key]['content']);
             $threadList[$key]['content'] = mb_substr($threadList[$key]['content'],0,90);
             //
-            $threadList[$key]['created_user_avatar'] = Pw::getAvatar($threadList[$key]['created_userid'],'small');
+            $threadList[$key]['created_user_avatar'] = Pw::getAvatar($threadList[$key]['created_userid'],'');
+            //
             $threadList[$key]['lastpost_time'] = Pw::time2str($threadList[$key]['lastpost_time'], 'auto');
         }
         krsort($threadList, SORT_NUMERIC);

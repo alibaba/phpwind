@@ -21,7 +21,7 @@ class ReadController extends NativeBaseController {
     
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        $this->uid = 3; //测试uid
+        $this->uid = 1; //测试uid
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
         //		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
@@ -77,6 +77,7 @@ class ReadController extends NativeBaseController {
         $threadDisplay->setImgLazy(Wekit::C('bbs', 'read.image_lazy'));
         $threadDisplay->execute($dataSource);
 
+        //权限
         $operateReply = $operateThread = array();
         $isBM = $pwforum->isBM($this->loginUser->username);
         if ($threadPermission = $this->loginUser->getPermission('operate_thread', $isBM, array())) {
@@ -139,11 +140,12 @@ class ReadController extends NativeBaseController {
                 }
             }
         }
-//        print_r($threadAttachs);
         unset($threadDisplay->attach);
-
+        
         //
         $data = array(
+            'operateReply'  =>$operateReply,
+            'operateThread' =>$operateThread,
             'threadList'    =>$page<=$perpage?$threadList:array(),
             'pageCount'     =>ceil($threadDisplay->total/$perpage),
             'threadAttachs' =>$threadAttachs,
