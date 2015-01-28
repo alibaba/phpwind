@@ -48,13 +48,20 @@ class PwDynamicService {
             }
         }
         $threads_tmp = array();
+        $sort_num = 0;
         if($result_type=='ASSOC'){//按照tids的顺序重新排序结果集，tid作为索引
             foreach($tids as $v){
-                isset($threads[$v]) && $threads_tmp[$v] = $threads[$v];
+                if(isset($threads[$v])){ 
+                    $threads_tmp[$v] = $threads[$v];
+                    $threads_tmp[$v]['sort'] = $sort_num++;
+                }
             }
         }else{//tid会有重复的情况，置顶帖在列表中显示2次，数字顺序索引
             foreach($tids as $v){
-                isset($threads[$v]) && $threads_tmp[] = $threads[$v];
+                if(isset($threads[$v])){
+                    $threads[$v]['sort'] = $sort_num++;
+                    $threads_tmp[] = $threads[$v];   
+                }
             }
         }
 //        print_r($threads_tmp);exit;

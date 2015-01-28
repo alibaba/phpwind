@@ -44,7 +44,8 @@ class DynamicController extends NativeBaseController {
         $count = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadCount();
         $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadTids($start_pos,$num);//按最后回复时间排序、只展示移动端可显示版块数据，不包含生活服务
         $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
-        $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>ceil($count/$num));
+        ($max_page = ceil($count/$num))||$max_page=1;
+        $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>$max_page);
         $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'threads_list'=>$threads_list);
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');
@@ -171,7 +172,8 @@ class DynamicController extends NativeBaseController {
         if(count($res)<5 && $page==1){
             $hot_tags = $this->getHotTags();
         }
-        $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>ceil($count/$num));
+        ($max_page = ceil($count/$num))||$max_page=1;
+        $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>$max_page);
         $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid,'joined_tag'=>$joined_tag),'tag_info'=>$hot_tags,'threads_list'=>$threads_list);
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');
@@ -200,7 +202,8 @@ class DynamicController extends NativeBaseController {
         $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchNewThreadTids($pos,$num);//按照发帖时间排序，只筛选移动端版块展示数据
         $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
         
-        $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>ceil($count/$num));
+        ($max_page = ceil($count/$num))||$max_page=1;
+        $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>$max_page);
         $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'threads_list'=>$threads_list);
 //        print_r($data);exit;
         $this->setOutput($data,'data');
@@ -261,7 +264,8 @@ class DynamicController extends NativeBaseController {
         $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchCityThreadTids($city,$pos,$num);//按照最后回复时间排序，只筛选移动端版块数据
         $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
 //        var_dump($tids,$threads_list);exit;
-        $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>ceil($count/$num));
+        ($max_page = ceil($count/$num))||$max_page=1;
+        $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>$max_page);
         $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'threads_list'=>$threads_list);
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');
