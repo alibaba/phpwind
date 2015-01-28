@@ -49,4 +49,11 @@ class PwCollectDao extends PwBaseDao {
         return $this->getConnection()->execute($sql);
     }
 
+    public function countCollectByTids($tids) {
+        $sql = $this->_bindSql('SELECT tid,COUNT(*) as sum FROM %s WHERE tid IN %s GROUP BY tid', $this->getTable(), $this->sqlImplode($tids));
+        $smt = $this->getConnection()->createStatement($sql);
+		return $smt->queryAll(array());
+	}
+
+
 }

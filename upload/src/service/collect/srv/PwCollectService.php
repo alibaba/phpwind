@@ -25,6 +25,18 @@ class PwCollectService {
 
     }
 
+    public function countCollectByTids($tids){
+        if( !is_array($tids) || empty($tids) )return array();
+        $data = array();
+        $_data = $this->_getCollectDao()->countCollectByTids($tids);
+        if( count($_data) ){
+            foreach ($_data as $v) {
+                $data[$v['tid']]=$v;
+            }
+        }
+        return $data;
+    }
+
     private function _getCollectDao(){
         return Wekit::load('collect.dao.PwCollectDao'); 
     }

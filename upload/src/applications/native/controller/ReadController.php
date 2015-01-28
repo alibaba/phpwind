@@ -96,6 +96,22 @@ class ReadController extends NativeBaseController {
             );
         }
 
+
+        //主题的信息
+        $threadInfo = $threadDisplay->getThreadInfo();
+        //帖子统计
+        $collectInfo = $this->_getCollectService()->countCollectByTids( array($threadInfo['tid']) );
+
+        //
+        $simpleThreadInfo = array(
+            'tid'=>$threadInfo['tid'],
+            'fid'=>$threadInfo['fid'],
+            'replies'=>$threadInfo['replies'],
+            'like_count'=>$threadInfo['like_count'],
+            'collect_count'=>isset($collectInfo[$threadInfo['tid']])?$collectInfo[$threadInfo['tid']]['sum']:0,
+        );
+//        print_r($simpleThreadInfo);
+
         //帖子数据列表
         $threadList = $threadDisplay->getList();
         
@@ -141,11 +157,12 @@ class ReadController extends NativeBaseController {
             }
         }
         unset($threadDisplay->attach);
-        
+
         //
         $data = array(
             'operateReply'  =>$operateReply,
             'operateThread' =>$operateThread,
+            'simpleThreadInfo'=>$simpleThreadInfo,
             'threadList'    =>$page<=$perpage?$threadList:array(),
             'pageCount'     =>ceil($threadDisplay->total/$perpage),
             'threadAttachs' =>$threadAttachs,
@@ -165,6 +182,8 @@ class ReadController extends NativeBaseController {
         return Wekit::loadDao('place.srv.PwPostPlaceService');
     }
 
-
+    protected function _getCollectService(){
+        return Wekit::load('native.srv.PwNativeCollectService');
+    }
     
 }

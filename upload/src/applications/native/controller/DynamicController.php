@@ -90,52 +90,38 @@ class DynamicController extends NativeBaseController {
       </pre>
      */
     public function setHotAction() {
-        //Sorry, CSRF verification failed(token missing or incorrect),refresh to try again.
-        $uid = $this->uid;
-//        $userInfo = $this->_getUserInfo();
-        $username =$this->loginUser->username;
-        $tid = isset($_POST['tid']) ? $_POST['tid'] : 0;
-        $msg = '';
-        if ($uid && $tid) {
-//            $dao = $GLOBALS['acloud_object_dao'];
-//            $prefix = $dao->getDB()->getTablePrefix();
+        $tid = $this->getInput('tid');
+        $tid = (int)$tid;
+        if ($this->uid && $tid) {
             $threadsWeightDao = Wekit::loadDao('native.dao.PwThreadsWeightDao');
-            $res = $threadsWeightDao->getByTid($tid);
-            $tid = isset($res['tid']) ? $res['tid'] : 0;
-            $create_time = time();
+
             //获取帖子最高权重，将其作为管理员推送帖子的初始权重置顶
-            $max_weight = $threadsWeightDao->getMaxWeight();
-            isset($max_weight['weight']) ? $max_weight = $max_weight['weight']+1 : 1;
-            if($tid){//更新数据
-                $data = array('create_time'=>$create_time,'weight'=>$max_weight,'create_userid'=>$uid,'create_username'=>$username,'tid'=>$tid);
+            $weightData = $threadsWeightDao->getMaxWeight();
+            isset($weightData['weight']) ? $max_weight = intval($weightData['weight'])+1:1;
+
+            //
+            $data = array(
+                'create_time'   =>time(),
+                'weight'        =>$max_weight,
+                'create_userid' =>$this->uid,
+                'create_username'=>$this->loginUser->username,
+                'tid'           =>$tid,
+            );
+            $threadWeight = $threadsWeightDao->getByTid($tid);
+            if($threadWeight){//更新数据
                 $res = $threadsWeightDao->updateValue($data);
-                $msg = 'Modify';
             }else{//新增数据
-                $data = array('tid'=>$tid,'create_time'=>$create_time,'weight'=>$max_weight,'create_userid'=>$uid,'create_username'=>$username);
                 $res = $threadsWeightDao->insertValue($data);
-                $msg = 'Add';
             }
             if($res){
-//                echo "$msg Success !";
                 $this->showMessage('NATIVE:sethot.success');
             }else{
-//                echo "$sql<br>";
-//                echo "$msg Failed";
                 $this->showMessage('NATIVE:sethot.failed');
             }
-//          $res = $dao->query($sql);
-//          $res = $dao->fetchAll($sql);
-//          $res = $dao->fetchOne($sql);
-//            var_dump($res);
-            exit;
         } else {//传参有误
             $this->showError('NATIVE:args.error');
-//            echo "args error";
-            exit;
         }
-        exit;
-//          var_dump($this);exit;
-        $this->forwardAction('mobile/test/test', array('arg' => 'arg1'));
+        $this->showError('fail');
     }
 
     /**

@@ -155,7 +155,7 @@ class PwThreadsWeightDao extends PwBaseDao {
             $weight = isset($data['weight']) && $data['weight'] ? $data['weight'] : 0;
             $create_userid = isset($data['create_userid']) && $data['create_userid'] ? $data['create_userid'] : 0;
             $create_username = isset($data['create_username']) && $data['create_username'] ? $data['create_username'] : '';
-            if(!$tid || !$created_userid) return 0;
+            if(!$tid || !$create_userid) return 0;
             $sql = $this->_bindSql("INSERT INTO %s (`tid`,`weight`,`create_time`,`create_userid`,`create_username`)
                                     VALUES (%s,%s,%s,%s,'%s')", $this->getTable(),$tid,$weight,$create_time,$create_userid,$create_username);
 //            $res = $this->getConnection()->execute($sql);
