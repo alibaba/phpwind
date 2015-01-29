@@ -61,11 +61,26 @@ class PwLikeContent {
 	 * @param int $tid
 	 * @param int $pid
 	 */
-	public function  getInfoByTypeidFromid($typeid = self::THREAD, $fromid = 0) {
+	public function getInfoByTypeidFromid($typeid = self::THREAD, $fromid = 0) {
 		$typeid = (int)$typeid;
 		$fromid = (int)$fromid;
 		if ($typeid < 1 && $fromid < 1) return array();
 		return $this->_getLikeContentDao()->getInfoByTypeidFromid($typeid, $fromid);
+	}
+    
+    /**
+     * 根据typeids和fromids获取内容 
+     * 
+     * @param array $typeids 
+     * @param array $fromids 
+     * @access public
+     * @return void
+     */
+    public function getInfoByTypeidFromids($typeid = self::THREAD, $fromids = array()) {
+        if( $typeid<1 || !is_array($fromids) ){
+            return array();
+        }
+		return $this->_getLikeContentDao()->getInfoByTypeidFromids($typeid, $fromids);
 	}
 	
 	/**

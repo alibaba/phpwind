@@ -19,8 +19,7 @@ class MyController extends NativeBaseController {
      */
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        //        $this->checkUserSessionValid();
-        $this->uid=3;
+        $this->checkUserSessionValid();
     }
     
     /**
@@ -197,8 +196,8 @@ class MyController extends NativeBaseController {
      * </pre>
      */
     public function doLikeAction() {
-        $typeid = (int) $this->getInput('typeid', 'post');
-        $fromid = (int) $this->getInput('fromid', 'post');
+        $typeid = (int) $this->getInput('typeid');
+        $fromid = (int) $this->getInput('fromid');
         if ($typeid < 1 || $fromid < 1) $this->showError('BBS:like.fail');
         //
         $userBo = new PwUserBo();
@@ -221,7 +220,7 @@ class MyController extends NativeBaseController {
      * @return void
      */
     public function doDelLikeAction(){
-        $logid = (int) $this->getInput('logid', 'post');
+        $logid = (int) $this->getInput('logid');
         if (!$logid) $this->showError('BBS:like.fail');
         $resource = $this->_getLikeService()->delLike($this->uid, $logid);
         if ($resource) $this->showMessage('BBS:like.success');

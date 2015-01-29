@@ -38,10 +38,10 @@ class PwCollectDao extends PwBaseDao {
         return $smt->queryAll(array($uid)); 
     }
 
-    public function getCollectByUidAndTid($uid, $tid){
-        $sql = $this->_bindTable('SELECT collect_id,tid FROM %s WHERE created_userid=? AND tid=?', $this->getTable());
+    public function getCollectByUidAndTids($uid, $tids){
+        $sql = $this->_bindSql('SELECT collect_id,tid,created_userid FROM %s WHERE created_userid=%s AND tid IN %s', $this->getTable(), $uid, $this->sqlImplode($tids));
         $smt = $this->getConnection()->createStatement($sql);
-        return $smt->getOne(array($uid, $tid)); 
+        return $smt->queryAll(array()); 
     }
 
     public function deleteCollectByUidAndTid($uid, $tid){

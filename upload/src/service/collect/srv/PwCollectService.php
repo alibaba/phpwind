@@ -21,8 +21,18 @@ class PwCollectService {
         return $this->_getCollectDao()->deleteCollectByUidAndTid($uid, $tid);
     }
 
-    public function getCollect($uid){
-
+    public function getCollectByUidAndTids($uid, $tids){
+        if( $uid<1 || !is_array($tids) || count($tids)<1 ){
+            return array();
+        }
+        $result = array();
+        $_data = $this->_getCollectDao()->getCollectByUidAndTids($uid, $tids);
+        if( $_data ){
+            foreach($_data as $v) {
+                $result[$v['tid']][] = $v['created_userid'];
+            }
+        }
+        return $result;
     }
 
     public function countCollectByTids($tids){

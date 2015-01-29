@@ -30,6 +30,12 @@ class PwLikeContentDao extends PwBaseDao {
 		return $smt->getOne(array($typeid, $fromid));
 	}
 	
+	public function getInfoByTypeidFromids($typeid, $fromids) {
+		$sql = $this->_bindSql('SELECT * FROM %s WHERE typeid = %s AND fromid IN %s', $this->getTable(), $typeid, $this->sqlImplode($fromids));
+		$smt = $this->getConnection()->createStatement($sql);
+		return $smt->queryAll(array(), 'likeid');
+	}
+	
 	public function addInfo($data) {
 		if (!$data = $this->_filterStruct($data)) return false;
 		$sql = $this->_bindSql('INSERT INTO %s SET %s', $this->getTable(), $this->sqlSingle($data));

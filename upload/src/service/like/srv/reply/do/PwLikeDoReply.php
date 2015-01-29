@@ -22,8 +22,28 @@ class PwLikeDoReply extends PwPostDoBase {
 
 	public function addPost($pid, $tid) {
 		if ($pid < 1 && $tid < 1) return false;
-		return  Wekit::load('like.PwLikeContent')->updateLastPid($this->likeid, $pid);
+		return  $this->_getLikeContentDs()->updateLastPid($this->likeid, $pid);
 	}
 
+    /**
+     * 找出所有喜欢回复的用户id 
+     * 
+     * @param mixed $typeid 
+     * @param mixed $formids 
+     * @access public
+     * @return void
+     */
+    public function getAllLikeUserids($typeid, $formids){
+        $_likeDta = $this->_getLikeContentDs()->getInfoByTypeidFromids($typeid, $formids); 
+        $result = array();
+        foreach ($_likeDta as $v) {
+            $result[$v['fromid']] = explode(',', substr($v['users'],0,strlen($v['users'])-1) );
+        }
+        return $result;
+    }
+
+    private function _getLikeContentDs() {    
+        return Wekit::load('like.PwLikeContent');
+    }   
 
 }

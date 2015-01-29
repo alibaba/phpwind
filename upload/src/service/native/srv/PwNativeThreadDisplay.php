@@ -19,7 +19,7 @@ class PwNativeThreadDisplay extends PwThreadDisplay {
 
     protected function _bulidContent($read) {
         return self::escapeSpace($read['content']);
-
+/*
 		if (!$read['useubb']) {
 			return self::escapeSpace($read['content']);
 		}
@@ -33,7 +33,8 @@ class PwNativeThreadDisplay extends PwThreadDisplay {
 		$ubb->setImgLazy($this->imgLazy);
 		$this->attach && $this->attach->has($read['pid']) && $ubb->setAttachParser($this->attach);
 		$read['reminds'] && $ubb->setRemindUser($read['reminds']);
-		return PwUbbCode::convert($read['content'], $ubb);
-	}
+        return PwUbbCode::convert($read['content'], $ubb);
+ */
+    }
 
 }

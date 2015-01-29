@@ -99,18 +99,20 @@ class ReadController extends NativeBaseController {
 
         //主题的信息
         $threadInfo = $threadDisplay->getThreadInfo();
-        //帖子统计
+        //帖子收藏统计
         $collectInfo = $this->_getCollectService()->countCollectByTids( array($threadInfo['tid']) );
+        //用户是否收藏过帖子
+        $collectStatusInfo = array();
+        if( $this->uid ){
+            $collectStatusInfo = $this->_getCollectService()->getCollectByUidAndTids($this->uid, array($threadInfo['tid']) );
+        }
 
-        //
-        $simpleThreadInfo = array(
-            'tid'=>$threadInfo['tid'],
-            'fid'=>$threadInfo['fid'],
-            'replies'=>$threadInfo['replies'],
-            'like_count'=>$threadInfo['like_count'],
-            'collect_count'=>isset($collectInfo[$threadInfo['tid']])?$collectInfo[$threadInfo['tid']]['sum']:0,
+        //获得板块信息
+        $forumInfo = $threadDisplay->getForum();
+        $simpleForumInfo = array(
+            'fid'=>$forumInfo->fid,
+            'name'=>$forumInfo->foruminfo['name'],
         );
-//        print_r($simpleThreadInfo);
 
         //帖子数据列表
         $threadList = $threadDisplay->getList();
@@ -125,6 +127,32 @@ class ReadController extends NativeBaseController {
                 $pids[] = $v['pid'];
             }
         }
+
+        //获得用户是否喜欢过帖子|回复
+        $threadLikeData = $postLikeData = array();
+        if( $this->uid ){
+            $threadLikeData = $this->_getLikeReplyService()->getAllLikeUserids(PwLikeContent::THREAD, array($tid) );
+            $_postLikeData  = $this->_getLikeReplyService()->getAllLikeUserids(PwLikeContent::POST, $pids);
+            if( !empty($pids) ){
+                foreach($pids as $v){
+                    if( isset($_postLikeData[$v]) ){
+                        $postLikeData[$v] = array_search($this->uid, $_postLikeData[$v])===false?0:1;
+                    }
+                }
+            }
+        }
+
+        //主帖的相关信息
+        $simpleThreadInfo = array(
+            'tid'   =>$threadInfo['tid'],
+            'fid'   =>$threadInfo['fid'],
+            'replies'       =>$threadInfo['replies'],
+            'like_count'    =>$threadInfo['like_count'],
+            'collect_count' =>isset($collectInfo[$threadInfo['tid']])?$collectInfo[$threadInfo['tid']]['sum']:0,
+            'like_status'   =>isset($threadLikeData[$tid]) && array_search($this->uid, $threadLikeData[$tid]['users'])!==false?1:0,
+            'collect_status'=>isset($collectStatusInfo[$tid]) && array_search($this->uid, $collectStatusInfo[$tid])!==false?1:0,
+        );
+
 
         //位置
         $threadPlace = $this->_getThreadPlaceService()->fetchByTids( array($tid) );
@@ -160,14 +188,17 @@ class ReadController extends NativeBaseController {
 
         //
         $data = array(
+            'uid'           =>$this->uid,
             'operateReply'  =>$operateReply,
             'operateThread' =>$operateThread,
+            'simpleForumInfo'=>$simpleForumInfo,
             'simpleThreadInfo'=>$simpleThreadInfo,
             'threadList'    =>$page<=$perpage?$threadList:array(),
             'pageCount'     =>ceil($threadDisplay->total/$perpage),
             'threadAttachs' =>$threadAttachs,
             'threadPlace'   =>$threadPlace,
             'postPlace'     =>$postPlace,
+            'postLikeData'  =>$postLikeData,
         );
         $this->setOutput($data,'data');
         $this->showMessage('success');
@@ -186,4 +217,13 @@ class ReadController extends NativeBaseController {
         return Wekit::load('native.srv.PwNativeCollectService');
     }
     
+    private function _getLikeThreadService() {
+        return Wekit::load('like.srv.threadDisplay.do.PwThreadDisplayDoLike'); 
+    }
+  
+    private function _getLikeReplyService() {
+        return Wekit::load('like.srv.reply.do.PwLikeDoReply');
+    } 
+
+
 }
