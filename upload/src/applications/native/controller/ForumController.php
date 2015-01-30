@@ -38,7 +38,8 @@ class ForumController extends NativeBaseController {
          </pre>
         */
 	public function joinAction() {
-		$fid = $this->getInput('fid', 'post');
+//		$fid = $this->getInput('fid', 'post');
+                $fid = $this->getInput('fid');
 		if (!$fid) {
 			$this->showError('operate.fail');
 		}
@@ -70,7 +71,9 @@ class ForumController extends NativeBaseController {
          </pre>
         */
 	public function quitAction() {
-		$fid = $this->getInput('fid', 'post');
+//		$fid = $this->getInput('fid', 'post');
+                $fid = $this->getInput('fid');
+
 		if (!$fid) {
 			$this->showError('operate.fail');
 		}
