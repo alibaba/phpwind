@@ -19,7 +19,8 @@ class MyController extends NativeBaseController {
      */
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        $this->checkUserSessionValid();
+        //        $this->checkUserSessionValid();
+        $this->uid=3;
     }
     
     /**
@@ -113,27 +114,31 @@ class MyController extends NativeBaseController {
 		$page < 1 && $page = 1;
 		$perpage = 20;
 		list($start, $limit) = Pw::page2limit($page, $perpage);
-		$url = $classCurrent = array();
 		
         $typeCounts = $this->_getAttentionTypeDs()->countUserType($this->uid);
         $follows = $this->_getPwAttentionDs()->getFollows($this->uid, $limit, $start);
-        $count = $this->info['follows'];
-        $classCurrent[0] = 'current';
+        //
+        $userBo = new PwUserBo($this->uid);
+        $followsCount  = $userBo->info['follows']; 
+
         $uids = array_keys($follows);
 		$fans = $this->_getPwAttentionDs()->fetchFans($this->uid, $uids);
         $userList = Wekit::load('user.PwUser')->fetchUserByUid($uids, PwUser::FETCH_MAIN );
-        //
         if( $userList ){
             foreach($userList as $key=>$user){
                 $userList[] = array(
                     'uid'       =>$user['uid'],
                     'username'  =>$user['username'],
-                    'avatar'    =>Pw::getAvatar($user['uid'],'big'),
+                    'avatar'    =>Pw::getAvatar($user['uid'],'small'),
                 );
                 unset($userList[$key]);
             }
         }
-        $this->setOutput($userList, 'data');
+        $data = array(
+            'pageCount'=>ceil($followsCount/$perpage),
+            'userList'=>$userList,
+        );
+        $this->setOutput($data, 'data');
         $this->showMessage('success');
     }
 
@@ -152,15 +157,19 @@ class MyController extends NativeBaseController {
         $page = intval($this->getInput('page','get'));
 		$page < 1 && $page = 1;
 		$perpage = 20;
-        //
-        $tags = $this->_getTagDs()->getAttentionByUid($this->uid,($page-1)*$perpage,$perpage);
-        if($tags){
-            foreach ($tags as $key=>$tag) {
-                $tags[] = $tag['tag_name'];
-                unset($tags[$key]);
+        $tags = $this->_getTagService()->getAttentionTags($this->uid,($page-1)*$perpage,$perpage);
+        // 
+        $tagdata = array();
+        if( isset($tags[1]) ){
+            foreach ($tags[1] as $key=>$tag) {
+                $tagdata[] = $tag['tag_name'];
             }
         }
-        $this->setOutput($tags, 'data');
+        $data = array(
+            'pageCount'=>ceil(intval($tags[0])/$perpage),
+            'tagsList'=>$tagdata,
+        );
+        $this->setOutput($data, 'data');
         $this->showMessage('success');
     }
 
@@ -398,6 +407,10 @@ class MyController extends NativeBaseController {
 
     private function _getTagDs() {
         return Wekit::load('tag.PwTag');
+    }
+
+    private function _getTagService(){
+        return Wekit::load('tag.srv.PwTagService');
     }
 
     private function _getForumService(){

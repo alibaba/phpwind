@@ -32,10 +32,12 @@ class SpaceController extends NativeBaseController {
     public function run(){
         $spaceUid = $this->getInput('uid','get');
         $page = $this->getInput('page','get');
+       
         //
-        $array          = $this->_getPwNativeThreadDs()->getThreadListByUid($spaceUid, $page, 'space');
-        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($array['tids']);
-        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($array['tids'], $array['pids']);
+        $tids           = $this->_getPwNativeThreadDs()->getThreadListByUid($spaceUid, $page, 'space');
+        $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($tids);
+        //pids 默认是0； 
+        $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array(0) );
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
         //
         $data = array(
@@ -44,6 +46,7 @@ class SpaceController extends NativeBaseController {
         );
         $this->setOutput($data, 'data');
         $this->showMessage('success');
+
     }
 
 
