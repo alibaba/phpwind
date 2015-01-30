@@ -140,8 +140,8 @@ class TagController extends NativeBaseController {
         * @access public
         * @return string
          <pre>
-         关注话题：/index.php?m=native&c=attention&type=add&_json=1
-         取消关注：/index.php?m=native&c=attention&type=del&_json=1
+         关注话题：/index.php?m=native&c=tag&a=attention&type=add&_json=1
+         取消关注：/index.php?m=native&c=tag&a=attention&type=del&_json=1
          post参数:id=话题id
          response: html
          </pre>
