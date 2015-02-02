@@ -14,7 +14,7 @@ class PwDynamicService {
         $tag_names_str = '';        
         foreach($threads as $k=>$v){
             $content = isset($threads_content[$k]['content']) ? $threads_content[$k]['content'] : '';
-            $threads[$k]['tags'] = isset($threads_content[$k]['tags']) ? $threads_content[$k]['tags'] : '';
+            $threads[$k]['tags'] = $threads[$k]['tags_origin'] = isset($threads_content[$k]['tags']) ? $threads_content[$k]['tags'] : '';
             $threads[$k]['from_type'] = isset($threads_place[$k]['from_type']) ? $threads_place[$k]['from_type'] : 0;
             $threads[$k]['created_address'] = isset($threads_place[$k]['created_address']) ? $threads_place[$k]['created_address'] : '';
             $threads[$k]['area_code'] = isset($threads_place[$k]['area_code']) ? $threads_place[$k]['area_code'] : '';
@@ -28,6 +28,7 @@ class PwDynamicService {
             $threads[$k]['have_flash'] = $matches ? true : false;
             $imgs = array_shift($PwNativeThreadService->getThreadAttach(array($k),array(0)));
             ksort($imgs);
+            $imgs = array_slice($imgs,0, 9);
             $threads[$k]['content'] = array(
                                             'text'=>  str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim($PwThreadService->displayContent($content,1,array(),70),'.')),//帖子内容文本
                                             'imgs'=>$imgs,//获取内容图片
