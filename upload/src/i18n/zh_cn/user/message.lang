@@ -131,6 +131,8 @@ findpwd.error.email="邮箱和用户名不匹配"
 findpwd.error.sendemail="重置密码邮件发送不成功，请联系管理员检查邮件相关配置"
 findpwd.success="恭喜您，新密码已设置成功！"
 findpwd.email.code.expired=链接已失效，请重新再试！
+findpwd.over.validate.success="检验成功"
+
 
 secret.option.open = "所有人可见"
 secret.option.myself = "仅自已可见"

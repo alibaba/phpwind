@@ -19,8 +19,8 @@ class MyController extends NativeBaseController {
      */
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        //        $this->checkUserSessionValid();
-        $this->uid=3;
+        $this->checkUserSessionValid();
+//        $this->uid=3;
     }
     
     /**
@@ -35,7 +35,7 @@ class MyController extends NativeBaseController {
      * </pre>
      */
     public function addFollowAction(){
-        $uid = $this->getInput('uid', 'post');
+        $uid = $this->getInput('uid');
         if (!$uid) {
             $this->showError('operate.select');
         }   

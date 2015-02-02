@@ -188,6 +188,100 @@ class UserController extends NativeBaseController {
     }
 
     /**
+     * 找回密码 
+     * 
+     * @access public
+     * @return void
+     */
+    public function findPwdAction(){
+
+        $step = $this->getInput('step');
+        $username = $this->getInput('username');
+        
+        //
+        Wind::import('SRV:user.srv.PwFindPassword'); 
+        $findPasswordBp = new PwFindPassword($username);
+
+        //
+        switch($step){
+        case 1:
+            //返回混淆的email
+            $email = $findPasswordBp->getFuzzyEmail();
+            $this->setOutput($email, 'data');
+            $this->showMessage('success');
+            break;
+        case 2:
+            //通过username&email发送邮件
+            $email = $this->getInput('email');
+            /*检查邮箱是否正确*/
+            if (true !== ($result = $findPasswordBp->checkEmail($email))) {
+                $this->showError($result->getError());
+            }
+            /*发送重置邮件*/
+            if (!$findPasswordBp->sendResetEmail(PwFindPassword::createFindPwdIdentify($username, PwFindPassword::WAY_EMAIL, $email))){
+                $this->showError('USER:findpwd.error.sendemail');
+            }
+            $this->showMessage('USER:active.sendemail.success');
+            break;
+        case 3:
+            //_statu 找回密码
+            $statu = $this->getInput('_statu', 'get');                                                                                 
+            !$statu && $statu = $this->getInput('statu', 'post');
+            if (!$statu) $this->showError('USER:illegal.request');
+            list($username, $way, $value) = PwFindPassword::parserFindPwdIdentify($statu);
+            $userInfo = $this->_getUserDs()->getUserByName($username, PwUser::FETCH_INFO | PwUser::FETCH_MAIN);
+            if ($userInfo[PwFindPassword::getField($way)] != $value) {
+                $this->showError('fail');
+            }
+
+            //
+            $code = $this->getInput('code', 'get');
+            $findPasswordBp = new PwFindPassword($userinfo['username']);
+            if ($way == PwFindPassword::WAY_EMAIL) {
+                if ($findPasswordBp->isOverByMail()) {
+                    $this->showError('USER:findpwd.over.limit.email');
+                }
+                if (($result = $findPasswordBp->checkResetEmail($value, $code)) instanceof PwError) {
+                    $this->showError($result->getError());
+                }
+            }
+            $this->showMessage("USER:findpwd.over.validate.success");
+            break;
+        case 4:
+            $statu = $this->getInput('_statu', 'get');                                                                                 
+            !$statu && $statu = $this->getInput('statu', 'post');
+            if (!$statu) $this->showError('USER:illegal.request');
+            list($username, $way, $value) = PwFindPassword::parserFindPwdIdentify($statu);
+            $userInfo = $this->_getUserDs()->getUserByName($username, PwUser::FETCH_INFO | PwUser::FETCH_MAIN);
+            if ($userInfo[PwFindPassword::getField($way)] != $value) {
+                $this->showError('fail');
+                $this->forwardAction('u/findPwd/run', array(), true);
+            }
+
+            //
+            list($password, $repassword) = $this->getInput(array('password', 'repassword'), 'post');
+            if ($password != $repassword) $this->showError('USER:user.error.-20');
+            $userDm = new PwUserInfoDm($userInfo['uid']);
+            $userDm->setUsername($userInfo['username']);
+            $userDm->setPassword($password);
+            $userDm->setQuestion('', '');
+            /* @var $userDs PwUser */
+            $userDs = Wekit::load('user.PwUser');
+            $result = $this->_getUserDs()->editUser($userDm, PwUser::FETCH_MAIN);
+            if ($result instanceof PwError) {
+                $this->showError($result->getError());
+            } else {
+                //检查找回密码次数及更新
+                $findPasswordBp = new PwFindPassword($userInfo['username']);
+                $findPasswordBp->success($type);
+            }   
+            $this->showMessage('USER:findpwd.success');
+            break;
+        }
+    }
+
+
+    /**
      * 开放帐号登录; (通过第三方开放平台认证通过后,获得的帐号id在本地查找是否存在,如果存在登录成功 ) 
      * 如果没绑定第三方账号；结果不返回securityKey，则返回第三方账号用户信息；否则返回论坛账号信息
      * @access public

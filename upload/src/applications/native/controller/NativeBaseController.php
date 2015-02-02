@@ -242,7 +242,6 @@ abstract class NativeBaseController extends PwBaseController {
         $_oauth = Wekit::load("APPS:native.service.PwThirdOpenPlatformService");
         $_oauth->access_token = $this->getInput('access_token');
         $_oauth->third_platform_name = $this->getInput('platformname');
-        //$_oauth->native_name = 'http%3A%2F%2Fwww.iiwoo.com';
         //
         $info = array();
         $_method_name = $_oauth->third_platform_name.'AuthInfo';
