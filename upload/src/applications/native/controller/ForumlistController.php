@@ -70,7 +70,8 @@ class ForumListController extends NativeBaseController {
         $bbsinfo = Wekit::load('site.PwBbsinfo')->getInfo(1);
         $configs = Wekit::C()->getValues('native');
         $fids_native = isset($configs['forum.fids']) && $configs['forum.fids'] ? $configs['forum.fids'] : array(); //管理后台配置移动端可展示的一级版面
-        $forum_list_native = $forum_list_user = $user_fids = $native_vieworder = $user_vieworder = array();
+        $fid_default = isset($configs['forum.fid.default']) && $configs['forum.fid.default'] ? $configs['forum.fid.default'] : '';
+        $forum_list_native = $forum_list_user = $user_fids = $native_vieworder = $user_vieworder = $forum_default = array();
         if ($this->uid) {//此处涉及用户登录状态判断,获取用户关注的版块
             $forumUserDao = Wekit::loadDao('forum.dao.PwForumUserDao');
             $user_fids = $forumUserDao->getFroumByUid($this->uid);
@@ -79,6 +80,9 @@ class ForumListController extends NativeBaseController {
         foreach ($forumList as $cat_k => $cat_v) {
             foreach ($cat_v as $forum_k => $forum_v) {
                 if (array_key_exists($forum_v['fid'], $fids_native)) {//判断版面是否是移动端可展示版面
+                    if($forum_v['fid'] == $fid_default){//这是默认版面
+                        $forum_default = $forum_v;
+                    }
                     if (array_key_exists($forum_v['fid'], $user_fids)) {//版面fid是用户关注的
                         $forum_list_user[$forum_k] = $forum_v;
                         $forum_list_user[$forum_k]['vieworder'] = $user_vieworder[] = $fids_native[$forum_k];
@@ -96,7 +100,7 @@ class ForumListController extends NativeBaseController {
         $forum_list_native && array_multisort($native_vieworder, SORT_ASC, $forum_list_native);
         $forum_list_merge = array_merge($forum_list_user, $forum_list_native);
 //        var_dump($fids_native,$user_fids,$forum_list_merge);
-        $data = array('user_info'=>array('uid'=>$this->uid),'forum_list'=>$forum_list_merge);
+        $data = array('user_info'=>array('uid'=>$this->uid),'forum_list'=>$forum_list_merge,'forum_default'=>$forum_default);
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');        
     }
