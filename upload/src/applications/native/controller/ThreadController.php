@@ -120,6 +120,15 @@ class ThreadController extends NativeBaseController {
                     $tids[] = $v['tid'];
                 }
                 $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,"NUM");
+                $topped_tids = array();
+                foreach($threads_list as $k => $v){
+                    if($v['topped'] == 1 && !in_array($v['tid'],$topped_tids)){
+                        $topped_tids[] = $v['tid'];
+                        $threads_list[$k]['topped_priority'] = 1;
+                    }else{
+                        $threads_list[$k]['topped_priority'] = 0;
+                    }
+                }
                 $count = $threadList->total;
                 $forum_isjoin = $pwforum->isJoin(1);
 //                var_dump($forum_isjoin);exit;
