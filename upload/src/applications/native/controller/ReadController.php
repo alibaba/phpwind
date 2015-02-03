@@ -16,6 +16,7 @@ Wind::import('APPS:native.controller.NativeBaseController');
 Wind::import('SRV:forum.srv.PwThreadDisplay');
 Wind::import('SRV:native.srv.PwNativeThreadDisplay');
 Wind::import('SRV:credit.bo.PwCreditBo');
+Wind::import('SRV:like.PwLikeContent');
 
 class ReadController extends NativeBaseController {
     

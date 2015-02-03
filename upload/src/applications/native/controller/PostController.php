@@ -22,15 +22,19 @@ class PostController extends NativeBaseController {
 
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        $this->uid = 3; //测试uid
+        $this->checkUserSessionValid();
+
+        //$this->uid = 3; //测试uid
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
         $action = $handlerAdapter->getAction();
 
+        //非法请求
         if (in_array($action, array('fastreply', 'replylist'))) {
-            return;
+            $this->showError('fail');
         }
         $this->post = $this->_getPost($action);
+
         /*
         if (($result = $this->post->check()) !== true) {
             $error = $result->getError();
@@ -40,8 +44,8 @@ class PostController extends NativeBaseController {
             }
             $this->showError($error);
         }
-        */
-        
+         */
+
         //版块风格
         $pwforum = $this->post->forum;
         if ($pwforum->foruminfo['password']) {
@@ -70,114 +74,116 @@ class PostController extends NativeBaseController {
      </pre>
      */
     public function threadFormAction(){}
-    
-    /**
-     * 回复帖子表单(测试用)
-     * @access public
-     * @return string
-     * @example
-     <pre>
-     /index.php?m=native&c=post&a=threadform
-     cookie:usersession
-     response: html
-     </pre>
-     */
-    public function replyFormAction(){}
-    
-    /**
-     * 回复回帖表单(测试用)
-     * @access public
-     * @return string
-     * @example
-     <pre>
-     /index.php?m=native&c=post&a=threadform
-     cookie:usersession
-     response: html
-     </pre>
-     */
-    public function replyForm2Action(){}
-    
-    
-    /**
-     * 发布帖子
-     * @access public
-     * @return string
-     * @example
-     <pre>
-     /index.php?m=native&c=post&a=doadd&fid=分类id
-     //post: atc_title=测试title&atc_content=测试内容&tagnames=测试话题&pid=默认空&tid=默认空&special=default&reply_notice=1
-     post: atc_content=#话题#测试内容&pid=默认空&tid=默认空&special=default&reply_notice=1&flashatt[43][desc]=描述1&flashatt[44][desc]=描述2
-     cookie:usersession
-     response: {err:"",data:""}  
-     </pre>
-     */
-    public function doAddAction() {
-        
-        //app发帖子不带标题,内容格式化，抓取分享链接内容，此处尚需要处理
-        list($title, $content, $topictype, $subtopictype, $reply_notice, $hide, $created_address,$area_code,$share_url) = $this->getInput(array('atc_title', 'atc_content', 'topictype', 'sub_topictype', 'reply_notice', 'hide' ,'created_address','area_code','share_url'), 'post');
-        $pwPost = $this->post;
-//        var_dump($_POST);exit;
-//        $content = "#dfere#aaadsdghj#gdad#sdsd";
-//        $_POST['tagnames'] = array('群发话题11','群发话题22','群发话题33');
-        preg_match("/^(#[^#]+?#)?(.+)/i",$content, $matches);
-        isset($matches[1]) && $_POST['tagnames'] = explode('#', trim($matches[1],'#'));
-        isset($matches[2]) && $content = $matches[2];
-//        var_dump($_POST['tagnames'],$content);exit;
-        $this->runHook('c_post_doadd', $pwPost);//PwHook.php 组件调用机制完成附件上传、话题添加
-        /*
-        //抓取分享链接内容
-        $options = array(
-                            CURLOPT_HEADER => 1,
-                            CURLOPT_URL => $share_url,
-                            CURLOPT_USERAGENT=>"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
-                            CURLOPT_FRESH_CONNECT => 1,
-                            CURLOPT_RETURNTRANSFER => 1,
-                            CURLOPT_REFERER, 'http://google.com/',
-                            CURLOPT_FORBID_REUSE => 1,
-                            CURLOPT_TIMEOUT => 15,
-                            //CURLOPT_POSTFIELDS => http_build_query($post)
-                        );
-        $ch = curl_init();
-        curl_setopt_array($ch, ($options));
-        if( ! $share_content = curl_exec($ch))
-        {
-            trigger_error(curl_error($ch));
-        }
-        curl_close($ch);
-//        var_dump($share_content);exit;
-//        $share_content=file_get_contents($share_url);
-        $encode = mb_detect_encoding($share_content, array('ASCII','GB2312','GBK','UTF-8'));//mb_internal_encoding()
-        $encode == 'CP936' && $encode = 'GBK';
-        $str = mb_convert_encoding($share_content, "UTF-8", $encode);
-//        header("Content-Type: text/html; charset=UTF-8");
-//        var_dump($encode,$str);exit;
-         * 
+
+        /**
+         * 回复帖子表单(测试用)
+         * @access public
+         * @return string
+         * @example
+         <pre>
+         /index.php?m=native&c=post&a=threadform
+         cookie:usersession
+         response: html
+         </pre>
          */
-//        header("Content-Type: text/html; charset=UTF-8");
-        $title = mb_substr(strip_tags($content), 0,15,"UTF-8");
-        $postDm = $pwPost->getDm();
-        $postDm->setTitle($title)
+        public function replyFormAction(){}
+
+        /**
+         * 回复回帖表单(测试用)
+         * @access public
+         * @return string
+         * @example
+         <pre>
+         /index.php?m=native&c=post&a=threadform
+         cookie:usersession
+         response: html
+         </pre>
+         */
+        public function replyForm2Action(){}
+
+
+        /**
+         * 发布帖子
+         * @access public
+         * @return string
+         * @example
+         <pre>
+         /index.php?m=native&c=post&a=doadd&fid=分类id
+         //post: atc_title=测试title&atc_content=测试内容&tagnames=测试话题&pid=默认空&tid=默认空&special=default&reply_notice=1
+         post: atc_content=#话题#测试内容&pid=默认空&tid=默认空&special=default&reply_notice=1&flashatt[43][desc]=描述1&flashatt[44][desc]=描述2
+         cookie:usersession
+         response: {err:"",data:""}  
+         </pre>
+         */
+        public function doAddAction() {
+
+            //app发帖子不带标题,内容格式化，抓取分享链接内容，此处尚需要处理
+            list($title, $content, $topictype, $subtopictype, $reply_notice, $hide, $created_address,$area_code,$share_url) = $this->getInput(array('atc_title', 'atc_content', 'topictype', 'sub_topictype', 'reply_notice', 'hide' ,'created_address','area_code','share_url'), 'post');
+            $this->runHook('c_post_run', $this->post);
+            $this->runHook('c_post_doadd', $this->post);//PwHook.php 组件调用机制完成附件上传、话题添加
+
+            //从内容中获得tag
+            preg_match("/^(#[^#]+?#)?(.+)/i",$content, $matches);
+            if( isset($matches[1]) && $matches[1] ){
+                isset($matches[1]) && $_POST['tagnames'] = explode('#', trim($matches[1],'#'));
+                isset($matches[2]) && $content = $matches[2];
+            }
+            $pwPost = $this->post;
+
+        /*
+            //抓取分享链接内容
+            $options = array(
+                CURLOPT_HEADER => 1,
+                CURLOPT_URL => $share_url,
+                CURLOPT_USERAGENT=>"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
+                CURLOPT_FRESH_CONNECT => 1,
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_REFERER, 'http://google.com/',
+                CURLOPT_FORBID_REUSE => 1,
+                CURLOPT_TIMEOUT => 15,
+                //CURLOPT_POSTFIELDS => http_build_query($post)
+            );
+            $ch = curl_init();
+            curl_setopt_array($ch, ($options));
+            if( ! $share_content = curl_exec($ch))
+            {
+                trigger_error(curl_error($ch));
+            }
+            curl_close($ch);
+            //        var_dump($share_content);exit;
+            //        $share_content=file_get_contents($share_url);
+            $encode = mb_detect_encoding($share_content, array('ASCII','GB2312','GBK','UTF-8'));//mb_internal_encoding()
+            $encode == 'CP936' && $encode = 'GBK';
+            $str = mb_convert_encoding($share_content, "UTF-8", $encode);
+            //        header("Content-Type: text/html; charset=UTF-8");
+            //        var_dump($encode,$str);exit;
+            * 
+         */
+            //        header("Content-Type: text/html; charset=UTF-8");
+            $title = mb_substr(strip_tags($content), 0,15,"UTF-8");
+            $postDm = $pwPost->getDm();
+            $postDm->setTitle($title)
                 ->setContent($content)
                 ->setHide($hide)
                 ->setReplyNotice($reply_notice);
-//        var_dump($pwPost);
-//        echo '---------------------------------------------------';
-//        var_dump($postDm);
-//        exit;
-        //set topic type
-        $topictype_id = $subtopictype ? $subtopictype : $topictype;
-        $topictype_id && $postDm->setTopictype($topictype_id);
+            //        var_dump($pwPost);
+            //        echo '---------------------------------------------------';
+            //        var_dump($postDm);
+            //        exit;
+            //set topic type
+            $topictype_id = $subtopictype ? $subtopictype : $topictype;
+            $topictype_id && $postDm->setTopictype($topictype_id);
 
-        if (($result = $pwPost->execute($postDm)) !== true) {
-            $data = $result->getData();
-            $data && $this->addMessage($data, 'data');
-            $this->showError($result->getError());
-        }
-        $tid = $pwPost->getNewId();
-        //在帖子移动端扩展表中插入数据
-        $data = array('tid'=>$tid,'from_type'=>1,'created_address'=>$created_address,'area_code'=>$area_code);
-        $res = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->insertValue($data);
-        $this->showMessage('success', 'bbs/read/run/?tid=' . $tid . '&fid=' . $pwPost->forum->fid, true);
+            if (($result = $pwPost->execute($postDm)) !== true) {
+                $data = $result->getData();
+                $data && $this->addMessage($data, 'data');
+                $this->showError($result->getError());
+            }
+            $tid = $pwPost->getNewId();
+            //在帖子移动端扩展表中插入数据
+            $data = array('tid'=>$tid,'from_type'=>1,'created_address'=>$created_address,'area_code'=>$area_code);
+            $res = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->insertValue($data);
+            $this->showMessage('success');
 
         /*
           Array
@@ -194,7 +200,7 @@ class PostController extends NativeBaseController {
 
 
          */
-    }
+        }
 
     /**
      * 回复帖子；回复回帖；回复回复
@@ -233,9 +239,9 @@ class PostController extends NativeBaseController {
 
         $postDm = $pwPost->getDm();
         $postDm->setTitle($title)
-                ->setContent($content)
-                ->setHide($hide)
-                ->setReplyPid($rpid);
+            ->setContent($content)
+            ->setHide($hide)
+            ->setReplyPid($rpid);
 
         if (($result = $pwPost->execute($postDm)) !== true) {
             $data = $result->getData();
@@ -246,10 +252,10 @@ class PostController extends NativeBaseController {
         //记录回帖位置信息
         $data = array('pid'=>$pid,'created_address'=>$created_address,'area_code'=>$area_code);
         $res = Wekit::loadDao('native.dao.PwPostsPlaceDao')->insertValue($data);
-        $this->showMessage('success', 'bbs/read/run/?tid=' . $tid . '&fid=' . $pwPost->forum->fid, true);
-        exit;
-//        var_dump($pid);exit;
-        
+        $this->showMessage('success');
+
+        //        var_dump($pid);exit;
+
         //页面输出部分与移动端无关
         if ($_getHtml == 1) {//回复帖子
             Wind::import('SRV:forum.srv.threadDisplay.PwReplyRead');
@@ -292,9 +298,9 @@ class PostController extends NativeBaseController {
         }
     }
 
-    
-    
-     /**
+
+
+    /**
      * 针对某一个楼层的简略回复列表，过滤附件内容，带翻页（不传分页参数默认展示3条）
      * @access public
      * @return string
@@ -307,34 +313,34 @@ class PostController extends NativeBaseController {
     public function replylistAction(){
         $this->_replylist();
     }
-    
-    
+
+
     private function _getPost($action) {
         switch ($action) {
-            case 'reply':
-            case 'doreply':
-                $tid = $this->getInput('tid');
-                Wind::import('SRV:forum.srv.post.PwReplyPost');
-                $postAction = new PwReplyPost($tid);
-                break;
-            case 'modify':
-            case 'domodify':
-                $tid = $this->getInput('tid');
-                $pid = $this->getInput('pid');
-                if ($pid) {
-                    Wind::import('SRV:forum.srv.post.PwReplyModify');
-                    $postAction = new PwReplyModify($pid);
-                } else {
-                    Wind::import('SRV:forum.srv.post.PwTopicModify');
-                    $postAction = new PwTopicModify($tid);
-                }
-                break;
-            default:
-                $fid = $this->getInput('fid');
-                $special = $this->getInput('special');
-                Wind::import('SRV:forum.srv.post.PwTopicPost');
-                $postAction = new PwTopicPost($fid);
-                $special && $postAction->setSpecial($special);
+        case 'reply':
+        case 'doreply':
+            $tid = $this->getInput('tid');
+            Wind::import('SRV:forum.srv.post.PwReplyPost');
+            $postAction = new PwReplyPost($tid);
+            break;
+        case 'modify':
+        case 'domodify':
+            $tid = $this->getInput('tid');
+            $pid = $this->getInput('pid');
+            if ($pid) {
+                Wind::import('SRV:forum.srv.post.PwReplyModify');
+                $postAction = new PwReplyModify($pid);
+            } else {
+                Wind::import('SRV:forum.srv.post.PwTopicModify');
+                $postAction = new PwTopicModify($tid);
+            }
+            break;
+        default:
+            $fid = $this->getInput('fid');
+            $special = $this->getInput('special');
+            Wind::import('SRV:forum.srv.post.PwTopicPost');
+            $postAction = new PwTopicPost($fid);
+            $special && $postAction->setSpecial($special);
         }
         return new PwPost($postAction);
     }
@@ -362,7 +368,7 @@ class PostController extends NativeBaseController {
         if ($pid) {
             $reply = Wekit::load('forum.PwThread')->getPost($pid);
             $total = $reply['replies'];
-            
+
 /*
             list($start, $limit) = Pw::page2limit($page, $perpage);
             //Wind::import('LIB:ubb.PwSimpleUbbCode');
@@ -377,7 +383,7 @@ class PostController extends NativeBaseController {
             }
             $page_info = array('page'=>$page,'perpage'=>$perpage,'count'=>$total,'max_page'=>  ceil($total/$perpage));
             $data = array('page_info'=>$page_info,'tid'=>$info['tid'],'post'=>$reply,'reply_list'=>$replydb);
-            */
+ */
             list($start, $limit) = Pw::page2limit($page, $perpage);
             $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);
             $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb);
@@ -401,7 +407,7 @@ class PostController extends NativeBaseController {
                 'replyList' =>$replyList,
 
             );
-//            print_r($data);
+            //            print_r($data);
         } 
         $this->setOutput($data, 'data');
         $this->showMessage('success');
@@ -474,7 +480,7 @@ class PostController extends NativeBaseController {
             foreach ($topictypes['sub_topic_types'] as $key => $value) {
                 if (!is_array($value))
                     continue;
-// 				if (!$forceTopicType && $value) $jsonArray[$key][$key] = '无分类';
+                // 				if (!$forceTopicType && $value) $jsonArray[$key][$key] = '无分类';
                 foreach ($value as $k => $v) {
                     $jsonArray[$key][$k] = strip_tags($v['name']);
                 }
