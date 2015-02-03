@@ -29,7 +29,8 @@ class UploadController extends NativeBaseController  {
      * @example
      <pre>
      /index.php?m=native&c=upload&a=dorun&_json=1
-     post: fid=帖子分类id&Filename=图片名字&Upload=Submit Query&attach=图片file
+     //post: fid=帖子分类id&Filename=图片名字&Upload=Submit Query&attach=图片file
+     post(精简版): fid=帖子分类id&Filename=附件二进制
      cookie:usersession
      response: {err:"",data:""}  
      </pre>
