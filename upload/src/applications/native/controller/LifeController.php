@@ -42,6 +42,11 @@ class LifeController extends NativeBaseController {
         $pos = ($page-1)*$this->perpage;
         //获取生活服务版块列表
         $forum_list = Wekit::loadDao('native.dao.PwNativeForumDao')->fetchForumLifeList($pos,1000);
+        if(empty($forum_list)){
+            $data = array('user_info'=>array('uid'=>$this->uid),'forum_list'=>array());
+            $this->setOutput($data,'data');
+            $this->showMessage('NATIVE:data.success');
+        }
         $fids = array_keys($forum_list);
         //生活服务扩展表数据
         $forum_life_list = Wekit::loadDao('native.dao.PwForumLifeDao')->fetchForumLife($fids);

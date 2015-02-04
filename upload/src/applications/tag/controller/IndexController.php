@@ -20,7 +20,8 @@ class IndexController extends PwBaseController {
 		$categoryId = intval($this->getInput('categoryid','get'));
 		$alias = $this->getInput('alias','get');
 		$tagServicer = $this->_getTagService();
-		$hotTags = $tagServicer->getHotTags($categoryId,20);
+//		$hotTags = $tagServicer->getHotTags($categoryId,20);
+                $hotTags = $tagServicer->getHotTagsNoCache($categoryId,20);
 		$tagIds = array();
 		foreach ($hotTags as $k => $v) {
 			$attentions = $this->_getTagAttentionDs()->getAttentionUids($k,0,5);

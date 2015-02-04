@@ -82,8 +82,8 @@
             tid（默认空）：<input type="text" id="tid" name="tid"/><br>
             special：<input type="text" id="special" name="special" value="default"/><br>
             reply_notice:<input type="text" id="reply_notice" name="reply_notice" value="1"/><br> 
-            attach1:<input type="text" name="flashatt[46][desc]"/><br>
-            attach2:<input type="text" name="flashatt[48][desc]"/><br>
+            attach1:<input type="text" name="flashatt[71][desc]"/><br>
+            attach2:<input type="text" name="flashatt[72][desc]"/><br>
             <input type="submit" value="提 交"/><br>
         </form>
         
@@ -106,6 +106,15 @@
             fid（帖子分类id）：<input type="text" id="fid" name="fid"/><br>
             Upload（默认值：Submit Query）：<input type="text" id="Upload" name="Upload" value="Submit Query"/><br>
             图片：<input type="file" id="attach"  name="attach"/> 
+            <input type="submit" value="提 交"/><br>
+        </form>
+        
+        
+        <!-- upload_attachform.htm -->
+        <b>图片上传测试表单精简版</b>
+        <form id="attachform" action="index.php?m=native&c=upload&a=dorun&_json=1" method="post" enctype="multipart/form-data">
+            fid（帖子分类id）：<input type="text" id="fid" name="fid"/><br>
+            图片：<input type="file" id="Filename"  name="Filename"/> 
             <input type="submit" value="提 交"/><br>
         </form>
         

@@ -122,7 +122,7 @@ class ThreadController extends NativeBaseController {
                 $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,"NUM");
                 $topped_tids = array();
                 foreach($threads_list as $k => $v){
-                    if($v['topped'] == 1 && !in_array($v['tid'],$topped_tids)){
+                    if($v['topped'] > 0 && !in_array($v['tid'],$topped_tids)){
                         $topped_tids[] = $v['tid'];
                         $threads_list[$k]['topped_priority'] = 1;
                     }else{
