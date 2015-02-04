@@ -13,6 +13,7 @@ defined('WEKIT_VERSION') || exit('Forbidden');
 
 Wind::import('APPS:native.controller.NativeBaseController');
 Wind::import('SRV:space.bo.PwSpaceModel');
+Wind::import('SRV:like.PwLikeContent');
 
 class SpaceController extends NativeBaseController {
 
@@ -44,12 +45,10 @@ class SpaceController extends NativeBaseController {
         $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array(0) );
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
 
-        $_allkeys = array_keys($threadList);
-        $barName = $threadList[$_allkeys[0]]['lastpost_time'];
 
         //
-        $_threadList = array();
         $prev_val = '';
+        $_tids = $_threadList = array();
         foreach($threadList as $k=>$v){
             $_created_time = Pw::time2str($v['created_time'],'auto');
             list($_key, $_time) = explode(' ',$_created_time);
@@ -63,9 +62,20 @@ class SpaceController extends NativeBaseController {
                 $threadList[$k]['barName'] = '';
             }
             $_threadList[] = $threadList[$k];
+            $_tids[] = $v['tid'];
         }
 
-        //print_r($threadList);exit;
+        //获得登陆用户是否喜欢过帖子|回复
+        $threadLikeData = array();
+        if( $this->uid && $_tids ){
+            $_threadLikeData = $this->_getLikeReplyService()->getAllLikeUserids(PwLikeContent::THREAD, $_tids );
+            foreach($_tids as $v){
+                if( isset($_threadLikeData[$v]) ){
+                    $threadLikeData[$v] = array_search($this->uid, $_threadLikeData[$v])===false?0:1;
+                }
+            }
+        }
+        
         //
         $data = array(
             'userInfo'  =>isset($space->spaceUser)
@@ -85,10 +95,12 @@ class SpaceController extends NativeBaseController {
 
     }
 
-
     private function _getPwNativeThreadDs(){
         return Wekit::load('native.PwNativeThread');
     }
 
+    private function _getLikeReplyService() {
+        return Wekit::load('like.srv.reply.do.PwLikeDoReply');
+    } 
 
 }

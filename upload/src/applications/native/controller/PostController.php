@@ -22,14 +22,14 @@ class PostController extends NativeBaseController {
 
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        $this->checkUserSessionValid();
+        
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
         $action = $handlerAdapter->getAction();
-
+        
         //非法请求
         if (in_array($action, array('fastreply', 'replylist'))) {
-            $this->showError('fail');
+            return;
         }
         $this->post = $this->_getPost($action);
         $this->post->user = $this->loginUser;        
@@ -212,17 +212,6 @@ class PostController extends NativeBaseController {
     }
 
     private function _replylist() {
-        /*
-            $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid(126, 5, 0);//获得回帖的回复列表
-        //        $post = Wekit::load('forum.PwThread')->getPost(126);//获得回帖信息
-        $post = Wekit::load('forum.PwThread')->getPost(133);//获得回帖信息，缺少用户头像
-        $atts = Wekit::load('attach.PwThreadAttach')->fetchAttachByTid(array(87));
-        $atts = Wekit::load('attach.PwThreadAttach')->fetchAttachByTidAndPid(array(87), array(129));
-        $atts = Wekit::load('native.PwNativeThread')->getThreadAttach(array(87), array(0));
-        //        var_dump($atts);exit;
-        var_dump($post,$replydb);exit;
-        * 
-         */
 
         list($tid, $pid, $page, $simple) = $this->getInput(array('tid', 'pid', 'page', 'simple'), 'get');
         $page = intval($page);
@@ -235,29 +224,16 @@ class PostController extends NativeBaseController {
             $reply = Wekit::load('forum.PwThread')->getPost($pid);
             $total = $reply['replies'];
 
-/*
-            list($start, $limit) = Pw::page2limit($page, $perpage);
-            //Wind::import('LIB:ubb.PwSimpleUbbCode');
-            //Wind::import('LIB:ubb.config.PwUbbCodeConvertThread');
-            $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);//回帖的回复，内容未格式化
-            $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb);//对回帖回复内容进行格式化并截字处理，简略回复不展示附件及图片
-            if($page == 1 && $perpage == $this->perpage){
-                $reply['created_time'] = Pw::time2str($reply['created_time'],'auto');//格式化时间
-                $reply['avatar'] = Pw::getAvatar($reply['created_userid'],'small');//获取头像
-            }else{
-                $reply = array();
-            }
-            $page_info = array('page'=>$page,'perpage'=>$perpage,'count'=>$total,'max_page'=>  ceil($total/$perpage));
-            $data = array('page_info'=>$page_info,'tid'=>$info['tid'],'post'=>$reply,'reply_list'=>$replydb);
- */
             list($start, $limit) = Pw::page2limit($page, $perpage);
             $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);
             $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb);
-
             //
             $replyList = array();
             foreach ($replydb as $key=>$v) {
                 $replyList[$key] = array(
+                    'fid'               =>$v['fid'],
+                    'tid'               =>$v['tid'],
+                    'pid'               =>$v['pid'],
                     'created_time'      =>Pw::time2str($reply['created_time'],'auto'),
                     'created_username'  =>$v['created_username'],
                     'content'           =>$v['content'],
@@ -273,7 +249,6 @@ class PostController extends NativeBaseController {
                 'replyList' =>$replyList,
 
             );
-            //            print_r($data);
         } 
         $this->setOutput($data, 'data');
         $this->showMessage('success');
