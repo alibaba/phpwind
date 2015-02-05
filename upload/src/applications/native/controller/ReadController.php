@@ -22,10 +22,9 @@ class ReadController extends NativeBaseController {
     
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        $this->uid = 1; //测试uid
+        
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
-        //		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
     }
 
 
@@ -158,7 +157,9 @@ class ReadController extends NativeBaseController {
         //位置
         $threadPlace = $this->_getThreadPlaceService()->fetchByTids( array($tid) );
         $postPlace = $this->_getPostPlaceService()->fetchByPids( $pids );
-        
+
+//        print_r($threadDisplay->attach);exit;
+
         //附件
         $threadAttachs = array();
         if( isset($threadDisplay->attach->attachs) ){
@@ -172,10 +173,12 @@ class ReadController extends NativeBaseController {
                     );
                 }
             }
+        }
+        if( isset($threadDisplay->attach->showlist) ){
             foreach( $threadDisplay->attach->showlist as $k=>$v){
                 foreach( $v as $kk=>$vv ){
                     foreach( $vv as $kkk=>$vvv ){
-                        $threadAttachs['showlist'][$k][$kk]=array(
+                        $threadAttachs['showlist'][$k][$kk][$kkk]=array(
                             'aid'=>$vvv['aid'],
                             'name'=>$vvv['name'],
                             'type'=>$vvv['type'],
