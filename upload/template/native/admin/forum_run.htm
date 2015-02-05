@@ -10,20 +10,33 @@
             <!--# if ($forums) { #-->
             <form class="J_ajaxForm" action="{@url:native/forum/doEdit}" method="post">
                 <div class="h_a">*移动用户可访问版面：</div>
-                <div class="home_info">
-                <!--# 
-                $i = 0;
-                foreach($forums as $v) { 
-                    $checked = $v['isdefault'] != -1 ? 'checked' : '';
-                    $disabled = $v['isdefault'] != -1 ? '' : 'disabled';
-                #-->
-                <input type="checkbox" name="forums[{$i}][fid]" {$checked} value="{$v['fid']}" text="{$v['name']}"/>
-                <input type="text" name="forums[{$i}][order]" {$disabled} class="input mr5" style="width:25px;" value="{$v['order']}"/>
-                {$v['name']}&nbsp;&nbsp;
-                <!--# 
-                $i++;
-                } 
-                #-->
+                <div class="table_list">
+                    <table width="100%" id="J_table_list" style="table-layout:fixed;">
+                            <colgroup>
+                                    <col width="200">
+                            </colgroup>
+                            <!--# 
+                            $i = 0;
+                            foreach($forums as $v) { 
+                                $checked = $v['isdefault'] != -1 ? 'checked' : '';
+                                $disabled = $v['isdefault'] != -1 ? '' : 'disabled';
+                            #-->
+                            
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="forums[{$i}][fid]" {$checked} value="{$v['fid']}" text="{$v['name']}"/>
+                                    <input type="text" name="forums[{$i}][order]" {$disabled} class="input mr5" style="width:25px;" value="{$v['order']}"/>
+                                    {$v['name']}&nbsp;&nbsp;
+                                </td>
+                            </tr>
+                            </tbody>
+                            <!--# 
+                            $i++;
+                            } 
+                            #-->
+                         
+                    </table>               
                 </div>
                 <div class="h_a">* 默认频道：<span class="red">移动端用户发帖时，如未选择任何版面则默认发到此版面</span></div>
                 
