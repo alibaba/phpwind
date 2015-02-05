@@ -200,7 +200,7 @@ class TagController extends NativeBaseController {
                 foreach($res as $v){
                     $tids[] = $v['param_id'];
                 }
-                $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
+                $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,$this->uid);
                 $count = Wekit::loadDao('native.dao.PwNativeTagRelationDao')->getCount(array($id));
 //                var_dump($tids,$threads_list);exit;
                 ($max_page = ceil($count/$this->perpage))||$max_page=1;

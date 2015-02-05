@@ -104,7 +104,7 @@ class LifeController extends NativeBaseController {
         $count = Wekit::loadDao('forum.dao.PwThreadsDao')->countThreadByFidAndType($fid, 0);
         $threads = Wekit::loadDao('forum.dao.PwThreadsDao')->getThreadByFid($fid, $this->perpage, $pos);
         $tids = array_keys($threads);
-        $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids);
+        $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,$this->uid);
 //        $result = array('forumInfo'=>$forum,'threadsList'=>$threads_list);
 //        var_dump($result);exit;
         ($max_page = ceil($count/$this->perpage))||$max_page=1;

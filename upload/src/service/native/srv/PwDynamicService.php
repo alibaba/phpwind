@@ -5,12 +5,18 @@ class PwDynamicService {
     /**
      * 获取列表页展示的帖子数据
      */
-    public function fetchThreadsList($tids,$result_type='ASSOC'){
+    public function fetchThreadsList($tids,$uid=0,$result_type='ASSOC'){
+        if(!$tids) return array();
+        Wind::import('SRV:like.PwLikeContent');
         $threads = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchThreads($tids);
         $threads_place = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->fetchByTids($tids);
         $threads_content = Wekit::loadDao('forum.dao.PwThreadsContentDao')->fetchThread($tids);
         $PwThreadService = Wekit::load('forum.srv.PwThreadService');
         $PwNativeThreadService = Wekit::load('native.PwNativeThread');
+        $threadLikeData = Wekit::load('like.srv.reply.do.PwLikeDoReply')->getAllLikeUserids(PwLikeContent::THREAD, $tids );
+        foreach($threadLikeData as $k => $v){
+            if(!in_array($uid, $v)) unset($threadLikeData[$k]);
+        }
         $tag_names_str = '';        
         foreach($threads as $k=>$v){
             $content = isset($threads_content[$k]['content']) ? $threads_content[$k]['content'] : '';
@@ -26,6 +32,7 @@ class PwDynamicService {
             $threads[$k]['have_mp3'] = $matches ? true : false;
             preg_match("/\[flash.*?\].*?\[\/flash\]/i",$content, $matches);
             $threads[$k]['have_flash'] = $matches ? true : false;
+            $threads[$k]['isliked'] = isset($threadLikeData[$k]) ? true :false;
             $imgs = array_shift($PwNativeThreadService->getThreadAttach(array($k),array(0)));
             ksort($imgs);
             $imgs = array_slice($imgs,0, 9);
