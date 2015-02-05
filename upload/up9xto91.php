@@ -4,7 +4,7 @@ if(!isset($_GET['action'])){//说明页面
 <!doctype html>
 <html>
 <head>
-<title>update phpwind9.0 to nextwind</title>
+<title>update phpwind9.0.1 to 9.1</title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -13,11 +13,33 @@ if(!isset($_GET['action'])){//说明页面
     <div class="header">
         <h1 class="logo">logo</h1>
         <div class="icon_update">升级向导</div>
-        <div class="version">phpwind 9.0 to 9.1</div>
+        <div class="version">phpwind 9.0.1 to 9.1</div>
     </div>
     
     <div class="main cc">
-        <pre class="pact" readonly="readonly">phpwind9.x的环境准备，请确认：
+        <pre class="pact" readonly="readonly">
+        升级程序说明：
+        1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
+        2)	支持升级版本：9.0.1（20141223版）；
+        3)	升级后会增加对移动端的支持、对部分功能进行完善及bug的修复；
+        4)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
+        升级步骤：
+        1)	关闭站点，后台管理-全局-站点设置-站点状态设置页面进行设置；
+        2)	请提前备份您的站点文件，网站根目录下所有文件；
+        3)	请提前备份您网站所有的数据库文件；
+        4)	请确保已将最新补丁包文件下载解压，并覆盖至文件根目录；
+        5)	禁止变更”根目录\src\applications\native”目录；
+        6)	请确保“根目录/conf/Database.php”文件存在且数据库连接配置信息正确；
+        7)	将pw_new.sql、up9xto91.php文件拷贝到根目录下；
+        8)	运行“http://yourwebsite/up9xto91.php”执行升级。
+        风险说明：
+        因phpwind为开源程序，升级程序是在基础程序上做的更新优化，对基础程序作过二次开发的，可能部分文件、数据库会出现冲突覆盖，可能会导致程序无法正常运行，强烈建议自行手动升级。
+
+
+
+
+        <!--
+        phpwind9.x的环境准备，请确认：
         1、确定系统环境
         PHP版本 	> 5.3.x
         PDO_Mysql 安装扩展
@@ -61,6 +83,7 @@ if(!isset($_GET['action'])){//说明页面
         特别说明：如果原87站点开启了ftp服务，那么在分进程页面中会存在单独的一条“用户头像转移”的步骤，请仔细看该步骤说明，该步骤不被包含到一键升级和分进程中，无论选择多进程升级或是一键升级都需要运行，否则用户头像将采用默认头像。
         9、升级执行完之后将会自动进入nextwind9的首页。
         注：如果需要再次升级，请删除data/setup/setup.lock文件
+        -->
         </pre>
     </div>
     
@@ -76,7 +99,7 @@ if(!isset($_GET['action'])){//说明页面
 <!doctype html>
 <html>
 <head>
-<title>update phpwind8.7 to nextwind</title>
+<title>update phpwind9.0.1 to 9.1</title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -85,7 +108,7 @@ if(!isset($_GET['action'])){//说明页面
             <div class="header">
                     <h1 class="logo">logo</h1>
                     <div class="icon_update">升级向导</div>
-                    <div class="version">phpwind 9.0 to 9.1</div>
+                    <div class="version">phpwind 9.0.1 to 9.1</div>
             </div>
             <div class="section">
                     <div class="step">
@@ -223,12 +246,13 @@ $(function(){
 
 <?php
 }else if($_GET['action']=="dorun"){//用户提交基本信息，执行升级过程
-//    var_dump($_GET);
-//    var_dump($_POST);
-//    exit;
+    //检查lock文件是否存在
+    if (file_exists("./data/up9xto91.lock")) {
+	showError('升级程序已被锁定, 如需重新运行，请先删除./data/up9xto91.lock');
+    }
     //判断native目录是否存在
     if(!is_dir("./src/applications/native")){
-        showError("目录不存在");
+        showError("./src/applications/native 目录不存在,请确保升级包中文件正确覆盖，并且不要修改目录名字");
     }
         
     //执行数据库升级
@@ -267,33 +291,29 @@ $(function(){
     
     $sql_source = str_replace(array("{pre}","{charset}"),array($dbpre,$charset), $sql_source);
 //    var_dump($sql_source);
-    
-//    exit;
-    
-    
 //    $con = mysql_connect($host.":".$port,$username,$password) or die('Could not connect: ' . mysql_error());
     $con = mysql_connect($host.":".$port,$username,$password) or showError('Could not connect: ' . mysql_error());
     mysql_select_db($dbname, $con) or showError('Can\'t use foo : ' . mysql_error());
     $result = mysql_query("SET character_set_connection= 'utf8', character_set_results= 'utf8', character_set_client=BINARY, sql_mode=''") or die("Invalid query: " . mysql_error());
-//    var_dump($result);
     $result = mysql_query("SET NAMES 'utf8'") or die("Invalid query: " . mysql_error());
-//    var_dump($result);
     $sql_source = explode(';', $sql_source);
     foreach($sql_source as $k => $v){
         $sql_source[$k] = trim($v);
         if(!$sql_source[$k])unset($sql_source[$k]);
     }
-//    var_dump($sql_source);
 
     foreach($sql_source as $sql){
-//        var_dump($sql);
+        //执行sql
         $result = mysql_query($sql) or die("Invalid query: " . mysql_error());
-//        var_dump($result);
     }
 
     mysql_close($con);
-//    echo "success";
-    showMsg("升级成功！");
+    //生成lock文件
+    file_put_contents("./data/up9xto91.lock", "pw9.1");
+    $success_text = "恭喜！您的站点已成功升级至phpwind 9.1版本！
+                    感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛（http://www.phpwind.net） 
+                    ";
+    showMsg($success_text);
 }
 
 
@@ -313,7 +333,7 @@ function showError($msg, $url = false) {
 <!doctype html>
 <html>
 <head>
-<title>phpwind 8.7 to 9.x 升级程序</title>
+<title>phpwind 9.0.1 to 9.1 升级程序</title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -322,7 +342,7 @@ function showError($msg, $url = false) {
 		<div class="header">
 			<h1 class="logo">logo</h1>
 			<div class="icon_update">升级向导</div>
-			<div class="version">phpwind 8.7 to 9.x</div>
+			<div class="version">phpwind 9.0.1 to 9.1</div>
 		</div>
 
 		<div class="success_tip cc error_tip">
@@ -348,7 +368,7 @@ function showMsg($msg) {
 <!doctype html>
 <html>
 <head>
-<title>phpwind 8.7 to 9.x 升级程序</title>
+<title>phpwind 9.0.1 to 9.1 升级程序</title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -357,7 +377,7 @@ function showMsg($msg) {
 		<div class="header">
 			<h1 class="logo">logo</h1>
 			<div class="icon_update">升级向导</div>
-			<div class="version">phpwind 8.7 to 9.x</div>
+			<div class="version">phpwind 9.0.1 to 9.1</div>
 		</div>
 
 		<div class="success_tip cc error_tip">
