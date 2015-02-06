@@ -20,7 +20,7 @@ class ForumController extends NativeBaseController {
 //        var_dump($this);exit;
         parent::beforeAction($handlerAdapter);
 //		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
-        $this->uid = 1; //测试uid
+//        $this->uid = 1; //测试uid
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
     }
