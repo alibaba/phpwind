@@ -18,8 +18,7 @@ Wind::import('APPS:native.controller.NativeBaseController');
 class ManageController extends NativeBaseController {
 
     public function beforeAction($handlerAdapter) {
-//        $this->checkUserSessionValid();
-        $this->uid=1;
+        $this->checkUserSessionValid();
 	}
 
     public $manage;
