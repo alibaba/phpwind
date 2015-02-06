@@ -19,8 +19,7 @@ class MyController extends NativeBaseController {
      */
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-//        $this->checkUserSessionValid();
-        $this->uid=3;
+        $this->checkUserSessionValid();
     }
     
     /**

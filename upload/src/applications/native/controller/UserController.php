@@ -499,8 +499,9 @@ class UserController extends NativeBaseController {
      * @access public
      * @return boolean
      * @example
-     * <pre>  
+     * <pre>
      * /index.php?m=native&c=user&a=ifshowVerifycode <br>
+     * /index.php?m=verify&a=get&rand=rand()
      * </pre>
      */
     public function ifShowVerifycodeAction(){
