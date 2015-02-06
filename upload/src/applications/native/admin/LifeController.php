@@ -633,6 +633,10 @@ class LifeController extends AdminBaseController {
 //                    var_dump($life_fid);
                 }
             }
+            
+            if($_FILES['logo']['size']>300000){
+                $this->showError("图片大小不能超过300k", 'native/life/run/',true);
+            }
 //            exit;
             //添加公共服务版面
             $dm_life = new PwForumDm();
@@ -648,6 +652,14 @@ class LifeController extends AdminBaseController {
                 $this->showError($result->getError(), 'native/life/run/');
             }
             $fid = $result;
+
+            //上传版块logo
+            $dm_life = new PwForumDm($fid);
+            $logo = $this->_uploadImage('logo', $fid);
+            $dm_life->setlogo($logo['path']);	
+            if (($result = $pwForum->updateForum($dm_life)) instanceof PwError) {
+                $this->showError($result->getError(), 'native/life/run/');
+            }
             
 //            Wekit::load('forum.srv.PwForumMiscService')->correctData();
             $forumLifeDao = Wekit::loadDao('native.dao.PwForumLifeDao');
