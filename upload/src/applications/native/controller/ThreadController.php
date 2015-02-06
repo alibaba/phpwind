@@ -114,16 +114,17 @@ class ThreadController extends NativeBaseController {
         $orderby != $defaultOrderby && $dataSource->setUrlArg('orderby', $orderby);
         $threadList->execute($dataSource);
         //需要合并移动端扩展表数据以及内容数据
-        $tids = array();
+        $tids = $topped_tids = array();
         foreach($threadList->threaddb as $v){
             $tids[] = $v['tid'];
+            $v['icon'] == "headtopic_1" && $topped_tids[$v['tid']] = '';
         }
         $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,$this->uid,"NUM");
-        $topped_tids = array();
+        
         foreach($threads_list as $k => $v){
-            if($v['topped'] > 0 && !in_array($v['tid'],$topped_tids)){
-                $topped_tids[] = $v['tid'];
+            if($v['topped'] > 0 && array_key_exists($v['tid'], $topped_tids)){
                 $threads_list[$k]['topped_priority'] = 1;
+                unset($topped_tids[$v['tid']]);
             }else{
                 $threads_list[$k]['topped_priority'] = 0;
             }
