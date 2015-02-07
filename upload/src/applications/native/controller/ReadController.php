@@ -145,6 +145,7 @@ class ReadController extends NativeBaseController {
         $simpleThreadInfo = array(
             'tid'   =>$threadInfo['tid'],
             'fid'   =>$threadInfo['fid'],
+            'subject'       =>$threadInfo['subject'],
             'replies'       =>$threadInfo['replies'],
             'like_count'    =>$threadInfo['like_count'],
             'collect_count' =>isset($collectInfo[$threadInfo['tid']])?$collectInfo[$threadInfo['tid']]['sum']:0,
@@ -156,8 +157,6 @@ class ReadController extends NativeBaseController {
         //位置
         $threadPlace = $this->_getThreadPlaceService()->fetchByTids( array($tid) );
         $postPlace = $this->_getPostPlaceService()->fetchByPids( $pids );
-
-//        print_r($threadDisplay->attach);exit;
 
         //附件
         $threadAttachs = array();
@@ -188,7 +187,6 @@ class ReadController extends NativeBaseController {
             }
         }
         unset($threadDisplay->attach);
-
         //
         $data = array(
             'uid'           =>$this->uid,
@@ -205,7 +203,47 @@ class ReadController extends NativeBaseController {
         );
         $this->setOutput($data,'data');
         $this->showMessage('success');
+    }
 
+    public function sharePageAction(){
+        $tid = intval($this->getInput('tid','get'));
+        list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
+        
+        $threadDisplay = new PwThreadDisplay($tid, $this->loginUser);
+        //$threadDisplay = new PwNativeThreadDisplay($tid, $this->loginUser);
+        $this->runHook('c_read_run', $threadDisplay);
+
+        if (($result = $threadDisplay->check()) !== true) {
+            $this->showError($result->getError());
+        }
+
+        if ($uid) {
+            Wind::import('SRV:forum.srv.threadDisplay.PwUserRead');
+            $dataSource = new PwUserRead($threadDisplay->thread, $uid);
+        } else {
+            Wind::import('SRV:forum.srv.threadDisplay.PwCommonRead');
+            $dataSource = new PwCommonRead($threadDisplay->thread);
+        }
+        
+        //数据分页
+        $perpage = $pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage');
+        $dataSource->setPage($page)
+            ->setPerpage($perpage)
+            ->setDesc($desc);
+
+        $threadDisplay->setImgLazy(Wekit::C('bbs', 'read.image_lazy'));
+        $threadDisplay->execute($dataSource);
+
+        //主题的信息
+        $threadInfo = $threadDisplay->getThreadInfo();
+        $threadInfo['content'] = preg_replace('/onload="([^"]+)"/i','',$threadInfo['content']);
+        $threadInfo['content'] = preg_replace('/onclick="([^"]+)"/i','',$threadInfo['content']);
+        $threadInfo['content'] = str_replace('style="max-width:700px;"','',$threadInfo['content']);
+
+
+        $this->setOutput($threadInfo,'threadInfo');
+        $this->setOutput($threadDisplay, 'threadDisplay'); 
+        $this->setOutput(PwCreditBo::getInstance(), 'creditBo'); 
     }
 
     protected function _getThreadPlaceService(){
