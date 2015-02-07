@@ -140,7 +140,8 @@ class DynamicController extends NativeBaseController {
         if ($this->uid < 1) {//用户未登陆展示20个热点话题
 //            $this->forwardRedirect(WindUrlHelper::createUrl('u/login/run', array('backurl' => WindUrlHelper::createUrl('tag/index/my'))));
             $hotTags = $this->getHotTags();
-            $data = array('page_info'=>array(),'user_info'=>array(),'tag_info'=>$hotTags,'threads_list'=>array());
+            $page_info = array('page'=>1,'perpage'=>$this->perpage,'count'=>0,'max_page'=>1);
+            $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>0),'tag_info'=>$hotTags,'threads_list'=>array());
             $this->setOutput($data,'data');
             $this->showMessage('NATIVE:data.success');
             exit;
