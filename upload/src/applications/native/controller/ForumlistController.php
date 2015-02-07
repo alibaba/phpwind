@@ -21,7 +21,7 @@ class ForumListController extends NativeBaseController {
 //        echo 111;exit;
         parent::beforeAction($handlerAdapter);
 //        $this->checkUserSessionValid();
-        $this->uid = 1;//测试uid
+//        $this->uid = 1;//测试uid
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
     }

@@ -160,10 +160,14 @@ class LifeController extends AdminBaseController {
 		if (!$fid) {
 			$this->showError('operate.fail');
 		}
+                if($_FILES['logo']['size']>300000){
+                    $this->showError("图片大小不能超过300k", 'native/life/run/',true);
+                }
                 Wind::import('SRV:forum.dm.PwForumDm');
                 $pwForum = Wekit::load('forum.PwForum');
                 //修改公共服务版面
                 list($forumname, $manager, $vieworder, $descrip,$isshow,$url,$address) = $this->getInput(array('forumname', 'manager', 'vieworder', 'descrip','isshow','url','address'), 'post');
+                if(Pw::strlen($address)>100) $this->showError("商家地址不能超过100个汉字", 'native/life/run/',true);
                 $dm = new PwForumDm($fid);
                 //上传版块logo
                 $logo = $this->_uploadImage('logo', $fid);
@@ -599,7 +603,11 @@ class LifeController extends AdminBaseController {
          * 添加公共账号表单
          * lyl
          */
-        public function addAction(){}
+        public function addAction(){
+            $res = Wekit::loadDao('native.dao.PwNativeForumDao')->getMaxVieworder();
+            $max_vieworder = isset($res['vieworder']) && $res['vieworder'] ? $res['vieworder']+1 : 0;
+            $this->setOutput($max_vieworder, 'max_vieworder');
+        }
         
         /**
          * 执行添加公共账号
@@ -633,10 +641,15 @@ class LifeController extends AdminBaseController {
 //                    var_dump($life_fid);
                 }
             }
+            
+            if($_FILES['logo']['size']>300000){
+                $this->showError("图片大小不能超过300k", 'native/life/run/',true);
+            }
 //            exit;
             //添加公共服务版面
             $dm_life = new PwForumDm();
             list($forumname, $manager, $vieworder, $descrip,$isshow,$url,$address) = $this->getInput(array('forumname', 'manager', 'vieworder', 'descrip','isshow','url','address'), 'post');
+            if(Pw::strlen($address)>100) $this->showError("商家地址不能超过100个汉字", 'native/life/run/',true);
             $dm_life->setParentid($life_fid)
                     ->setName($forumname)
                     ->setVieworder($vieworder)
@@ -648,6 +661,14 @@ class LifeController extends AdminBaseController {
                 $this->showError($result->getError(), 'native/life/run/');
             }
             $fid = $result;
+
+            //上传版块logo
+            $dm_life = new PwForumDm($fid);
+            $logo = $this->_uploadImage('logo', $fid);
+            $dm_life->setlogo($logo['path']);	
+            if (($result = $pwForum->updateForum($dm_life)) instanceof PwError) {
+                $this->showError($result->getError(), 'native/life/run/');
+            }
             
 //            Wekit::load('forum.srv.PwForumMiscService')->correctData();
             $forumLifeDao = Wekit::loadDao('native.dao.PwForumLifeDao');

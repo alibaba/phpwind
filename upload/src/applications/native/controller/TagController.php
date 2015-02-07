@@ -21,7 +21,7 @@ class TagController extends NativeBaseController {
         
         public function beforeAction($handlerAdapter){
 		parent::beforeAction($handlerAdapter);
-                $this->uid = 1; //测试uid
+//                $this->uid = 1; //测试uid
                 $this->loginUser = new PwUserBo($this->uid);
                 $this->loginUser->resetGid($this->loginUser->gid);
 	}
