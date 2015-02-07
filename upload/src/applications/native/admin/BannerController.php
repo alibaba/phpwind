@@ -38,7 +38,7 @@ class BannerController extends AdminBaseController {
         $href   = trim($href);
         $vieworder  = (int)$vieworder;
 
-        if( count($this->_getDao()->getBanner(PwBanner::BANNER_TYPE_NATIVE_INDEX))>=4 ){
+        if( count($this->_getDao()->getBanner(PwBanner::BANNER_TYPE_NATIVE_INDEX))>=4 && !$bid ){
             $this->showError("NATIVE:banner.num.out");
         }
         if( empty($title) ){

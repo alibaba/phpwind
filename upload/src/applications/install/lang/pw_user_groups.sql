@@ -116,7 +116,8 @@ INSERT INTO `pw_user_permission_groups` (`gid`, `rkey`, `rtype`, `rvalue`, `vtyp
 (3, 'max_drafts', 'basic', '0', 'string'),
 (3, 'max_title_length', 'basic', '50', 'string'),
 (3, 'message_allow_send', 'basic', '1', 'string'),
-(3, 'message_max_send', 'basic', '500', 'string');
+(3, 'message_max_send', 'basic', '500', 'string')
+(3, 'allow_publish_tao', 'basic', '1', 'string');
 INSERT INTO `pw_user_permission_groups` (`gid`, `rkey`, `rtype`, `rvalue`, `vtype`) VALUES
 (3, 'multimedia_auto_open', 'basic', 'a:4:{s:5:"flash";s:1:"1";s:3:"wmv";s:1:"1";s:2:"rm";s:1:"1";s:3:"mp3";s:1:"1";}', 'array'),
 (3, 'manage_level', 'system', '100', 'string'),

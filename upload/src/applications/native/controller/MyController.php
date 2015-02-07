@@ -11,6 +11,7 @@
 defined('WEKIT_VERSION') || exit('Forbidden');
 
 Wind::import('APPS:native.controller.NativeBaseController');
+Wind::import('SRV:like.PwLikeContent');
 
 class MyController extends NativeBaseController {
 
@@ -356,13 +357,29 @@ class MyController extends NativeBaseController {
         foreach ($collectList as $collect) {
             $tids[] = $collect['tid'];
         }
+
+        //获得登陆用户是否喜欢过帖子|回复
+        $_tids = $tids;
+        $threadLikeData = array();
+        if( $this->uid && $_tids ){
+            $_threadLikeData = $this->_getLikeReplyService()->getAllLikeUserids(PwLikeContent::THREAD, $_tids );
+            foreach($_tids as $v){
+                if( isset($_threadLikeData[$v]) ){
+                    $threadLikeData[$v] = array_search($this->uid, $_threadLikeData[$v])===false?0:1;
+                }
+            }
+        }
+
         $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($tids);
         $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array());
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
+
+
         //
         $data = array(
             'pageCount'=>$collectCount,
             'threadList'=>$threadList,
+            'threadLikeData'=>$threadLikeData,
         );
         $this->setOutput($data, 'data');
         $this->showMessage('success');
@@ -431,4 +448,8 @@ class MyController extends NativeBaseController {
     private function _getCollectService(){
         return Wekit::load('native.srv.PwNativeCollectService');
     }
+    
+    private function _getLikeReplyService() {
+        return Wekit::load('like.srv.reply.do.PwLikeDoReply');
+    } 
 }

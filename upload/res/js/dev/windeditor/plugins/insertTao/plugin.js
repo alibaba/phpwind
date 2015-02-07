@@ -119,7 +119,7 @@
                         var _html='<dl class="taobaoCanvas">\
                     <dt><img src="'+ret.data.path+'" /></dt>\
                     <dd class="title">'+title+'</dd>\
-                    <dd class="price">价格：'+price+'</dd>\
+                    <dd class="price">'+price+'</dd>\
                     <dd><span class="go"><a href="'+link+'">'+button_type+'</a></span></dd>\
                     <dd style="clear:both;"></dd>\
                     </dl>';

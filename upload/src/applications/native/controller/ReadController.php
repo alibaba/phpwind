@@ -22,7 +22,6 @@ class ReadController extends NativeBaseController {
     
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-        
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
     }

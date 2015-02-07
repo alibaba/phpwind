@@ -136,9 +136,9 @@ abstract class NativeBaseController extends PwBaseController {
     }
 
     public function abcAction(){
-        $unsecurityKey='3OxfjquTlxNKTbMrru7JeNtZ119TGcCpXIB1sJxLi8HXQWwqyyQKij0CTuPxn/2BC/h9H+EmVWnjCFkXsV3J0GCBVw3YulFeUhLk5Xlil76ViLGx8hgCdGSQCpJr8fYZ1ZuYY/X99p+UBJecDhAlyZjy+UHIYB2XQPnPQEDoYzAuHf1M44hpJoROkVhbaE3RSxq0VnZ5QIhmSPedLgz+QfqekdfqWr6CK3KheVO2N+QfOFz4Oka37Ymqi3zJoCYzQhP571DW8utZu2NddRa0F/m3H+8ID4XhKYMkTYIcqawXMZwTpmg8fOZ/zDMIWTMhe2rZsHXYyGwEf/93N+B2jBLnPwG/PQnkD022IQVt+5g7iTYXB6bVbAD8j3dlwbL6POAFoFZRFRhbxvvPNYoOuR5CSwjXRX5iMiaFBtvUQ4NwP9H1/3++B4RZHK+fllJUsok9hz3WUOslIQA3r7yLTd8EwdOl3zEQHv4HgzK0gqx+aa6shDRlAg==';
-        $aaa=  Pw::decrypt($unsecurityKey,$this->_securityKey);
-        print_r( unserialize($aaa) );
+        $lw = Wekit::load("APPS:native.service.PwLaiWangSerivce");
+        $lw->saveAppekySetting($this->_securityKey);
+        
         exit;
     }
 
@@ -242,6 +242,7 @@ abstract class NativeBaseController extends PwBaseController {
         $_oauth = Wekit::load("APPS:native.service.PwThirdOpenPlatformService");
         $_oauth->access_token = $this->getInput('access_token');
         $_oauth->third_platform_name = $this->getInput('platformname');
+        $_oauth->oauth_uid = $this->getInput('oauth_uid');
         //
         $info = array();
         $_method_name = $_oauth->third_platform_name.'AuthInfo';

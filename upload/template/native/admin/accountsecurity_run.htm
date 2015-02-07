@@ -10,7 +10,7 @@
 
 <div class="prompt_text">
 	<ul>
-        <li>登录使用＂帐号安全密匙＂来混淆加密，不要经常改动，因为改动后所有用户都需要重新登录</li>
+        <li>登录使用＂接口密钥＂来混淆加密，不要经常改动，因为改动后所有用户都需要重新登录</li>
 	</ul>
 </div>
 <form class="J_ajaxForm" action="{@url:native/AccountSecurity/doSessionKey}" method="post">
@@ -22,7 +22,7 @@
 		<col />
 		
 		<tr>
-		<th>帐号安全密匙</th>
+		<th>接口密匙</th>
 		<td>
             <input name="securityKey" type="text" class="input length_4" value="{$config['securityKey']}">
             <a href="javascript:void(0);RandPwd();" class="btn" role="button">随机</a>
@@ -33,7 +33,7 @@
 </div>
 <div class="btn_wrap">
 	<div class="btn_wrap_pd" id="J_sub_wrap">
-   <button type="submit" class="btn btn_submit J_ajax_submit_btn">提交</button>
+        <button type="submit" class="btn btn_submit J_ajax_submit_btn" onclick="if(confirm('是否确认，确认后需要更新生成平台秘钥')){return true;}">提交</button>
 	</div>
 </div>
 </form>

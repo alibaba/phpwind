@@ -35,10 +35,11 @@ class PwThirdOpenPlatformService {
     
     public $access_token;
 
-    public $native_name = 'www.iiwoo.com';
+    public $native_name = 'www.phpwind.net';
 
     public $third_platform_name = 'qq';
 
+    public $oauth_uid = 0;
 
     function __construct(){
         $this->_session = new WindSession(); 
@@ -158,6 +159,7 @@ class PwThirdOpenPlatformService {
      * @return void
      */
     public function weiboAuthInfo(){
+        /*
         //
         $this->_appid   = $this->_third_platform_conf[$this->third_platform_name.'.appId'];
         $this->_appkey  = $this->_third_platform_conf[$this->third_platform_name.'.appKey'];
@@ -176,11 +178,14 @@ class PwThirdOpenPlatformService {
             }
         }
         $_access_token = unserialize($_access_token);
+         */
         //step 2
-        if( $_access_token ){
-            $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['userinfo_uri'],$_access_token['access_token'],$_access_token['uid'],$this->_appkey);
+        $info = array();
+        if( $this->access_token ){
+            $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['userinfo_uri'],$this->access_token,$this->oauth_uid,$this->_appkey);
             $_userinfo_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
             $_userinfo_result = json_decode($_userinfo_result,true);
+            print_r($_userinfo_result);
             //
             if( isset($_userinfo_result['name']) ){
                 $info = array(
@@ -192,9 +197,11 @@ class PwThirdOpenPlatformService {
             }
             unset($_userinfo_result);
         }
+        /*
         if( empty($info) || !isset($info) ){
             $this->_session->delete($this->third_platform_name.'_access_token');
         }
+         */
         return $info;
     }
 
