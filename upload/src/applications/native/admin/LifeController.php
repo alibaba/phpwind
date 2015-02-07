@@ -160,10 +160,14 @@ class LifeController extends AdminBaseController {
 		if (!$fid) {
 			$this->showError('operate.fail');
 		}
+                if($_FILES['logo']['size']>300000){
+                    $this->showError("图片大小不能超过300k", 'native/life/run/',true);
+                }
                 Wind::import('SRV:forum.dm.PwForumDm');
                 $pwForum = Wekit::load('forum.PwForum');
                 //修改公共服务版面
                 list($forumname, $manager, $vieworder, $descrip,$isshow,$url,$address) = $this->getInput(array('forumname', 'manager', 'vieworder', 'descrip','isshow','url','address'), 'post');
+                if(Pw::strlen($address)>100) $this->showError("商家地址不能超过100个汉字", 'native/life/run/',true);
                 $dm = new PwForumDm($fid);
                 //上传版块logo
                 $logo = $this->_uploadImage('logo', $fid);
@@ -641,6 +645,7 @@ class LifeController extends AdminBaseController {
             //添加公共服务版面
             $dm_life = new PwForumDm();
             list($forumname, $manager, $vieworder, $descrip,$isshow,$url,$address) = $this->getInput(array('forumname', 'manager', 'vieworder', 'descrip','isshow','url','address'), 'post');
+            if(Pw::strlen($address)>100) $this->showError("商家地址不能超过100个汉字", 'native/life/run/',true);
             $dm_life->setParentid($life_fid)
                     ->setName($forumname)
                     ->setVieworder($vieworder)
