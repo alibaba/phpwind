@@ -603,7 +603,11 @@ class LifeController extends AdminBaseController {
          * 添加公共账号表单
          * lyl
          */
-        public function addAction(){}
+        public function addAction(){
+            $res = Wekit::loadDao('native.dao.PwNativeForumDao')->getMaxVieworder();
+            $max_vieworder = isset($res['vieworder']) && $res['vieworder'] ? $res['vieworder']+1 : 0;
+            $this->setOutput($max_vieworder, 'max_vieworder');
+        }
         
         /**
          * 执行添加公共账号
