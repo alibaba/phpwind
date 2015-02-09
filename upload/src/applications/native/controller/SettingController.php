@@ -76,14 +76,24 @@ class SettingController extends PwBaseController {
      * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=Setting&a=startup <br>
+     * post: imgmd5 <br>
+     * reponse: img&imgmd5
+     * </pre>
      */
     public function startupAction(){
+        $imgmd5 = $this->getInput('imgmd5');
+        //
         $data = array();
-        if( isset($this->config['startup.status']) && $this->config['startup.status']){
+        if(isset($this->config['startup.status']) && $this->config['startup.status']){
            $data['img'] = Pw::getPath($this->config['startup.img']);
            $data['imgmd5'] = $this->config['startup.imgmd5'];
-           $this->setOutput($data, 'data');
-           $this->showMessage("success");
+           if( $imgmd5!=$data['imgmd5'] ){
+               $this->setOutput($data, 'data');
+               $this->showMessage("success");
+           }
         }
         $this->showError('fail');
     }

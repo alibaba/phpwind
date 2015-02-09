@@ -63,7 +63,7 @@ class MyController extends NativeBaseController {
      * </pre>
      */
     public function unFollowAction(){
-        $uid = $this->getInput('uid', 'post');
+        $uid = $this->getInput('uid');
 		if (!$uid) {
 			$this->showError('operate.select');
         }
@@ -86,7 +86,7 @@ class MyController extends NativeBaseController {
      * </pre>
      */
     public function addBlackAction(){
-        $uid = (int)$this->getInput('uid', 'post');
+        $uid = (int)$this->getInput('uid');
         if ($uid) {
             $user = $this->_getUserDs()->getUserByUid($uid);
             $uid = $user['uid'];
@@ -288,14 +288,28 @@ class MyController extends NativeBaseController {
         foreach ($threads as $thread) {
             $tids[] = $thread['tid'];
         }   
+ 
+        //获得登陆用户是否喜欢过帖子|回复
+        $_tids = $tids;
+        $threadLikeData = array();
+        if( $this->uid && $_tids ){
+            $_threadLikeData = $this->_getLikeReplyService()->getAllLikeUserids(PwLikeContent::THREAD, $_tids );
+            foreach($_tids as $v){
+                if( isset($_threadLikeData[$v]) ){
+                    $threadLikeData[$v] = array_search($this->uid, $_threadLikeData[$v])===false?0:1;
+                }
+            }
+        }
+        //
         $myThreadList = $this->_getPwNativeThreadDs()->getThreadContent($tids);
         $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array(0));
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
         //
         $postCount = $this->_getNativePostExpandDao()->countDisabledPostByUidAndFids($this->uid, $this->_getForumService()->fids);
         $data = array(
-            'pageCount'=>$pageCount,
+            'pageCount' =>$pageCount,
             'threadList'=>$threadList,
+            'threadLikeData'=>$threadLikeData,
         );
         $this->setOutput($data, 'data');
         $this->showMessage('success');
@@ -370,16 +384,19 @@ class MyController extends NativeBaseController {
             }
         }
 
+        //帖子发布来源
+        $threadFromtypeList = $this->_getThreadsPlaceService()->getThreadFormTypeByTids($_tids);
+
         $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($tids);
         $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array());
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
 
-
         //
         $data = array(
-            'pageCount'=>$collectCount,
+            'pageCount' =>$collectCount,
             'threadList'=>$threadList,
             'threadLikeData'=>$threadLikeData,
+            'threadFromtypeList'=>$threadFromtypeList,
         );
         $this->setOutput($data, 'data');
         $this->showMessage('success');
@@ -451,5 +468,10 @@ class MyController extends NativeBaseController {
     
     private function _getLikeReplyService() {
         return Wekit::load('like.srv.reply.do.PwLikeDoReply');
-    } 
+    }
+
+    private function _getThreadsPlaceService(){
+        return Wekit::load('native.srv.PwNativeThreadsPlace');
+    }
+
 }

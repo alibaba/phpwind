@@ -22,7 +22,6 @@ class SpaceController extends NativeBaseController {
      */
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-
     }
 
     /**
@@ -41,10 +40,10 @@ class SpaceController extends NativeBaseController {
         //
         $tids           = $this->_getPwNativeThreadDs()->getThreadListByUid($spaceUid, $page, $this->uid==$spaceUid?'my':'space');
         $myThreadList   = $this->_getPwNativeThreadDs()->getThreadContent($tids);
+
         //pids 默认是0； 
         $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array(0) );
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
-
 
         //
         $prev_val = '';
@@ -75,7 +74,10 @@ class SpaceController extends NativeBaseController {
                 }
             }
         }
-        
+
+        //帖子发布来源
+        $threadFromtypeList = $this->_getThreadsPlaceService()->getThreadFormTypeByTids($_tids);
+
         //
         $data = array(
             'userInfo'  =>isset($space->spaceUser)
@@ -89,6 +91,7 @@ class SpaceController extends NativeBaseController {
             'tome'      =>isset($space->tome)?$space->tome:0,
             'pageCount' =>$this->_getPwNativeThreadDs()->getThreadPageCount(),
             'threadList'=>$_threadList,
+            'threadFromtypeList'=>$threadFromtypeList,
         );
         $this->setOutput($data, 'data');
         $this->showMessage('success');
@@ -102,5 +105,9 @@ class SpaceController extends NativeBaseController {
     private function _getLikeReplyService() {
         return Wekit::load('like.srv.reply.do.PwLikeDoReply');
     } 
+
+    private function _getThreadsPlaceService(){
+        return Wekit::load('native.srv.PwNativeThreadsPlace');
+    }
 
 }
