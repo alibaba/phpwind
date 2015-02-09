@@ -89,6 +89,7 @@ class PostController extends NativeBaseController {
         }
 
         // 
+        $title = preg_match('/\[[^\]]+\]/i',$content);
         $title = mb_substr(strip_tags($content), 0,15,"UTF-8");
         $postDm = $this->post->getDm();
         $postDm->setTitle($title)
