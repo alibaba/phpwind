@@ -171,12 +171,12 @@ class LifeController extends AdminBaseController {
                 $dm = new PwForumDm($fid);
                 //上传版块logo
                 $logo = $this->_uploadImage('logo', $fid);
+                if($logo) $dm->setlogo($logo['path']);
                 $dm->setName($forumname)
                         ->setVieworder($vieworder)
                         ->setManager($manager)
                         ->setDescrip($descrip)
-                        ->setIsshow($isshow)
-                        ->setlogo($logo['path']);	
+                        ->setIsshow($isshow);
                 if (($result = $pwForum->updateForum($dm)) instanceof PwError) {
                     $this->showError($result->getError(), 'native/life/run/');
                 }
