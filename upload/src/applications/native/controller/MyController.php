@@ -209,6 +209,10 @@ class MyController extends NativeBaseController {
         $fromid = (int) $this->getInput('fromid');
         if ($typeid < 1 || $fromid < 1) $this->showError('BBS:like.fail');
         //
+        if( $this->uid<1 ){
+            $this->showError('login.not');
+        }
+        //
         $userBo = new PwUserBo();
         $userBo->uid=$this->uid;
         //
