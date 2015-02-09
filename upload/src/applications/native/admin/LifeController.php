@@ -167,6 +167,7 @@ class LifeController extends AdminBaseController {
                 $pwForum = Wekit::load('forum.PwForum');
                 //修改公共服务版面
                 list($forumname, $manager, $vieworder, $descrip,$isshow,$url,$address) = $this->getInput(array('forumname', 'manager', 'vieworder', 'descrip','isshow','url','address'), 'post');
+                if(!$forumname) $this->showError("商家名称不能为空", 'native/life/run/',true);
                 if(Pw::strlen($address)>100) $this->showError("商家地址不能超过100个汉字", 'native/life/run/',true);
                 $dm = new PwForumDm($fid);
                 //上传版块logo
@@ -649,6 +650,7 @@ class LifeController extends AdminBaseController {
             //添加公共服务版面
             $dm_life = new PwForumDm();
             list($forumname, $manager, $vieworder, $descrip,$isshow,$url,$address) = $this->getInput(array('forumname', 'manager', 'vieworder', 'descrip','isshow','url','address'), 'post');
+            if(!$forumname) $this->showError("商家名称不能为空", 'native/life/run/',true);
             if(Pw::strlen($address)>100) $this->showError("商家地址不能超过100个汉字", 'native/life/run/',true);
             $dm_life->setParentid($life_fid)
                     ->setName($forumname)

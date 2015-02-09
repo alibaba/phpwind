@@ -516,4 +516,23 @@ class Pw {
 	public static function echoJson($data) {
 		echo self::jsonEncode(is_array($data) ? WindSecurity::escapeArrayHTML($data) : WindSecurity::escapeHTML($data));
 	}
+        
+        /**
+         * 格式化移动端帖子内容去除ubb标签、分享链接内容、推广链接内容
+         * @param str $content
+         * @return array
+         */
+        public static function formatContent($content){
+            preg_match("/\[share=(.+?),\[url\](.+?)\[\/url\]\](.+?)\[\/share\]/i",$content,$matches);
+            $share_str = isset($matches[0])?$matches[0]:'';
+            $share["url"] = isset($matches[1])?$matches[1]:'';
+            $share["img"] = isset($matches[2])?$matches[2]:'';
+            $share["title"] = isset($matches[3])?$matches[3]:'';
+//            var_dump($share);exit;
+            $content = preg_replace("/\[tao.*?\].*?\[\/tao\]/i", "", str_replace($share_str, "", $content));//去掉分享链接内容、推广商品链接
+            $content = trim(Wekit::load('forum.srv.PwThreadService')->displayContent($content,1,array(),strlen($content)),'.');//过滤ubb标签        
+//            $content = self::stripWindCode(preg_replace("/\[tao.*?\].*?\[\/tao\]/i", "", str_replace($share_str, "", $content)));//过滤ubb标签、分享链接、推广商品
+            
+            return array("share"=>$share,"content"=>$content);
+        }
 }
