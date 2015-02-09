@@ -32,14 +32,18 @@ class PwDynamicService {
             $threads[$k]['have_mp3'] = $matches ? true : false;
             preg_match("/\[flash.*?\].*?\[\/flash\]/i",$content, $matches);
             $threads[$k]['have_flash'] = $matches ? true : false;
+            $format_content = Pw::formatContent($content);//格式化移动端帖子内容去除ubb标签、分享链接内容、推广链接内容
             $threads[$k]['isliked'] = isset($threadLikeData[$k]) ? true :false;
             $imgs = array_shift($PwNativeThreadService->getThreadAttach(array($k),array(0)));
             ksort($imgs);
             $imgs = array_slice($imgs,0, 9);
             $threads[$k]['content'] = array(
-                                            'text'=>  str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim($PwThreadService->displayContent($content,1,array(),70),'.')),//帖子内容文本
+//                                            'text'=>  str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim($PwThreadService->displayContent($content,1,array(),70),'.')),//帖子内容文本
+                                            'text'=> str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),Pw::substrs($format_content['content'],70,0,false)),//帖子内容文本截字
                                             'imgs'=>$imgs,//获取内容图片
-                                            'share'=>'',//帖子分享链接中的内容(待定)
+                                            'share'=>$format_content['share'],//帖子分享链接中的内容(待定)
+                                            'origin_content'=>$content,
+                                            'format_content'=>$format_content,
                                             );
         }
         $tag_names_arr = array_unique(explode(',', trim($tag_names_str,',')));
