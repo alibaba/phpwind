@@ -20,8 +20,6 @@ class DynamicController extends NativeBaseController {
 
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-//		if (!$this->loginUser->isExists()) $this->showError('VOTE:user.not.login');
-//        $this->uid = 0;//测试uid
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
     }

@@ -269,5 +269,8 @@ class ReadController extends NativeBaseController {
         return Wekit::load('like.srv.reply.do.PwLikeDoReply');
     } 
 
+    private function _getThreadsPlaceService(){
+        return Wekit::load('native.srv.PwNativeThreadsPlace');
+    }
 
 }
