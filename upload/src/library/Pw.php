@@ -529,8 +529,8 @@ class Pw {
             $share["img"] = isset($matches[2])?$matches[2]:'';
             $share["title"] = isset($matches[3])?$matches[3]:'';
 //            var_dump($share);exit;
-            $content = preg_replace("/\[tao.*?\].*?\[\/tao\]/i", "", str_replace($share_str, "", $content));//去掉分享链接内容、推广商品链接
-            $content = trim(Wekit::load('forum.srv.PwThreadService')->displayContent($content,1,array(),strlen($content)),'.');//过滤ubb标签        
+            $content = preg_replace(array("/\[tao.*?\].*?\[\/tao\]/i","/\[s:.*?\]/i"), array("",""), str_replace($share_str, "", $content));//去掉分享链接内容、推广商品链接、表情
+            $content = str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim(Wekit::load('forum.srv.PwThreadService')->displayContent($content,1,array(),strlen($content)),'.')); //过滤ubb标签  
 //            $content = self::stripWindCode(preg_replace("/\[tao.*?\].*?\[\/tao\]/i", "", str_replace($share_str, "", $content)));//过滤ubb标签、分享链接、推广商品
             
             return array("share"=>$share,"content"=>$content);

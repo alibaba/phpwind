@@ -39,7 +39,8 @@ class PwDynamicService {
             $imgs = array_slice($imgs,0, 9);
             $threads[$k]['content'] = array(
 //                                            'text'=>  str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim($PwThreadService->displayContent($content,1,array(),70),'.')),//帖子内容文本
-                                            'text'=> str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),Pw::substrs($format_content['content'],70,0,false)),//帖子内容文本截字
+//                                            'text'=> str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),Pw::substrs($format_content['content'],70,0,false)),//帖子内容文本截字
+                                            'text'=> Pw::substrs($format_content['content'],70,0,false),//帖子内容文本截字
                                             'imgs'=>$imgs,//获取内容图片
                                             'share'=>$format_content['share'],//帖子分享链接中的内容(待定)
                                             'origin_content'=>$content,
