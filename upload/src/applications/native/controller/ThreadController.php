@@ -132,7 +132,7 @@ class ThreadController extends NativeBaseController {
             }
         }
         $count = $threadList->total;
-        $forum_isjoin = $pwforum->isJoin(1);
+        $forum_isjoin = $pwforum->isJoin($this->uid);
         //                var_dump($forum_isjoin);exit;
         //                var_dump($threadList);exit;//帖子列表数据
         //                var_dump(get_class($pwforum),get_class_methods($pwforum));exit;
