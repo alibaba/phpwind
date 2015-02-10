@@ -86,16 +86,19 @@ class SettingController extends PwBaseController {
     public function startupAction(){
         $imgmd5 = $this->getInput('imgmd5');
         //
-        $data = array();
-        if(isset($this->config['startup.status']) && $this->config['startup.status']){
-           $data['img'] = Pw::getPath($this->config['startup.img']);
-           $data['imgmd5'] = $this->config['startup.imgmd5'];
-           if( $imgmd5!=$data['imgmd5'] ){
-               $this->setOutput($data, 'data');
-               $this->showMessage("success");
+        $data = array(
+            'img'=>'',
+            'imgmd5'=>'',
+        );
+        if(isset($this->config['startup.status']) && $this->config['startup.status'] ){
+            $_imgmd5 = Pw::getPath($this->config['startup.img']);
+            if( $imgmd5!=$_imgmd5 ){
+               $data['img'] = Pw::getPath($this->config['startup.img']);
+               $data['imgmd5'] = $_imgmd5;
            }
         }
-        $this->showError('fail');
+        $this->setOutput($data, 'data');
+        $this->showMessage("success");
     }
 
     /**
