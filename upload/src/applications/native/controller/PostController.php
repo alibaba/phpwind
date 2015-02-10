@@ -78,16 +78,15 @@ class PostController extends NativeBaseController {
 
         //app发帖子不带标题,内容格式化，抓取分享链接内容，此处尚需要处理
         list($title, $content, $topictype, $subtopictype, $reply_notice, $hide, $created_address,$area_code,$share_url) = $this->getInput(array('atc_title', 'atc_content', 'topictype', 'sub_topictype', 'reply_notice', 'hide' ,'created_address','area_code','share_url'), 'post');
-        $this->runHook('c_post_run', $this->post);
-        $this->runHook('c_post_doadd', $this->post);//PwHook.php 组件调用机制完成附件上传、话题添加
-
+        
         //从内容中获得tag
         preg_match("/^(#[^#]+?#)?(.+)/i",$content, $matches);
         if( isset($matches[1]) && $matches[1] ){
             isset($matches[1]) && $_POST['tagnames'] = explode('#', trim($matches[1],'#'));
             isset($matches[2]) && $content = $matches[2];
         }
-
+        $this->runHook('c_post_run', $this->post);
+        $this->runHook('c_post_doadd', $this->post);//PwHook.php 组件调用机制完成附件上传、话题添加
         // 
 //        $title = preg_match('/\[[^\]]+\]/i',$content);
 //        $title = mb_substr(strip_tags($content), 0,15,"UTF-8");

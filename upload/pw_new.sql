@@ -84,5 +84,4 @@ CREATE TABLE `{pre}bbs_threads_weight` (
   KEY `weight` (`weight`)
 ) ENGINE=MyISAM DEFAULT CHARSET={charset};
 
-
-
+INSERT INTO {pre}user_permission_groups (`gid`, `rkey`, `rtype`, `rvalue`, `vtype`) VALUES ('3', 'allow_publish_tao', 'basic', '1', 'string');
