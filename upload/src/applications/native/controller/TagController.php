@@ -31,7 +31,7 @@ class TagController extends NativeBaseController {
         * @access public
         * @return string
          <pre>
-         /index.php?m=native&c=tag&_json=1
+         /index.php?m=native&c=tag&num=话题数目&_json=1
          response: html
          </pre>
         */
