@@ -44,7 +44,7 @@ class SpaceController extends NativeBaseController {
         //pids 默认是0； 
         $attList        = $this->_getPwNativeThreadDs()->getThreadAttach($tids, array(0) );
         $threadList     = $this->_getPwNativeThreadDs()->gather($myThreadList, $attList);
-
+        
         //
         $prev_val = '';
         $_tids = $_threadList = array();

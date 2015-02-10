@@ -98,4 +98,22 @@ class SettingController extends PwBaseController {
         $this->showError('fail');
     }
 
+    /**
+     * 注册协议
+     *
+     * @access public
+     * @return void
+     * @example
+     * </pre>
+     * /index.php?m=native&c=Setting&a=protocol
+     * </pre>
+     */
+    public function protocolAction(){
+        $config = Wekit::C('register');
+        $data = $config['protocol'];
+        $this->setOutput($data, 'data');
+        $this->showMessage("success");
+    }
+
+
 }

@@ -75,8 +75,9 @@ class PwNativeThread {
             $pic_key = $thread['tid'].'_0';
             $threadList[$key]['pic'] = isset($attList[$pic_key])?$attList[$pic_key]:array();
             //列表数据，过滤掉图片及附件url等标签
-            $threadList[$key]['content'] = preg_replace('/\[[^\]]*\]/i',' ',$threadList[$key]['content']);
-            $threadList[$key]['content'] = mb_substr($threadList[$key]['content'],0,90);
+            $_shareData = Pw::formatContent( $threadList[$key]['content'] );
+            $threadList[$key]['share'] = $_shareData['share'];
+            $threadList[$key]['content'] = mb_substr($_shareData['content'],0,90);
             //
             $threadList[$key]['created_user_avatar'] = Pw::getAvatar($threadList[$key]['created_userid'],'');
             //

@@ -342,11 +342,12 @@ class PwUbbCode {
 	}
 
     public static function parseTao($message) {
-    //public static function createTao($title, $btn_type, $price, $link, $img){
-		//echo preg_replace("/\[tao=([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]\[\/tao\]/eis", "self::createTao('\\2', '\\4', '\\3', '\\1', '\\5')", $message);
 		return preg_replace("/\[tao=([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)\]\[\/tao\]/eis", "self::createTao('\\1', '\\4', '\\3', '\\2', '\\5')", $message);
 	}
 
+    public static function parseShare($message) {
+		return preg_replace("/\[share=([^,]+),([^\]]+)\]([^\[]+)\[\/share\]/eis", "self::createShare('\\1', '\\2', '\\3')", $message);
+	}
 
 	public static function parseRemind($message, $remindUser) {
 		return preg_replace('/@([\x7f-\xff\dA-Za-z\.\_]+)(?=\s?)/ie', "self::createRemind('\\1', \$remindUser)", $message);
@@ -436,6 +437,9 @@ class PwUbbCode {
 
 		self::_startParse();
         $config->isConvertTao && $message = self::parseTao($message);
+        $message = self::parseShare($message);
+
+        //
 		strpos($message, '[s:') !== false && $message = self::parseEmotion($message);
 		$message = self::parseAttachment($message, $config);
 		self::hasTag($message, 'img') && $message = self::parseImg($message, $config->isConverImg, $config->imgWidth, $config->imgHeight, $config->imgLazy);
@@ -759,6 +763,27 @@ class PwUbbCode {
                     <dd><span class="go"><a href="'.$link.'">'.$btn_type.'</a></span></dd>
                     <dd style="clear:both;"></dd>
                     </dl>';
+        return self::_pushCode($html);
+    }
+
+    /**
+     * 解析分享 
+     * 
+     * @param mixed $link 
+     * @param mixed $img 
+     * @param mixed $title 
+     * @static
+     * @access public
+     * @return void
+     */
+    public static function createShare($link, $img, $title){
+        $link = self::escapeUrl(urldecode($link));
+        $img  = self::escapeUrl(urldecode($img));
+        $html = '
+            <dl class="shareCanvas">
+            <dt><img src="'.$img.'" /></dt>
+            <dd class="title"><a href="'.$link.'">'.$title.'</a></dd>
+            </dl>';
         return self::_pushCode($html);
     }
 
