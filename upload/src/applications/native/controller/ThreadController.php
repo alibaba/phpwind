@@ -14,7 +14,8 @@
 defined('WEKIT_VERSION') || exit('Forbidden');
 
 Wind::import('SRV:forum.bo.PwForumBo');
-Wind::import('SRV:forum.srv.PwThreadList');
+//Wind::import('SRV:forum.srv.PwThreadList');
+Wind::import('SRV:native.srv.PwNativeThreadList');
 Wind::import('APPS:native.controller.NativeBaseController');
 
 /**
@@ -83,7 +84,7 @@ class ThreadController extends NativeBaseController {
         }
         $this->_initTopictypes($fid, $type);
 
-        $threadList = new PwThreadList();//帖子列表对象
+        $threadList = new PwNativeThreadList();//帖子列表对象
         //		var_dump($threadList);exit;
         $this->runHook('c_thread_run', $threadList);
 
@@ -107,8 +108,9 @@ class ThreadController extends NativeBaseController {
             Wind::import('SRV:forum.srv.threadList.PwNewForumThread');
             $dataSource = new PwNewForumThread($pwforum);
         } else {
-            Wind::import('SRV:forum.srv.threadList.PwCommonThread');
-            $dataSource = new PwCommonThread($pwforum);//帖子列表数据接口
+//            Wind::import('SRV:forum.srv.threadList.PwCommonThread');
+            Wind::import('SRV:native.srv.PwNativeCommonThread');
+            $dataSource = new PwNativeCommonThread($pwforum);//帖子列表数据接口
         }
         //                 var_dump($dataSource);exit;//PwCommonThread对象
         $orderby != $defaultOrderby && $dataSource->setUrlArg('orderby', $orderby);
