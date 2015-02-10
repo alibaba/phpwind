@@ -311,7 +311,7 @@ $(function(){
     //生成lock文件
     file_put_contents("./data/up9xto91.lock", "pw9.1");
     $success_text = "恭喜！您的站点已成功升级至phpwind 9.1版本！
-                    感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛（http://www.phpwind.net） 
+                    感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛<a href='http://www.phpwind.net' target='_blank'>（http://www.phpwind.net）</a> 
                     ";
     showMsg($success_text);
 }
