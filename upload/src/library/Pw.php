@@ -525,7 +525,7 @@ class Pw {
     //public static function formatContent($content){
     public static function formatContent($content){
 
-        preg_match("/\[share=([^,]+),([^\]]*)\]([^\[]+)\[\/share\]/eis", $content, $share_data);
+        preg_match("/\[share=([^,]+?),([^\]]*?)\](.+?)\[\/share\]/eis", $content, $share_data);
 
         //
         $share = array();
@@ -533,7 +533,7 @@ class Pw {
             $share = array(
                 'url'=>urldecode($share_data[1]),
                 'img'=>urldecode($share_data[2]),
-                'title'=>$share_data[3],
+                'title'=>str_replace(array("[","]"), array("［","］"), $share_data[3]),
             );
         }
         $content = preg_replace('/\][^\[]+\[\/(tao|share|flash|mp3)/i', '][', $content);
