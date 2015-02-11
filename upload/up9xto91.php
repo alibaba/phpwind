@@ -4,7 +4,7 @@ if(!isset($_GET['action'])){//说明页面
 <!doctype html>
 <html>
 <head>
-<title>update phpwind9.0.1 to 9.1</title>
+<title>update phpwind9.0.1 to 9.0.1移动版</title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -13,7 +13,7 @@ if(!isset($_GET['action'])){//说明页面
     <div class="header">
         <h1 class="logo">logo</h1>
         <div class="icon_update">升级向导</div>
-        <div class="version">phpwind 9.0.1 to 9.1</div>
+        <div class="version">phpwind 9.0.1 to 9.0.1移动版</div>
     </div>
     
     <div class="main cc">
@@ -99,7 +99,7 @@ if(!isset($_GET['action'])){//说明页面
 <!doctype html>
 <html>
 <head>
-<title>update phpwind9.0.1 to 9.1</title>
+<title>update phpwind9.0.1 to 9.0.1移动版</title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -108,7 +108,7 @@ if(!isset($_GET['action'])){//说明页面
             <div class="header">
                     <h1 class="logo">logo</h1>
                     <div class="icon_update">升级向导</div>
-                    <div class="version">phpwind 9.0.1 to 9.1</div>
+                    <div class="version">phpwind 9.0.1 to 9.0.1移动版</div>
             </div>
             <div class="section">
                     <div class="step">
@@ -304,8 +304,8 @@ $(function(){
    $http_host = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:''))."/index.php?m=cron";
    $content = file_get_contents($http_host);
     //生成lock文件
-    file_put_contents("./data/up9xto91.lock", "pw9.1");
-    $success_text = "恭喜！您的站点已成功升级至phpwind 9.1版本！
+    file_put_contents("./data/up9xto91.lock", "pw9.0.1移动版");
+    $success_text = "恭喜！您的站点已成功升级至phpwind 9.0.1移动版本！
                     感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛<a href='http://www.phpwind.net' target='_blank'>（http://www.phpwind.net）</a> 
                     ";
     showMsg($success_text);
@@ -328,7 +328,7 @@ function showError($msg, $url = false) {
 <!doctype html>
 <html>
 <head>
-<title>phpwind 9.0.1 to 9.1 升级程序</title>
+<title>phpwind 9.0.1 to 9.0.1移动版 升级程序</title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -337,7 +337,7 @@ function showError($msg, $url = false) {
 		<div class="header">
 			<h1 class="logo">logo</h1>
 			<div class="icon_update">升级向导</div>
-			<div class="version">phpwind 9.0.1 to 9.1</div>
+			<div class="version">phpwind 9.0.1 to 9.0.1移动版</div>
 		</div>
 
 		<div class="success_tip cc error_tip">
@@ -363,7 +363,7 @@ function showMsg($msg) {
 <!doctype html>
 <html>
 <head>
-<title>phpwind 9.0.1 to 9.1 升级程序</title>
+<title>phpwind 9.0.1 to 9.0.1移动版 升级程序</title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -372,7 +372,7 @@ function showMsg($msg) {
 		<div class="header">
 			<h1 class="logo">logo</h1>
 			<div class="icon_update">升级向导</div>
-			<div class="version">phpwind 9.0.1 to 9.1</div>
+			<div class="version">phpwind 9.0.1 to 9.0.1移动版</div>
 		</div>
 
 		<div class="success_tip cc error_tip">
