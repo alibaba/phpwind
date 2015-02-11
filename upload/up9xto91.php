@@ -296,13 +296,15 @@ $(function(){
 
     foreach($sql_source as $sql){
         //执行sql
-        $result = mysql_query($sql) or die("Invalid query: " . mysql_error());
+        $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
     }
 
     mysql_close($con);
     //热帖权重计算
-   $http_host = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:''))."/index.php?m=cron";
-   $content = file_get_contents($http_host);
+    $dirname = dirname($_SERVER['SCRIPT_NAME']);
+    $dirname = $dirname == "\\" ? "" : $dirname;
+    $http_host = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:'')).$dirname."/index.php?m=cron";
+    file_get_contents($http_host);
     //生成lock文件
     file_put_contents("./data/up9xto91.lock", "pw9.0.1移动版");
     $success_text = "恭喜！您的站点已成功升级至phpwind 9.0.1移动版本！
