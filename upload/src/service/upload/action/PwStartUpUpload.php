@@ -64,7 +64,7 @@ class PwStartUpUpload extends PwUploadAction {
 	 */
     public function getThumbInfo($filename, $dir) {
         return array(
-            array($filename, $dir, 360, 800, 2)
+            array($filename, $dir, 720, 900, 2)
         );
 	}
 	

@@ -72,9 +72,13 @@
 
 			var img_path = _self.options.editor_path + 'themes/' + _self.options.theme + '/';
 
-			//插入网络音乐媒体
+            var aaa=dialog.find('#J_upload');
+
+            //插入
 			dialog.find('.edit_menu_btn').on('click',function(e) {
 				e.preventDefault();
+
+                console.log('----',aaa, aaa.html())
 
                 var title = $('#J_input_tao_title').val().replace(/,/g,'');
                 var link = $('#J_input_tao_link').val();
