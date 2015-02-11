@@ -72,13 +72,9 @@
 
 			var img_path = _self.options.editor_path + 'themes/' + _self.options.theme + '/';
 
-            var aaa=dialog.find('#J_upload');
-
             //插入
 			dialog.find('.edit_menu_btn').on('click',function(e) {
 				e.preventDefault();
-
-                console.log('----',aaa, aaa.html())
 
                 var title = $('#J_input_tao_title').val().replace(/,/g,'');
                 var link = $('#J_input_tao_link').val();
@@ -127,6 +123,8 @@
                     <dd><span class="go"><a href="'+link+'">'+button_type+'</a></span></dd>\
                     <dd style="clear:both;"></dd>\
                     </dl>';
+                        $('#mainForm').append('<input type="hidden" name="flashatt['+ret.data.aid+'][desc]" />');
+                        //
                         _self.insertHTML(_html);
                         _self.hideDialog();
                     }else{
