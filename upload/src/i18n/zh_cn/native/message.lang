@@ -4,7 +4,7 @@ error.openaccount.exist="该帐号已被关联"
 error.openaccount.noauth="认证不合法,请重新认证"
 error.openaccount.auth="认证合法"
 
-error.sessionkey.error="身份无效"
+error.sessionkey.error="你还没有登陆"
 
 data.success="数据发送成功"
 data.empty="数据为空"

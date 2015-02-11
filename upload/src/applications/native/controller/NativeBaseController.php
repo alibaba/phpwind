@@ -135,13 +135,6 @@ abstract class NativeBaseController extends PwBaseController {
         }
     }
 
-    public function abcAction(){
-        $lw = Wekit::load("APPS:native.service.PwLaiWangSerivce");
-        $lw->saveAppekySetting($this->_securityKey);
-        
-        exit;
-    }
-
     /**
      * 认证sessionKey是否合法 
      * 
