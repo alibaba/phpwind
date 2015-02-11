@@ -246,6 +246,14 @@ $(function(){
 
 <?php
 }else if($_GET['action']=="dorun"){//用户提交基本信息，执行升级过程
+    ignore_user_abort(true);
+    set_time_limit(0);
+    /*
+    print str_pad("", 10000);
+    @ob_flush();
+    flush();
+    sleep(5);
+     */
     //检查lock文件是否存在
     if (file_exists("./data/up9xto91.lock")) {
 	showError('升级程序已被锁定, 如需重新运行，请先删除./data/up9xto91.lock');
@@ -272,24 +280,8 @@ $(function(){
     $port = trim(substr($dsn[2],strpos($dsn[2], "=")+1));
 //    var_dump($host,$dbname,$port);exit;
 
-    
-    /*
-    isset($_POST['host']) ? $host = $_POST['host'] : $err_msg .= "host is empty!";
-    isset($_POST['username']) ? $username = $_POST['username'] : $err_msg .= "username is empty!";
-    isset($_POST['password']) ? $password = $_POST['password'] : $password = "";
-    isset($_POST['dbname']) ? $dbname = $_POST['dbname'] : $err_msg .= "dbname is empty!";
-    isset($_POST['port']) ? $port = $_POST['port'] : $err_msg .= "port is empty!";
-    isset($_POST['dbpre']) ? $dbpre = $_POST['dbpre'] : $err_msg .= "dbpre is empty!";
-    if($err_msg) {
-//        var_dump($err_msg);exit;
-        showError($err_msg);
-    }
-     * 
-     * 
-     */
-    
-    
-    $sql_source = str_replace(array("{pre}","{charset}"),array($dbpre,$charset), $sql_source);
+      
+    $sql_source = str_replace(array("{pre}","{charset}","{time}"),array($dbpre,$charset,time()), $sql_source);
 //    var_dump($sql_source);
 //    $con = mysql_connect($host.":".$port,$username,$password) or die('Could not connect: ' . mysql_error());
     $con = mysql_connect($host.":".$port,$username,$password) or showError('Could not connect: ' . mysql_error());
@@ -308,6 +300,9 @@ $(function(){
     }
 
     mysql_close($con);
+    //热帖权重计算
+   $http_host = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:''))."/index.php?m=cron";
+   $content = file_get_contents($http_host);
     //生成lock文件
     file_put_contents("./data/up9xto91.lock", "pw9.1");
     $success_text = "恭喜！您的站点已成功升级至phpwind 9.1版本！
@@ -360,7 +355,7 @@ EOT;
 }
 
 
-/*错误信息页面*/
+/*信息页面*/
 function showMsg($msg) {
 	global $action,$token;
 	

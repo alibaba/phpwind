@@ -85,3 +85,5 @@ CREATE TABLE `{pre}bbs_threads_weight` (
 ) ENGINE=MyISAM DEFAULT CHARSET={charset};
 
 INSERT INTO {pre}user_permission_groups (`gid`, `rkey`, `rtype`, `rvalue`, `vtype`) VALUES ('3', 'allow_publish_tao', 'basic', '1', 'string');
+
+INSERT INTO {pre}common_cron SET  `subject` ='热帖权重计算', `loop_type` ='now', `cron_file` ='PwCronDoUpdateWeight', `isopen` ='2', `created_time` ='{time}', `loop_daytime` ='0-2-0', `next_time` ='{time}'
