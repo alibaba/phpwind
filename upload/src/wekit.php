@@ -2,7 +2,7 @@
 define('WEKIT_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 define('WEKIT_VERSION', '0.3.9');
 define('NEXT_VERSION', '9.0.1');
-define('NEXT_RELEASE', '20141128');
+define('NEXT_RELEASE', '20141223');
 define('NEXT_FIXBUG','9000002');
 define('NATIVE_VERSION','1.0');
 defined('WIND_DEBUG') || define('WIND_DEBUG', 0);
