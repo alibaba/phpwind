@@ -18,10 +18,8 @@ class ForumListController extends NativeBaseController {
     public $article = 0;
     
     public function beforeAction($handlerAdapter) {
-//        echo 111;exit;
         parent::beforeAction($handlerAdapter);
 //        $this->checkUserSessionValid();
-//        $this->uid = 1;//测试uid
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
     }

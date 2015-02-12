@@ -248,6 +248,8 @@ $(function(){
 }else if($_GET['action']=="dorun"){//用户提交基本信息，执行升级过程
     ignore_user_abort(true);
     set_time_limit(0);
+    error_reporting(0);
+    ini_set( 'display_errors', 'Off' );
     /*
     print str_pad("", 10000);
     @ob_flush();
@@ -304,12 +306,13 @@ $(function(){
     $dirname = dirname($_SERVER['SCRIPT_NAME']);
     $dirname = $dirname == "\\" ? "" : $dirname;
     $http_host = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:'')).$dirname."/index.php?m=cron";
-    file_get_contents($http_host);
+    $http_server = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:''));
+    @file_get_contents($http_host);
     //生成lock文件
     file_put_contents("./data/up9xto91.lock", "pw9.0.1移动版");
     $success_text = "恭喜！您的站点已成功升级至phpwind 9.0.1移动版本！
                     感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛<a href='http://www.phpwind.net' target='_blank'>（http://www.phpwind.net）</a> 
-                    ";
+                    <a href='$http_server' target='_blank'>返回站点首页</a>";
     showMsg($success_text);
 }
 

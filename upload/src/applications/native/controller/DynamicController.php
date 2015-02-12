@@ -48,33 +48,6 @@ class DynamicController extends NativeBaseController {
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');
         
-        /*
-        if($res){//筛选帖子的回帖
-            $tids = array();
-            $threads = array();
-            foreach($res as $v){
-                $threads[$v['tid']] = $v;
-                $threads[$v['tid']]['replies'] = array();
-                $tids[] = $v['tid'];
-            }
-            $tids = implode(",", $tids);
-            $sql = "SELECT `tid`,`rpid`,`pid`,`replies`,`subject`,`content`,`like_count`,`sell_count`,`created_username`,`created_userid`,`created_time` 
-                    FROM `${prefix}bbs_posts` 
-                    WHERE tid IN ($tids) 
-                    ORDER BY `tid` ASC,`pid` ASC; ";
-            $replies = $dao->fetchAll($sql);
-            foreach($replies as $v){
-                $threads[$v['tid']]['replies'][] = $v;
-            }
-            $this->setOutput($res,'data');
-            $this->showMessage('NATIVE:data.success');
-//            $this->showError('USER:verifycode.error');
-        }else{//没有最热帖子
-            $this->setOutput(array(),'data');
-            $this->showMessage('NATIVE:data.empty');
-        }
-         * 
-         */
         
     }
 
@@ -208,38 +181,7 @@ class DynamicController extends NativeBaseController {
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');
         
-        /*
-        if($res){//列表页不展示回帖信息
-            
-            $tids = array();
-            $threads = array();
-            foreach($res as $v){
-                $threads[$v['tid']] = $v;
-                $threads[$v['tid']]['replies'] = array();
-                $tids[] = $v['tid'];
-            }
-            $tids = implode(",", $tids);
-            $sql = "SELECT `tid`,`rpid`,`pid`,`replies`,`subject`,`content`,`like_count`,`sell_count`,`created_username`,`created_userid`,`created_time` 
-                    FROM `${prefix}bbs_posts` 
-                    WHERE tid IN ($tids) 
-                    ORDER BY `tid` ASC,`pid` ASC; ";
-            $replies = $dao->fetchAll($sql);
-            foreach($replies as $v){
-                $threads[$v['tid']]['replies'][] = $v;
-            }
-            
-//            var_dump($threads);exit;
-//            echo json_encode(array('error'=>'','data'=>$threads));
-//            var_dump($res);exit;
-            $this->setOutput($res,'data');
-            $this->showMessage('NATIVE:new.threads');
-        }else{//没有数据
-//            echo json_encode(array('error'=>'','data'=>array()));
-            $this->setOutput(array(),'data');
-            $this->showMessage('NATIVE:data.empty');
-        }
-         * 
-         */
+        
     }
 
     /**
@@ -271,117 +213,8 @@ class DynamicController extends NativeBaseController {
     }
     
     
-    /**
-     * 每天定时计算帖子的权重值作业，此方法没用，已加入计划任务
-     * @access public
-     * @return string
-     * @example
-      <pre>
-      /index.php?m=mobile&c=dynamic&a=weight
-      post:
-      response: {err:"",data:""}
-      </pre>
-     */
-    public function weightAction(){
-//        echo ini_get('date.timezone')."<br>";
-//        echo date_default_timezone_get()."<br>";
-//        echo time()."<br>";
-//        echo date("Y-m-d H:i:s",time())."<br>";
-//        date_default_timezone_set('Asia/Shanghai');
-//        ini_set('date.timezone','Asia/Shanghai');
-//        echo ini_get('date.timezone')."<br>";
-//        echo date_default_timezone_get()."<br>";
-//        echo time()."<br>";
-//        echo date("Y-m-d H:i:s",time())."<br>";
-//        exit;
-//        echo date("Y-m-d H:i:s",1419302691);exit;
-//        var_dump(101/20,ceil(101/20));exit;
-        set_time_limit(0);
-        ignore_user_abort(true);
-        date_default_timezone_set('Asia/Shanghai');
-        $threadsWeightDao = Wekit::loadDao('native.dao.PwThreadsWeightDao');
-        $res = $threadsWeightDao->getMaxCreateTime();
-        $last_create_time = isset($res['last_create_time']) && $res['last_create_time'] ? $res['last_create_time'] : 0;
-        $current_hour = intval(date("H"));
-//        if($current_hour >= 1 && $current_hour<= 8 && time() > ($last_create_time+36000)){//作业的触发距离最后一条记录生成要大于10小时
-        if(1){//测试
-            //执行权重计算逻辑
-            $current_time = time();
-            $stop_time = $current_time-604800;//获取7天前的数据进行计算
-            $threadsWeightDao->deleteAutoData();//删除自动生成热帖数据
-            $threadsWeightDao->deleteUserData($stop_time);//删除推荐的过期热帖数据
-//            $stop_time = $current_time-1604800;//获取更早前的数据
-//            echo $stop_time;exit;
-            $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
-            //从论坛帖子列表获取指定时间内的帖子条数
-            $res = $nativeThreadsDao->getCountByTime($stop_time);
-            $threads_count = intval($res['count']);
-            $threads_count = $threads_count>1000 ? 1000 : $threads_count;//权重计算默认只取1000条
-            $num = 50;//一次处理的记录数
-            $pages = ceil($threads_count/$num);
-            //计算热帖的自然权重值，并将结果插入权重表
-            for($i=1;$i<=$pages;$i++){
-//                $starttime_test = time();
-                $page = $i;
-                $start = ($page-1)*$num;//开始位置偏移
-                $res = $nativeThreadsDao->fetchThreadsData($stop_time,$start,$num);
-                $weight_values = array();
-                if($res){
-                    foreach($res as $k=>$v){
-                        $weight = $v['like_count']*2+
-                                  $v['replies']*4+
-                                  $v['reply_like_count']+
-                                  floor(($current_time-$v['lastpost_time'])/86400)*-4+
-                                  floor(($current_time-$v['created_time'])/86400)*-20;
-//                        $res[$k]['weight'] = $weight;
-                        $weight_values[] = "({$v['tid']},$weight,$current_time,1)";
-                    }
-                    $weight_values = implode(',', $weight_values);
-                    //将权重计算结果插入权重表,表中已有数据不再重复插入
-                    $threadsWeightDao->insertValues($weight_values);
-                }
-            }
-            //获取权重表中管理员设置的热帖数量
-            $threads_count = $threadsWeightDao->getUserDataCount();
-            $threads_count = isset($threads_count['count']) ? intval($threads_count['count']) : 0;
-            $pages = ceil($threads_count/$num);
-            //将管理员设置的热帖进行自然权重计算并更新数据
-            for($i=1;$i<=$pages;$i++){
-//                $starttime_test = time();
-                $page = $i;
-                $start = ($page-1)*$num;//开始位置偏移
-                $res = $threadsWeightDao->fetchUserThreadsData($start,$num);//获取管理员设置的热帖数据计算权重
-                $weight_values = array();
-                if($res){
-                    foreach($res as $k=>$v){
-                        $weight = $v['like_count']*2+
-                                  $v['replies']*4+
-                                  $v['reply_like_count']+
-                                  floor(($current_time-$v['lastpost_time'])/86400)*-4+
-                                  floor(($current_time-$v['create_time'])/86400)*-20;
-                        $weight_values[] = "({$v['tid']},$weight,{$v['create_time']},{$v['create_userid']},'{$v['create_username']}',{$v['isenable']})";
-                    }
-                    $weight_values = implode(',', $weight_values);
-                    //将权重计算结果插入权重表,表中已有数据不再重复插入
-                    $threadsWeightDao->replaceValues($weight_values);
-                }
-            }
-            //对推荐不到2小时的数据继续置顶
-            $max_weight = $threadsWeightDao->getMaxWeight();
-            $max_weight = isset($max_weight['weight']) ? intval($max_weight['weight'])+1 : 1;
-            $threadsWeightDao->batchUpdateUserWeight($current_time-7200,$max_weight);
-            //只保留100条非用户推荐的自然计算数据
-            $res = $threadsWeightDao->getWeightByPos(99);    
-            if($res){
-                $weight = $res['weight'];
-                $threadsWeightDao->deleteByWeight($weight);
-            }
-            echo "SCRIPT EXCUTE FINISHED";
-        }else{
-            echo "SCRIPT IS EXCUTED TODAY";
-        }
-        exit;
-    }
+    
+    
     
     private function cmp($a, $b) {
         return strcmp($b["weight"], $a["weight"]);
