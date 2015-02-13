@@ -265,6 +265,9 @@ $(function(){
         showError("./src/applications/native 目录不存在,请确保升级包中文件正确覆盖，并且不要修改目录名字");
     }
         
+    $extensions = get_loaded_extensions();
+    if(!in_array("mcrypt", $extensions))showError("缺少mcrypt扩展");
+    if(!in_array("curl", $extensions))showError("缺少curl扩展");
     //执行数据库升级
     $sql_source = file_get_contents("./pw_new.sql");
 //    var_dump($sql_source);
