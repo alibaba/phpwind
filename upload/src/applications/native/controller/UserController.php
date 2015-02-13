@@ -515,8 +515,6 @@ class UserController extends NativeBaseController {
      * @return boolean
      */
     private function _showVerify() {
-        return $result = false;
-        //
         $config = Wekit::C('verify', 'showverify');
         !$config && $config = array();
         if(in_array('userlogin', $config)==true){

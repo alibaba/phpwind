@@ -7,7 +7,7 @@
 <div class="">
 
 <!--用户权限编辑添加: 添加用户-->
-<form id="J_auth_form" action="{@url:native/banner/doAdd}" method="post">
+<form id="J_auth_form" action="{@url:native/banner/doAdd}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="bid" value="{$bid}" />
         <input type="hidden" name="vieworder" value="{$banner['vieworder']}" />
         <input type="hidden" name="img" value="{$banner['img']}" />
