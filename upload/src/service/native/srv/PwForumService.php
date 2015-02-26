@@ -19,6 +19,21 @@ class PwForumService {
         $this->fids = $this->_getForumFids();
     }
 
+    /**
+     * 获得分类列表 
+     * 
+     * @access public
+     * @return void
+     */
+    public function getCategoryList(){
+        $categoryList = $this->_getForumDs()->getCommonForumList(PwForum::FETCH_MAIN | PwForum::FETCH_STATISTICS);
+        foreach($categoryList as $k=>$v){
+            if($v['type']!='category'){
+                unset($categoryList[$k]);
+            }
+        }
+        return $this->_filterForumData($categoryList);
+    }
     
     /**
      * 获所有一级版块 
@@ -71,12 +86,16 @@ class PwForumService {
         if( $forumList  ){
             foreach ($forumList as $key=>$forum) {
                 $forumList[$key] = array(
-                    'fid'=>$forum['fid'],
-                    'name'=>$forum['name'],
+                    'fid'   =>$forum['fid'],
+                    'name'  =>$forum['name'],
                     'threads'=>$forum['threads'],
                     'todayposts'=>$forum['todayposts'],
                     'article'=>$forum['article'],
-                    'posts'=>$forum['posts'],
+                    'posts' =>$forum['posts'],
+                    'icon'  =>$forum['icon']?Pw::getPath($forum['icon']):"",
+                    'logo'  =>$forum['logo']?Pw::getPath($forum['logo']):"",
+                    'fup'   =>$forum['fup'],
+                    'fupname'=>$forum['fupname'],
                     'lastpost_time'=>Pw::time2str($forum['lastpost_time'], 'auto'),
                 );  
 

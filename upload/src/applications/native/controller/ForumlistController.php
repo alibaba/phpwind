@@ -14,15 +14,76 @@ Wind::import('APPS:native.controller.NativeBaseController');
 
 class ForumListController extends NativeBaseController {
 
-    public $todayposts = 0;
-    public $article = 0;
-    
+//    public $todayposts = 0;
+ //   public $article = 0;
+
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
-//        $this->checkUserSessionValid();
+        //
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
     }
+
+    /**
+     * 频道首页 
+     * 
+     * @access public
+     * @return void
+     * @example
+     * <pre>
+     * response: /index.php?m=native&c=forumlist&a=categorylist <br>
+     * post: securityKey
+     * </pre>
+     */
+    public function categoryListAction(){
+        //
+        $_fids = array();
+        $join_forum = $this->loginUser->info['join_forum'];
+        $join_forum && $_fids = self::splitStringToArray($join_forum);
+        //
+        $myFllowForumList = $this->_getForumService()->fetchForum( array_intersect($_fids,$this->_getForumService()->fids) );
+        $categoryList = $this->_getForumService()->getCategoryList();
+
+        //
+        $data = array(
+            'myFllowForumList'=>$myFllowForumList,
+            'categoryList'=>$categoryList,
+        );
+
+        $this->setOutput($data,'data');
+        $this->showMessage('success');
+    }
+
+    /**
+     * 根据分类获得频道信息 
+     * 
+     * @access public
+     * @return void
+     * @example
+     * <pre>
+     * request: /index.php?m=native&c=forumlist&a=forumsForClass&fup=分类id
+     * </pre>
+     */
+    public function forumsForClassAction(){
+        $fup = (int)$this->getInput('fup','get');
+        if( $fup ){
+            $_fids = array();
+            $join_forum = $this->loginUser->info['join_forum'];
+            $join_forum && $_fids = self::splitStringToArray($join_forum);
+            //
+            $forumList = $this->_getForumService()->getForumList();
+            foreach($forumList as $k=>$v){
+                if( (int)$v['fup']!=$fup ){
+                    unset($forumList[$k]);
+                }else{
+                    $forumList[$k]['isjoin'] = in_array( $v['fid'],$_fids )!==false?true:false;
+                }
+            }
+        }
+        $this->setOutput($forumList,'data');
+        $this->showMessage('success');
+    }
+
 
     /**
      * 获取板块列表
@@ -59,6 +120,7 @@ class ForumListController extends NativeBaseController {
      </pre>
      */
     public function run() {
+
 //        var_dump($this->uid);exit;
         /* @var $forumDs PwForum */
         $forumDs = Wekit::load('forum.PwForum');
@@ -143,5 +205,24 @@ class ForumListController extends NativeBaseController {
         }
         return $_manage;
     }
+
+
+    /**
+     * 格式化数据  把字符串"1,版块1,2,版块2"格式化为数组
+     *
+     * @param string $string
+     * @return array
+     */
+    protected static function splitStringToArray($string) {                                                                                                     
+        $a = explode(',', $string);
+        $l = count($a);
+        $l % 2 == 1 && $l--;
+        $r = array();
+        for ($i = 0; $i < $l; $i+=2) {
+            $r[$a[$i]] = $a[$i];
+        }
+        return $r;
+    }
+
 
 }

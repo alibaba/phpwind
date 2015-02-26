@@ -37,4 +37,37 @@ class PwNativeThreadDisplay extends PwThreadDisplay {
  */
     }
 
+    /**
+     * PwUbbCodeConvertConfig 
+     * 
+     * @access protected
+     * @return void
+     */
+    protected function _bulidSellContent($message){
+        Wind::import('LIB:ubb.config.PwUbbCodeConvertConfig');
+        is_null($config) && $config = new PwUbbCodeConvertConfig();
+
+
+    //    $config->isConvertSell && self::hasTag($message, 'sell') && $message = self::parseSell($message, $config); 
+
+    }
+
+    /** 
+     * 检测内容中是否包含标签
+     *
+     * @param string $message 内容
+     * @param string $tag 标签
+     * @return bool
+     */
+    private static function hasTag($message, $tag) {                                                                                                       
+        $startTag = '[' . $tag;
+        $endTag = '[/' . $tag . ']';
+        if (strpos($message, $startTag) !== false && strpos($message, $endTag) !== false) {
+            return true;
+
+        }   
+        return false;
+    }  
+
+
 }

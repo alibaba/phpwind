@@ -51,7 +51,7 @@
 	WindEditor.plugin(pluginName,function() {
 		var _self = this;
 		var editorDoc = _self.editorDoc = _self.iframe[0].contentWindow.document,
-			plugin_icon = $('<div class="wind_icon" data-control="'+ pluginName +'"><span class="'+ pluginName +'" title="插入音乐"></span></div>').appendTo(  _self.pluginsContainer  );
+			plugin_icon = $('<div class="wind_icon" data-control="'+ pluginName +'"><span class="'+ pluginName +'" title="插入推广"></span></div>').appendTo(  _self.pluginsContainer  );
 			plugin_icon.on('click',function() {
 				if($(this).hasClass('disabled')) {
 					return;

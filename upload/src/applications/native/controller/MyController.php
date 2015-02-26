@@ -174,26 +174,6 @@ class MyController extends NativeBaseController {
     }
 
     /**
-     * 我关注的频道 
-     * @access public
-     * @return void
-     * @example
-     * <pre>
-     * /index.php?m=native&c=My&a=forum
-     * </pre>
-     */
-    public function forumAction(){
-        $userInfo = $this->_getUserDs()->getUserByUid($this->uid, PwUser::FETCH_MAIN+PwUser::FETCH_INFO+PwUser::FETCH_DATA);
-        //
-        $_fids = array();
-        $userInfo['join_forum'] && $_fids = self::splitStringToArray($userInfo['join_forum']); 
-        //
-        $forumList=$this->_getForumService()->fetchForum( array_intersect($_fids,$this->_getForumService()->fids) );
-        $this->setOutput($forumList,'data');
-        $this->showMessage('success');
-    }
-    
-    /**
      * 喜欢一个贴子 
      * 
      * @access public
@@ -406,24 +386,6 @@ class MyController extends NativeBaseController {
         $this->showMessage('success');
 
 
-    }
-
-
-    /**
-     * 格式化数据  把字符串"1,版块1,2,版块2"格式化为数组
-     *
-     * @param string $string
-     * @return array
-     */
-    protected static function splitStringToArray($string) {                                                                                                     
-        $a = explode(',', $string);
-        $l = count($a);
-        $l % 2 == 1 && $l--;
-        $r = array();
-        for ($i = 0; $i < $l; $i+=2) {
-            $r[$a[$i]] = $a[$i];
-        }
-        return $r;
     }
 
     private function _getAttentionService() {                                                                                                                    
