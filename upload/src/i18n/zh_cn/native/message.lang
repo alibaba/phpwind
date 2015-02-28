@@ -16,10 +16,14 @@ my.threads="我关注话题相关帖子列表"
 new.threads="最新帖子列表"
 
 banner.title.empty="标题不能为空"
-banner.file.empty="标题不能为空"
+banner.file.empty="文件不能为空"
 banner.link.empty="点击指向不能为空"
 banner.clickType.empty="请选择点击类型"
 banner.num.out="Banner数量超过限制"
+
+fresh.title.empty="标题不能为空"
+fresh.file.empty="文件不能为空"
+fresh.link.empty="链接不能为空"
 
 app.check.securityKey.success="认证合法"
 app.check.securityKey.failed="认证不合法"

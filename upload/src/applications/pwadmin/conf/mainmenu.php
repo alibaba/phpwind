@@ -112,6 +112,7 @@ return array(
 //    'native_laiwang' => array('云im接入', 'native/ThirdOpenPlatform/wukong', '', '', 'native'),
     'native_forum' => array('频道管理', 'native/forum/*', '', '', 'native'),
     'native_life' => array('生活服务设置', 'native/life/*', '', '', 'native'),
+    'native_life' => array('发现管理', 'native/fresh/*', '', '', 'native'),
 
 
 	//'platform_server' => array('平台首页', 'appcenter/server/run', '', '', 'platform'),

@@ -102,6 +102,23 @@ class SettingController extends PwBaseController {
     }
 
     /**
+     * 自定义发现数据 
+     * 
+     * @access public
+     * @return void
+     * <pre>
+     * /index.php?m=native&c=Setting&a=freshList <br>
+     *
+     * </pre>
+     */
+    public function freshListAction(){
+        $freshData = Wekit::loadDao('native.dao.PwFreshDao')->getFresh();
+        $this->setOutput($freshData, 'data');
+        $this->showMessage("success");
+    }
+
+
+    /**
      * 注册协议
      *
      * @access public

@@ -305,6 +305,11 @@ class MyController extends NativeBaseController {
      * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=My&a=addCollect <br>
+     * post|get : fid&tid 
+     * </pre>
      */
     public function addCollectAction(){
         $data = array(
@@ -324,6 +329,11 @@ class MyController extends NativeBaseController {
      * 
      * @access public
      * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=My&a=delCollect <br>
+     * post|get : tid 
+     * </pre>
      */
     public function delCollectAction(){
         $tid = intval($this->getInput('tid'));

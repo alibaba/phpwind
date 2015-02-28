@@ -95,23 +95,6 @@ class ReadController extends NativeBaseController {
             );
         }
 
-        /*
-        //判断用户是否购买
-        //if( $this->uid ){
-        Wind::import('SRV:forum.bo.PwThreadBo');
-        $thread = new PwThreadBo($tid);
-        $config = new PwUbbCodeConvertThread($thread, $array, $this->loginUser);
-
-        
-        print_r($config);
-
-echo 1;
-        exit;
-
-        //}
-         */
-
-
         //主题的信息
         $threadInfo = $threadDisplay->getThreadInfo();
         //帖子收藏统计
@@ -159,9 +142,9 @@ echo 1;
         //帖子发布来源
         $threadFromtypeList = $this->_getThreadsPlaceService()->getThreadFormTypeByTids(array($tid));
 
-
         //主帖的相关信息
         $simpleThreadInfo = array(
+            'uid'   =>$threadInfo['created_userid'],
             'tid'   =>$threadInfo['tid'],
             'fid'   =>$threadInfo['fid'],
             'subject'       =>$threadInfo['subject'],
