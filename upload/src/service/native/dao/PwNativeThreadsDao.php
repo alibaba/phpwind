@@ -266,7 +266,8 @@ class PwNativeThreadsDao extends PwThreadsDao {
     }
     
     public function fetchThreads($tids) {
-        if(!$this->fids || !$tids) return array();
+        //if(!$this->fids || !$tids) return array();
+        if( !$tids ) return array();
         $sql = $this->_bindSql("SELECT * FROM %s WHERE tid IN %s AND disabled=0 ORDER BY created_time DESC", $this->getTable(), $this->sqlImplode($tids));
         $smt = $this->getConnection()->createStatement($sql);
         return $smt->queryAll(array(), 'tid');

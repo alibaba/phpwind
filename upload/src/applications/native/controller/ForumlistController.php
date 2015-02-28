@@ -21,6 +21,27 @@ class ForumListController extends NativeBaseController {
         $this->loginUser->resetGid($this->loginUser->gid);
     }
 
+
+    /**
+     * 所有一级版块的列表数据 
+     * 
+     * @access public
+     * @return void
+     * <pre>
+     * /index.php?m=native&c=forumlist&a=run
+     * </pre>
+     */
+    public function run(){
+        $forumList = $this->_getForumService()->getForumList();
+        $default_forumid = Wekit::C()->getConfigByName('native','forum.fid.default');
+        $data = array(
+            'forum_list'=>array_values($forumList),
+            'fid_default'=>$default_forumid['value'],
+        );
+        $this->setOutput($data,'data');
+        $this->showMessage('success');
+    }
+
     /**
      * 频道首页 
      * 

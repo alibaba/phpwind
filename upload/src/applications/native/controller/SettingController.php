@@ -113,6 +113,9 @@ class SettingController extends PwBaseController {
      */
     public function freshListAction(){
         $freshData = Wekit::loadDao('native.dao.PwFreshDao')->getFresh();
+        foreach ($freshData as &$v) {
+            $v['img'] = $v['img']? Pw::getPath($v['img']) : "";
+        }
         $this->setOutput($freshData, 'data');
         $this->showMessage("success");
     }

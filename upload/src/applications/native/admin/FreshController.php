@@ -52,7 +52,7 @@ class FreshController extends AdminBaseController {
             $maxId = $this->_getDao()->getMaxId();
             $fname = count($maxId)?$maxId['fresh_id']+1:1;
         }
-        if( count($_FILES) ){
+        if( $_FILES ){
             Wind::import('SRV:upload.action.PwFreshUpload');                                                                                                
             Wind::import('LIB:upload.PwUpload');
             $bhv = new PwFreshUpload();
@@ -69,17 +69,17 @@ class FreshController extends AdminBaseController {
                 $this->showError('upload.fail');
             }
             $img = $data['path'].$data['filename'];
-        }elseif(empty($fid)){
-            //$this->showError('upload.empty');
         }
 
         $data=array(
             'title'=>$title,
             'href'=>$href,
-            'img'=>$img,
-            'des'=>$img,
+            'des'=>$des,
             'vieworder'=>$order,
         );
+        if( $img && $_FILES ){
+            $data['img'] = $img;
+        }
         if( $fid ){
             $this->_getDao()->updateFresh($fid,$data);
         }else{
