@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+        <title>{$threadInfo['subject']}</title>
+        <style>
+            body{font-size:1.1rem;}
+            dd,dl{margin:0; padding:0;}            
+            img{max-width:100%}
+
+            #read_body{padding:0.2rem;}
+            header{height:3.8rem;}
+            header .avatar_v{float:left; width:3rem; }
+            header dl{margin-left: 4rem;}
+            header dd{height:1.2rem;line-height:1.3rem; color:#919191;}
+
+            .thread_body{word-wrap: break-word; }
+
+
+        </style>
+    </head>
+    <body>
+        <div id="read_body">
+            <header>
+                <div class="avatar_v" ><img src="{@Pw::getAvatar($threadInfo['created_userid'],'small')}" alt="" class="per-image" /></div>
+                <dl>
+                    <dd>{$threadInfo['created_username']}</dd>
+                    <dd>{@Pw::time2str($threadInfo['created_time'],'auto')}</dd>
+                </dl>
+                <div class="clear:both;width:100%"></div>
+            </header>
+            <div class="clear:both;width:100%"></div>
+            <div class="thread_body">
+                {$threadInfo['content']|html}
+            </div>
+            <div>
+
+                <!--# if ($threadDisplay->attach && $attach = $threadDisplay->attach->getList(0)) { #-->
+                <!--# if ($attach['pic']) { #-->
+                <div class="read_attach_pic">
+                    <div class="ct">
+                        <ul class="cc big_img J_gallery_list" style="display:{@$_isShowSmall ? 'none' : ''}">
+                            <!--# foreach ($attach['pic'] as $key => $value) { #-->
+                            <li class="J_gallery_items"><span class="J_attach_img_wrap"><div class="img_info J_img_info"><!--# if ($value['descrip']) { #--><p>描述：{$value['descrip']}</p><!--# } #--><p>图片：{$value['name']}<!--# if ($threadPermission['deleteatt']) { #--><a class="J_read_img_del w" href="{@url:bbs/attach/delete}" data-pdata="{'aid':'{$value['aid']}'}">[删除]</a><!--# } #--></p></div><a data-big="{$value['url']}" href="javascript:;">{$value['img']|html}</a></span></li>
+                            <!--# } #-->
+                        </ul>
+                    </div>
+                </div>
+                <!--# } #-->
+                <!--# if ($attach['downattach']) { #-->
+                <div class="read_attach_downattach">
+                    <dl>
+                        <!--# foreach ($attach['downattach'] as $key => $value) { #-->
+                        <dd class="cc" id="J_att_{$value['aid']}">
+                            <span class="name" title="{$value['descrip']}"><span class="file_list_wrap"><span class="file_icon_{$value['ext']}"></span></span><a class="J_attach_post_buy" data-cost="<!--# if ($value['cost']) { #-->true<!--# } #-->" href="{@url:bbs/attach/download?aid=$value['aid']}" data-credit="{$loginUser->getCredit($value['ctype'])}" data-countrel="#J_attach_count_{$value['aid']}">{$value['name']}</a>&nbsp;({$value['size']}KB)&nbsp;</span>
+                            <span class="cost"><span class="" id="J_attach_count_{$value['aid']}">{$value['hits']}</span></span>
+                            <span class="time">{@Pw::time2str($value['created_time'], 'auto')}</span>
+                            <span class="operate">
+                                <!--# if ($value['cost']) { #-->
+                                售价<span class="org mr10">{$value['cost']}{$creditBo->cType[$value['ctype']]}</span><a href="{@url:bbs/attach/record?aid=$value['aid']}" title="查看记录" class="mr10 fn J_buy_record" data-aid="{$value['aid']}">[记录]</a>
+                                <!--# } #-->
+                                <!--# if ($threadPermission['deleteatt']) { #--><a class="J_attach_post_del" data-pdata="{'aid':'{$value['aid']}'}" data-rel="#J_att_{$value['aid']}" href="{@url:bbs/attach/delete}">[删除]</a><!--# } #-->
+                            </span>
+                        </dd>
+                        <!--# } #-->
+                    </dl>
+                </div>
+                <!--# } #-->
+                <!--# } #-->
+
+            </div>
+        </div>
+    </body>
+</html>
+
