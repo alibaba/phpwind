@@ -24,6 +24,19 @@ CREATE TABLE `{pre}banner` (
   KEY `idx_banner_type` (`banner_type`)
 ) ENGINE=MyISAM DEFAULT CHARSET={charset};
 
+DROP TABLE IF EXISTS `{pre}fresh_site`;
+
+CREATE TABLE `{pre}fresh_site` (
+    `fresh_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `title` varchar(50) DEFAULT NULL COMMENT '说明，标题',
+    `href` varchar(100) DEFAULT NULL COMMENT '链接',
+    `img` varchar(100) DEFAULT NULL COMMENT '图片',
+    `des` varchar(100) DEFAULT NULL COMMENT '说明',
+    `vieworder` int(10) unsigned DEFAULT NULL COMMENT '排序',
+    PRIMARY KEY (`fresh_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 DROP TABLE IF EXISTS `{pre}collect_content`;
 
 CREATE TABLE `{pre}collect_content` (

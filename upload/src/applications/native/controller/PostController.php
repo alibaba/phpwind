@@ -33,16 +33,16 @@ class PostController extends NativeBaseController {
         }
         $this->post = $this->_getPost($action);
         $this->post->user = $this->loginUser;        
-/*
+
         if (($result = $this->post->check()) !== true) {
             $error = $result->getError();
             if (is_array($error) && $error[0] == 'BBS:post.forum.allow.ttype' && ($allow = $this->post->forum->getThreadType($this->post->user))) {
                 $special = key($allow);
-                $this->forwardAction('bbs/post/run?fid=' . $this->post->forum->fid . ($special ? ('&special=' . $special) : ''));
+                //
             }
             $this->showError($error);
         }
-         */
+
 /*
         //版块风格
         $pwforum = $this->post->forum;

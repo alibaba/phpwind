@@ -70,9 +70,20 @@ class PwForumService {
      * @return void
      */
     private function _getForumFids(){
+        //所有的版块都打开
+        $_firstFormList = $this->getForumList();
+        //
+        $result = array();
+        foreach($_firstFormList as $v){
+            $result[] = $v['fid'];
+        }
+        return $result;
+
+        /*
         $config = Wekit::C()->getConfigByName('native','forum.fids');
         $fids_array = unserialize($config['value']);
         return is_array($fids_array) ? array_keys($fids_array) : array();
+         */
     }
 
     /**
