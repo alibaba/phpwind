@@ -8,12 +8,15 @@ class PwNativeThreadsDao extends PwThreadsDao {
     
     public function __construct() {
         parent::__construct();
+        /*
         $configs = Wekit::C()->getValues('native');
         $fids = isset($configs['forum.fids']) && $configs['forum.fids'] ? $configs['forum.fids'] : array();
         $fids = array_keys($fids);
         $this->fids = implode(',', $fids);
+         */
+        $this->fids = implode(',', $this->_getForumService()->fids );
     }
-    
+
     /**
      * 获取指定时间之前的帖子条数
      */
@@ -271,6 +274,10 @@ class PwNativeThreadsDao extends PwThreadsDao {
         $sql = $this->_bindSql("SELECT * FROM %s WHERE tid IN %s AND disabled=0 ORDER BY created_time DESC", $this->getTable(), $this->sqlImplode($tids));
         $smt = $this->getConnection()->createStatement($sql);
         return $smt->queryAll(array(), 'tid');
+    }
+
+    private function _getForumService(){
+        return Wekit::load('native.srv.PwForumService');
     }
 
 }
