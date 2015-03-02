@@ -303,7 +303,17 @@ $(function(){
         //执行sql
         $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
     }
-
+    //将站点所有一级版面设置为移动端可显示版面
+    $sql = "SELECT fid FROM `".$dbpre."bbs_forum` WHERE TYPE='forum'";
+    $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
+    $fids = array();
+    while ($row = mysql_fetch_array($result,MYSQL_ASSOC)) {
+        $fids[$row['fid']] = 0;
+    }
+    $fids = serialize($fids);
+//    var_dump($fids);exit;
+    $sql = "REPLACE INTO `".$dbpre."common_config` (`name`, `namespace`, `value`, `vtype`) VALUES ('forum.fids', 'native', '".$fids."', 'array');";
+    mysql_query($sql) or showError("Invalid query: " . mysql_error());
     mysql_close($con);
     //热帖权重计算
     $dirname = dirname($_SERVER['SCRIPT_NAME']);

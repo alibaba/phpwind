@@ -34,7 +34,7 @@ CREATE TABLE `{pre}fresh_site` (
     `des` varchar(100) DEFAULT NULL COMMENT '说明',
     `vieworder` int(10) unsigned DEFAULT NULL COMMENT '排序',
     PRIMARY KEY (`fresh_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET={charset};
 
 
 DROP TABLE IF EXISTS `{pre}collect_content`;
