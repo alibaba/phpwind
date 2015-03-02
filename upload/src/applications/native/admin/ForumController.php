@@ -9,10 +9,12 @@ class ForumController extends AdminBaseController {
 
     public function run() {
         $configs = Wekit::C()->getValues('native');
-
+        /*
         $fids = $this->_getForumService()->fids;
         $fids = array_flip($fids);
-        //$fids = isset($configs['forum.fids']) && $configs['forum.fids'] ? $configs['forum.fids'] : array();
+         * 
+         */
+        $fids = isset($configs['forum.fids']) && $configs['forum.fids'] ? $configs['forum.fids'] : array();
         //
         $fid_default = isset($configs['forum.fid.default']) && $configs['forum.fid.default'] ? intval($configs['forum.fid.default']) : 0;
 
