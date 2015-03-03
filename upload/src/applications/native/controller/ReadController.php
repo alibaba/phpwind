@@ -151,7 +151,7 @@ class ReadController extends NativeBaseController {
             'replies'       =>$threadInfo['replies'],
             'like_count'    =>$threadInfo['like_count'],
             'collect_count' =>isset($collectInfo[$threadInfo['tid']])?$collectInfo[$threadInfo['tid']]['sum']:0,
-            'like_status'   =>isset($threadLikeData[$tid]) && array_search($this->uid, $threadLikeData[$tid]['users'])!==false?1:0,
+            'like_status'   =>isset($threadLikeData[$tid]) && array_search($this->uid, $threadLikeData[$tid])!==false?1:0,
             'collect_status'=>isset($collectStatusInfo[$tid]) && array_search($this->uid, $collectStatusInfo[$tid])!==false?1:0,
             'display_title' =>isset($threadFromtypeList[$tid]) && $threadFromtypeList[$tid] ? 1:0,
         );

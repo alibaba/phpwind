@@ -529,6 +529,20 @@ class UserController extends NativeBaseController {
     }
 
 
+    public function abcAction(){
+
+        $wk = Wekit::load("APPS:native.service.PwLaiWangSerivce");
+        $wk->registerUser();
+
+        //$wk->saveAppekySetting($this->_securityKey);
+
+
+
+        exit;
+    }
+
+
+
     /**
      * 开放平台帐号关联ds
      * 

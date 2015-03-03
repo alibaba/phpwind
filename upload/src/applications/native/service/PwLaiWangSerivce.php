@@ -43,6 +43,51 @@ class PwLaiWangSerivce {
         }
     }
 
+
+    public function registerUser(){
+
+        $domain = 'demo';
+        $appToken = 'demo';
+        $nonce = mt_rand(100000,200000);
+        $timestamp = time();
+
+        $signature_array=array(
+            $appToken,
+            (string)$nonce,
+            (string)$timestamp,
+        );
+        $signature_array = sort($signature_array, SORT_STRING);
+        $signature= sha1(implode($signature_array));
+        $params = array(
+            'openid'   =>10001,
+            'opensecret'=>'a10001',
+            'profile'=>json_encode(
+                array(
+                    'nick'=>'qiwen',
+                    'avatar'=>'',
+                    'gender'=>1,
+                )
+            ),
+        );
+
+        $_uri = 'https://sandbox-wkapi.laiwang.com/v1/user/register';
+        $request = Wind::getComponent('httptransfer', array($_uri, 10));
+        $headers = array('Authorization'=> "Wukong nonce=\"{$nonce}\", domain=\"{$domain}\", timestamp=\"{$timestamp}\", signature_method=\"sha1\", version=\"1.0\", signature=\"{$signature}\"");
+
+        echo 111;
+
+        $result = $request->post($params, $headers);
+
+
+        print_r($result);
+
+
+        exit;
+    
+    }
+
+
+
     /**
      * qq平台认证，测试通过
      * 
