@@ -532,10 +532,17 @@ class UserController extends NativeBaseController {
     public function abcAction(){
 
         $wk = Wekit::load("APPS:native.service.PwLaiWangSerivce");
-        $wk->registerUser();
+        $uid=10001;
+        $pwd=10001;
+        $username='qiwen' ;
+        $avatar="";
+        $gender=1;
 
-        //$wk->saveAppekySetting($this->_securityKey);
 
+
+//        $wk->registerUser($uid, $pwd, $username, $avatar, $gender);
+
+        echo $wk->getSecretToken($uid,$pwd);
 
 
         exit;

@@ -12,11 +12,19 @@
 
 Wind::import('WSRV:base.WindidUtility');
 Wind::import('WIND:http.session.WindSession');
+Wind::import('WIND:security.WindMcryptDes');
 
 class PwLaiWangSerivce {
 
     //const PW_CREATER_URI = 'http://10.101.81.197:8030/api/getlaiwanginfo?siteurl=http%3A%2F%2F10.101.81.197%3A8001%2Fphpwind%2Fupload';
     const PW_CREATER_URI = 'http://10.101.81.197:8030';
+
+    const WK_API_REGISTER= 'https://sandbox-wkapi.laiwang.com/v1/user/register';
+
+    const WK_ORG = 'phpwind';
+    const WK_APP_TOKEN = 'demo';
+    const WK_DOMAIN = 'demo';
+
 
     //
     function __construct(){
@@ -44,107 +52,74 @@ class PwLaiWangSerivce {
     }
 
 
-    public function registerUser(){
-
-        $domain = 'demo';
-        $appToken = 'demo';
+    /**
+     * 来往用户注册 
+     * 
+     * @param mixed $uid 
+     * @param mixed $pwd 
+     * @param mixed $username 
+     * @param mixed $avatar 
+     * @param mixed $gender 
+     * @access public
+     * @return void
+     */
+    public function registerUser($uid, $pwd, $username, $avatar, $gender){
         $nonce = mt_rand(100000,200000);
         $timestamp = time();
-
+        //
         $signature_array=array(
-            $appToken,
+            self::WK_APP_TOKEN,
             (string)$nonce,
             (string)$timestamp,
         );
-        $signature_array = sort($signature_array, SORT_STRING);
+        sort($signature_array, SORT_STRING);
+
         $signature= sha1(implode($signature_array));
         $params = array(
-            'openid'   =>10001,
-            'opensecret'=>'a10001',
+            'openid'   =>$uid,
+            'opensecret'=>$pwd,
             'profile'=>json_encode(
                 array(
-                    'nick'=>'qiwen',
-                    'avatar'=>'',
-                    'gender'=>1,
+                    'nick'=>$username,
+                    'avatar'=>$avatar,
+                    'gender'=>$gender,
                 )
             ),
         );
-
-        $_uri = 'https://sandbox-wkapi.laiwang.com/v1/user/register';
-        $request = Wind::getComponent('httptransfer', array($_uri, 10));
-        $headers = array('Authorization'=> "Wukong nonce=\"{$nonce}\", domain=\"{$domain}\", timestamp=\"{$timestamp}\", signature_method=\"sha1\", version=\"1.0\", signature=\"{$signature}\"");
-
-        echo 111;
-
+        $request = Wind::getComponent('httptransfer', array(self::WK_API_REGISTER, 2));
+        $headers = array('Authorization'=> "Wukong nonce=\"{$nonce}\", domain=\"".self::WK_DOMAIN."\", timestamp=\"{$timestamp}\", signature_method=\"sha1\", version=\"1.0\", signature=\"{$signature}\"");
         $result = $request->post($params, $headers);
-
-
-        print_r($result);
-
-
-        exit;
-    
+        if( $result ){
+            $result = json_decode($request, true);
+            if( $result['success']==true ){
+               return true; 
+            }
+        }
+        return false; 
     }
 
-
-
     /**
-     * qq平台认证，测试通过
+     * 生成来往用户的SecretToken 
      * 
      * @access public
      * @return void
      */
-    public function qqAuthInfo(){
-        /*
-        //
-        $this->_appid   = $this->_third_platform_conf[$this->third_platform_name.'.appId'];
-        $this->_appkey  = $this->_third_platform_conf[$this->third_platform_name.'.appKey'];
+    public function getSecretToken($openId, $openSecret){
+        $appSecret = 'B1CC50C442D96B3ACA920616D95C64B2';
+        $params = array(
+            'org'   =>self::WK_ORG,
+            'domain'=>self::WK_DOMAIN,
+            'appKey'=>'815678BC16A624B292E4FA6C79A818D7',
+            'openId'=>$openId,
+            'openSecret'=>$openSecret,
+        );
+        
+        $query = http_build_query( $params );
 
-        //step 1
-        $_access_token = $this->_session->get($this->third_platform_name.'_access_token');
-        if( empty($_access_token) ){
-            $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['access_token_uri'],$this->_appid,$this->_appkey,$this->auth_code,$this->native_name);
-            $_access_token_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
-            parse_str($_access_token_result, $_args);
-            if( isset($_args['access_token']) ){
-                $_access_token = $_args['access_token'];
-                $this->_session->set($this->third_platform_name.'_access_token', $_access_token);
-            }
-        }
-        //step 2
-        if( $_access_token ){
-         */
-        if( $this->access_token ){
-            $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['openid'],$this->access_token);
-            $_openid_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
-            if( !empty($_openid_result) ){
-                $_openid_result = substr($_openid_result, 9, count($_openid_result)-4);
-                $_openid_result = json_decode($_openid_result,true);
-                if( isset($_openid_result['openid']) ){
-                    //step 3
-                    $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['userinfo_uri'],$this->access_token, $_openid_result['client_id'],$_openid_result['openid']);
-                    $_userinfo_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
-                    $_userinfo_result = json_decode($_userinfo_result,true);
-                }else{
-                    $_userinfo_result = null;
-                }
-                //
-                if( isset($_userinfo_result['ret']) && $_userinfo_result['ret']==0  ){
-                    $info = array(
-                        'uid'       =>md5($_userinfo_result['figureurl_qq_2']),
-                        'username'  =>$_userinfo_result['nickname'],
-                        'gender'    =>$_userinfo_result['gender']=='男'?0:1,
-                        'avatar'    =>$_userinfo_result['figureurl_qq_2'],
-                    );
-                    unset($_userinfo_result);
-                }
-            }
-        }
-        /*
-        if( empty($info) || !isset($info) ){
-            $this->_session->delete($this->third_platform_name.'_access_token');
-        }
-         */
-        return $info;
+
+        $desLib = new WindMcryptDes();
+        return $desLib->encrypt($query, $appSecret);
     }
+
+
 }
