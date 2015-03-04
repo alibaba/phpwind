@@ -63,16 +63,11 @@ final class WindHttpCurl extends AbstractWindHttp {
 		if ($this->data) {
 			switch (strtoupper($method)) {
 				case 'GET':
-					$_url = WindUrlHelper::argsToUrl($this->data);
-					$url = parse_url($this->url);
-					$this->url .= (isset($url['query']) ? '&' : '?') . $_url;
+					$this->url .= (isset($url['query']) ? '&' : '?') . is_array($this->data)?http_build_query($this->data):$this->data;
 					break;
-				case 'POST':
-					$this->request(CURLOPT_POST, 1);
-					$data = array();
-					$this->_resolvedData($this->data, $data);
-					//$this->request(CURLOPT_POSTFIELDS, $data);
-					$this->request(CURLOPT_POSTFIELDS, http_build_query($data));
+                case 'POST':
+                    $this->request(CURLOPT_POST, 1);
+                    $this->request(CURLOPT_POSTFIELDS, is_array($this->data)?http_build_query($this->data):$this->data );
 					break;
 				default:
 					break;
@@ -110,6 +105,10 @@ final class WindHttpCurl extends AbstractWindHttp {
 		$this->followLocation();
 		return $this->response();
 	}
+
+    public function setData($data){
+        $this->data = $data;
+    }
 
 	/**
 	 * 解析post data使其支持数组格式传递

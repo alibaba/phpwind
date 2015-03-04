@@ -7,52 +7,55 @@
  * @lastchange: 2015-03-03 20:17:32
  * @desc: 
  **/
-
 Wind::import('WIND:security.IWindSecurity');
+
 class WindMcryptDes implements IWindSecurity {
 
-    public function encrypt($string, $key) {
-        $size = mcrypt_get_block_size('des', 'ecb');
-        $input = $this->pkcs5_pad($string, $size);
-        $td = mcrypt_module_open('des', '', 'ecb', ''); 
-        //$iv = @mcrypt_create_iv (mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-        $iv = @mcrypt_create_iv (mcrypt_enc_get_iv_size($td));
-        @mcrypt_generic_init($td, $key, $iv); 
+    public function encrypt($input, $key) {
+        $input = $this->pkcs5_pad($input);
+        $td = mcrypt_module_open(MCRYPT_3DES, '', MCRYPT_MODE_ECB, '');
+        mcrypt_generic_init($td, substr($key,0,24), '00000000');
         $data = mcrypt_generic($td, $input);
         mcrypt_generic_deinit($td);
-        mcrypt_module_close($td); 
-        $data = base64_encode($data); 
-        return $data; 
+        mcrypt_module_close($td);
+        return base64_encode($data);
     }
 
-    public function decrypt($string, $key ) {
-        $encrypted = base64_decode($string); 
-        $td = mcrypt_module_open('des','','ecb',''); 
-        //使用MCRYPT_DES算法,cbc模式
-        //$iv = @mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-        $iv = @mcrypt_create_iv(mcrypt_enc_get_iv_size($td));
-        $ks = mcrypt_enc_get_key_size($td); 
-        @mcrypt_generic_init($td, $key, $iv); 
-        //初始处理
-        $decrypted = mdecrypt_generic($td, $encrypted); 
-        //解密
-        mcrypt_generic_deinit($td); 
-        //结束
-        mcrypt_module_close($td); 
-        $y=$this->pkcs5_unpad($decrypted);
-        return $y;
+    public function decrypt($input, $key ) {
+        $encrypted = base64_decode($input);
+        $td = mcrypt_module_open(MCRYPT_3DES, '', MCRYPT_MODE_ECB, '');
+        mcrypt_generic_init($td, substr($key,0,24), '00000000');
+        $decrypted = mdecrypt_generic($td, $encrypted);
+        mcrypt_generic_deinit($td);
+        mcrypt_module_close($td);
+        $decrypted = $this->pkcs5_unpad($decrypted);
+        return $decrypted;
     } 
-    private function pkcs5_pad ($text, $blocksize) {
-        $pad = $blocksize - (strlen($text) % $blocksize); 
-        return $text . str_repeat(chr($pad), $pad); 
+
+    private function pkcs5_pad ($source) {
+        $block = mcrypt_get_block_size(MCRYPT_3DES, MCRYPT_MODE_ECB);
+        $pad = $block - (strlen($source) % $block);
+        if ($pad <= $block) {
+            $char = chr($pad);
+            $source .= str_repeat($char, $pad);
+        }
+        return $source;
     } 
-    private function pkcs5_unpad($text) { 
-        $pad = ord($text{strlen($text)-1}); 
-        if ($pad > strlen($text))
-            return false; 
-        if (strspn($text, chr($pad), strlen($text) - $pad) != $pad) 
-            return false; 
-        return substr($text, 0, -1 * $pad); 
+
+    private function pkcs5_unpad($source) { 
+        $char = substr($source, -1, 1);
+        $num = ord($char);
+        if ($num > 8) {
+            return $source;
+        }
+        $len = strlen($source);
+        for ($i = $len - 1; $i >= $len - $num; $i--) {
+            if (ord(substr($source, $i, 1)) != $num) {
+                return $source;
+            }
+        }
+        $source = substr($source, 0, -$num);
+        return $source;
     }
 } 
 
