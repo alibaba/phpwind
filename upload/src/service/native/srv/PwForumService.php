@@ -37,6 +37,7 @@ class PwForumService {
             if($this->life_fid && ($v['fid']==$this->life_fid || $v['parentid']==$this->life_fid)){
                 unset($categoryList[$k]);
             }
+            $categoryList[$k]['name'] = strip_tags($v['name']);
         }
         return $this->_filterForumData($categoryList);
     }
@@ -56,6 +57,7 @@ class PwForumService {
             if($this->life_fid && $v['parentid']==$this->life_fid){
                 unset($forumList[$k]);
             }
+            $forumList[$k]['name'] = strip_tags($v['name']);
         }
         return $this->_filterForumData($forumList);
     }
