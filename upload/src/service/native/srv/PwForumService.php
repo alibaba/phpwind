@@ -14,8 +14,11 @@ class PwForumService {
      * 从配置中获得移动端显示版块fids
      */ 
     public $fids=array();
+    public $life_fid = 0;
 
     public function __construct(){
+        $config = Wekit::C()->getConfigByName('native','forum.life_fid');
+        $this->life_fid = isset($config['value']) ? $config['value'] : 0;
         $this->fids = $this->_getForumFids();
     }
 
@@ -28,7 +31,10 @@ class PwForumService {
     public function getCategoryList(){
         $categoryList = $this->_getForumDs()->getCommonForumList(PwForum::FETCH_MAIN | PwForum::FETCH_STATISTICS);
         foreach($categoryList as $k=>$v){
-            if($v['type']!='category'){
+            if($v['type']!='category' || $v['isshow']==0){
+                unset($categoryList[$k]);
+            }
+            if($this->life_fid && ($v['fid']==$this->life_fid || $v['parentid']==$this->life_fid)){
                 unset($categoryList[$k]);
             }
         }
@@ -44,7 +50,10 @@ class PwForumService {
     public function getForumList(){
         $forumList = $this->_getForumDs()->getCommonForumList(PwForum::FETCH_MAIN | PwForum::FETCH_STATISTICS);
         foreach($forumList as $k=>$v){
-            if($v['type']!='forum'){
+            if($v['type']!='forum' || $v['isshow']==0){
+                unset($forumList[$k]);
+            }
+            if($this->life_fid && $v['parentid']==$this->life_fid){
                 unset($forumList[$k]);
             }
         }
