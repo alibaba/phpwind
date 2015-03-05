@@ -52,6 +52,9 @@ class FreshController extends AdminBaseController {
             $maxId = $this->_getDao()->getMaxId();
             $fname = count($maxId)?$maxId['fresh_id']+1:1;
         }
+        if( !$fid && !$_FILES ){
+            $this->showError('upload.empty');
+        }
         if( $_FILES ){
             Wind::import('SRV:upload.action.PwFreshUpload');                                                                                                
             Wind::import('LIB:upload.PwUpload');

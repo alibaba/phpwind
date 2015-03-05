@@ -13,15 +13,15 @@
         <input type="hidden" name="img" value="{$oneFresh['img']}" />
 <div>
     <div class="pop_cont">
-        <div class="mb15"><h4 class="mb5">名称</h4><input name="title" type="text" value="{$oneFresh['title']}" class="input" style="width:200px;"></div>
-        <div class="mb15"><h4 class="mb5">链接</h4>
+        <div class="mb15"><h4 class="mb5"><span class="red">*</span>logo(150*150、jpg、png)</h4>
+            <input type="file" name="Filename" value="" />
+        </div>
+        <div class="mb15"><h4 class="mb5"><span class="red">*</span>名称</h4><input name="title" type="text" value="{$oneFresh['title']}" class="input" style="width:200px;"></div>
+        <div class="mb15"><h4 class="mb5"><span class="red">*</span>目标链接</h4>
             <input name="href" type="text" class="input" value="{$oneFresh['href']}" style="width:396px;">
         </div>
-        <div class="mb15"><h4 class="mb5">说明</h4>
+        <div class="mb15"><h4 class="mb5">备注</h4>
             <input name="des" type="text" class="input" value="{$oneFresh['des']}" style="width:396px;">
-        </div>
-        <div class="mb15"><h4 class="mb5">上传文件(64*64、jpg、png)</h4>
-            <input type="file" name="Filename" value="" />
         </div>
 	</div>
 	<div class="pop_bottom cc">

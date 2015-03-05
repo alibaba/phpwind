@@ -18,20 +18,23 @@ class PwLaiWangSerivce {
 
     //debug
     const PW_CREATER_URI        = 'http://10.101.81.197:8030';
-    const WK_TIMEOUT = 2;
+    const WK_TIMEOUT            = 2;
     const WK_API_REGISTER       = 'https://sandbox-wkapi.laiwang.com/v1/user/register';
     const WK_API_UPDATE_SECRET  = 'https://sandbox-wkapi.laiwang.com/v1/user/update/secret';
     const WK_API_UPDATE_PROFILE = 'https://sandbox-wkapi.laiwang.com/v1/user/profile/update';
     const WK_API_SELECT_PROFILE = 'https://sandbox-wkapi.laiwang.com/v1/user/profile';
     const WK_API_PUSH_MESSAGE   = 'https://sandbox-wkapi.laiwang.com/v1/notification/user';
+    public static $wk_setting      = array(
+        'org'       =>'demo',
+        'domain'    =>'demo',
+        'appKey'    =>'815678BC16A624B292E4FA6C79A818D7',
+        'openid'    =>0,   //openid
+        'secretToken'=>'',  //用户需要这个登录来往
+    );
+    public static $wk_appToken = 'demo';
+    public static $wk_appSecret= 'B1CC50C442D96B3ACA920616D95C64B2';
 
-    private static $wk_org      = 'demo';
-    private static $wk_domain   = 'demo';
-    private static $wk_appToken = 'demo';
-    private static $wk_appKey   = '815678BC16A624B292E4FA6C79A818D7';
-    private static $wk_appScret = 'B1CC50C442D96B3ACA920616D95C64B2';
-
-
+    //online
     //const PW_CREATER_URI        = 'http://phpwind.aliyun.com';
     //const WK_TIMEOUT = 2;
     //const WK_API_REGISTER       = 'https://wkapi.laiwang.com/v1/user/register';
@@ -39,16 +42,32 @@ class PwLaiWangSerivce {
     //const WK_API_UPDATE_PROFILE = 'https://wkapi.laiwang.com/v1/user/profile/update';
     //const WK_API_SELECT_PROFILE = 'https://wkapi.laiwang.com/v1/user/profile';
     //const WK_API_PUSH_MESSAGE   = 'https://wkapi.laiwang.com/v1/notification/user';
-
+    //public static $wk_setting      = array(
+    //    'org'       =>'',
+    //    'domain'    =>'',
+    //    'appKey'    =>'',
+    //    'openid'    =>0,   //openid
+    //    'secretToken'=>'',  //用户需要这个登录来往
+    //);
+    //public static $wk_appToken = '';
+    //public static $wk_appSecret= '';
 
     function __construct(){
         $_config = Wekit::C()->getValues('wukong');
-        //
-        //self::$wk_org       = $_config['org'];
-        //self::$wk_domain    = $_config['demain'];
-        //self::$wk_appToken  = $_config['appToken'];
-        //self::$wk_appKey    = $_config['android.appKey'];
-        //self::$wk_appScret  = $_config['android.appSecret'];
+        if( empty($_config) ){
+            $_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
+            self::saveAppekySetting($_securityKey['value']);
+        }else{
+            $_config['appKey']  = $_config['android.appKey'];
+            self::$wk_appToken  = $_config['appToken'];
+            self::$wk_appSecret = $_config['android.appSecret'];
+            //
+            unset($_config['android.appKey']);
+            unset($_config['android.appSecret']);
+            unset($_config['appToken']);
+            //
+            self::$wk_setting = $_config;
+        }
     }
 
     /**
@@ -179,10 +198,7 @@ class PwLaiWangSerivce {
             'timeToLive'=>10,
             'param'     =>array('key'=>''),
         );
-
         $params = json_encode($params);
-//        $params['content']  = json_encode($params['content']);
- //       $params['param']    = json_encode($params['param']);
         return self::request(self::WK_API_PUSH_MESSAGE, $params);
     }
 
@@ -194,17 +210,16 @@ class PwLaiWangSerivce {
      */
     public static function getSecretToken($openId, $openSecret){
         $params = array(
-            'org'   =>self::$wk_org,
-            'domain'=>self::$wk_domain,
-            'appKey'=>self::$wk_appkey,
-            'openId'=>$openId,
+            'org'   =>self::$wk_setting['org'],
+            'domain'=>self::$wk_setting['domain'],
+            'appKey'=>self::$wk_setting['appKey'],
+            'openId'    =>$openId,
             'openSecret'=>$openSecret,
         );
         $query = http_build_query( $params );
         $desLib = new WindMcryptDes();
-        return $desLib->encrypt($query, self::$wk_appScret);
+        return $desLib->encrypt($query, self::$wk_appSecret);
     }
-
 
     /**
      * 向来往发起请求 
@@ -229,7 +244,6 @@ class PwLaiWangSerivce {
         return false; 
     }
 
-
     /**
      * 生成认证信息 
      * 
@@ -249,7 +263,5 @@ class PwLaiWangSerivce {
         $signature= sha1(implode($signature_array));
         return "Wukong nonce=\"{$nonce}\", domain=\"".self::$wk_domain."\", timestamp=\"{$timestamp}\", signature_method=\"sha1\", version=\"1.0\", signature=\"{$signature}\"";
     }
-
-
 
 }

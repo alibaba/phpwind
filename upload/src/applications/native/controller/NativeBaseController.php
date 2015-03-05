@@ -23,6 +23,10 @@ abstract class NativeBaseController extends PwBaseController {
         $this->_securityKey = $_config_securityKey['value'];
         //
         $this->authSessionKey();
+        //
+        //更新来往appKey&appSecret
+        $this->_getLaiWangSerivce();
+
 	}
 
     /**
@@ -78,16 +82,21 @@ abstract class NativeBaseController extends PwBaseController {
         );
         $securityKey = Pw::encrypt( serialize($_idInfo), $this->_securityKey);
 
+        //laiwang
+        $wk_setting = PwLaiWangSerivce::$wk_setting;
+        $wk_setting['openid']       = $_userInfo['uid'];
+        $wk_setting['secretToken']  = PwLaiWangSerivce::getSecretToken($_userInfo['uid'], $_userInfo['password']);
+
         //返回数据
         $_data = array(
             'securityKey'=>$securityKey,
-            'userinfo'=>array(
+            'userinfo'   =>array(
                 'uid'=>$_userInfo['uid'],
                 'username'=>$_userInfo['username'],
-                //'avatar'=>Pw::getAvatar($_userInfo['uid'],''),
                 'avatar'=>Pw::getAvatar($_userInfo['uid'],'big'),
                 'gender'=>$_userInfo['gender'],
             ),
+            'laiwangSetting'=>$wk_setting,
         ); 
         return $_data;
     }
@@ -251,6 +260,10 @@ abstract class NativeBaseController extends PwBaseController {
 
     protected function _getUserDs(){
         return Wekit::load('user.PwUser');
+    }
+
+    protected function _getLaiWangSerivce(){
+        return Wekit::load("APPS:native.service.PwLaiWangSerivce");
     }
 
 

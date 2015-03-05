@@ -24,7 +24,7 @@ Wind::import('APPS:native.controller.NativeBaseController');
 class UserController extends NativeBaseController {
 
 	public function beforeAction($handlerAdapter) {
-		parent::beforeAction($handlerAdapter);
+        parent::beforeAction($handlerAdapter);
 	}
 
     /**
@@ -41,6 +41,7 @@ class UserController extends NativeBaseController {
      </pre>
      */
     public function checkLoginStatusAction(){
+
         $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
         if( $this->isLogin() ){
             $data = array_merge($this->_getUserInfo(),$data) ;
@@ -177,6 +178,8 @@ class UserController extends NativeBaseController {
 		if (($info = $registerService->register()) instanceof PwError) {
 			$this->showError($info->getError());
         } else {
+            PwLaiWangSerivce::registerUser($info['uid'], $info['username'], $info['password'], '', 1); 
+            //
             if (1 == Wekit::C('register', 'active.mail')) {
                 $this->showMessage('USER:active.sendemail.success');
             } else {
@@ -359,6 +362,8 @@ class UserController extends NativeBaseController {
             if( $this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type'])==false ){
                 $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
                 //
+                PwLaiWangSerivce::registerUser($info['uid'], $info['username'], $info['password'], Pw::getAvatar($info['uid'],'big'), $accountData['gender']); 
+                //
                 $this->uid=$info['uid'];
                 $userdata = $this->_getUserInfo($info['uid']);
                 $this->setOutput($userdata,'data');
@@ -419,6 +424,10 @@ class UserController extends NativeBaseController {
                     }
                 } 
             }
+            //
+            $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
+            PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
+            //
             $this->showMessage('success');
         }
         $this->showMessage('operate.fail');
@@ -446,6 +455,9 @@ class UserController extends NativeBaseController {
         if ($result instanceof PwError) {
             $this->showError($result->getError());
         }else{
+            $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
+            PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
+            //
             PwSimpleHook::getInstance('profile_editUser')->runDo($dm);
             $this->showMessage('USER:user.edit.profile.success');
         }
@@ -484,10 +496,11 @@ class UserController extends NativeBaseController {
         $userDs = Wekit::load('user.PwUser');
         if (($result = $userDs->editUser($userDm, PwUser::FETCH_MAIN)) instanceof PwError) {
             $this->showError($result->getError());
-
         }
-        //$userdata = $this->_getUserInfo($this->uid);
-        //$this->setOutput($userdata,'data');
+        //
+        $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
+        PwLaiWangSerivce::updateSecret($this->uid, $_userInfo['password']);
+        //
         $this->showMessage('USER:pwd.change.success');
     }
 
@@ -527,34 +540,6 @@ class UserController extends NativeBaseController {
         }
         return $result;
     }
-
-
-    public function abcAction(){
-
-        $wk = Wekit::load("APPS:native.service.PwLaiWangSerivce");
-        $uid= 3;
-        $username='qiwen' ;
-        $pwd='111111';
-        $avatar="";
-        $gender=1;
-
-        /*
-        PwLaiWangSerivce::registerUser($uid, $pwd, $username, $avatar, $gender);
-        PwLaiWangSerivce::registerUser($uid, $pwd, $username, $avatar, $gender);
-        PwLaiWangSerivce::selectProfile($uid);
-
-        PwLaiWangSerivce::updateSecret($uid, $pwd);
-
-        echo PwLaiWangSerivce::getSecretToken($uid,$pwd);
-         */
-
-        PwLaiWangSerivce::pushMessage($uid,'12222','333');
-
-
-        exit;
-    }
-
-
 
     /**
      * 开放平台帐号关联ds
