@@ -114,6 +114,34 @@ class FreshController extends AdminBaseController {
         $this->showMessage('success', 'native/Fresh/run', true);
     }
 
+    /**
+     * 开关设置 
+     * 
+     * @access public
+     * @return void
+     */
+    public function customAction(){
+        $config = Wekit::C()->getValues('freshSetting');
+        $this->setOutput($config, 'info');
+    }
+
+    /**
+     * 保存自定义开关 
+     * 
+     * @access public
+     * @return void
+     */
+    public function doCustomAction(){
+        list($hotTopic, $lifeService, $sameCity) = $this->getInput( array('hotTopic','lifeService','sameCity') );
+        $config = new PwConfigSet('freshSetting');
+        $config
+            ->set('hotTopic',$hotTopic)
+            ->set('lifeService',$lifeService)
+            ->set('sameCity',$sameCity)
+            ->flush();
+        $this->showMessage('success', 'native/Fresh/custom', true);
+    }
+
     private function _getDao(){
         return Wekit::loadDao('native.dao.PwFreshDao'); 
     }

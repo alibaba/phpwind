@@ -26,8 +26,9 @@ class WindMcryptCbc implements IWindSecurity {
 		
 		$size = mcrypt_get_block_size(MCRYPT_DES, MCRYPT_MODE_CBC);
 		$iv = substr(md5($iv ? $iv : $key), -$size);
-		$pad = $size - (strlen($string) % $size);
-		$string .= str_repeat(chr($pad), $pad);
+        $pad = $size - (strlen($string) % $size);
+        $key = substr($key, 0, $size);
+        $string .= str_repeat(chr($pad), $pad);
 		return mcrypt_cbc(MCRYPT_DES, $key, $string, MCRYPT_ENCRYPT, $iv);
 	}
 
@@ -46,6 +47,7 @@ class WindMcryptCbc implements IWindSecurity {
 		
 		$size = mcrypt_get_block_size(MCRYPT_DES, MCRYPT_MODE_CBC);
 		$iv = substr(md5($iv ? $iv : $key), -$size);
+        $key = substr($key, 0, $size);
 		$str = mcrypt_cbc(MCRYPT_DES, $key, $string, MCRYPT_DECRYPT, $iv);
 		$pad = ord($str{strlen($str) - 1});
 		if ($pad > strlen($str)) return false;

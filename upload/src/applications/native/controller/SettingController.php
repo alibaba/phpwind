@@ -101,14 +101,31 @@ class SettingController extends PwBaseController {
         $this->showMessage("success");
     }
 
+
+    /**
+     * android发现页显示模块开关配置 
+     * 
+     * @access public
+     * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=Setting&a=freshSetting
+     * </pre>
+     */
+    public function freshSettingAction(){
+        $config = Wekit::C()->getValues('freshSetting');
+        $this->setOutput($config, 'data');
+        $this->showMessage("success");
+    }
+
     /**
      * 自定义发现数据 
      * 
      * @access public
      * @return void
+     * @example
      * <pre>
-     * /index.php?m=native&c=Setting&a=freshList <br>
-     *
+     * /index.php?m=native&c=Setting&a=freshList
      * </pre>
      */
     public function freshListAction(){
@@ -119,7 +136,6 @@ class SettingController extends PwBaseController {
         $this->setOutput($freshData, 'data');
         $this->showMessage("success");
     }
-
 
     /**
      * 注册协议

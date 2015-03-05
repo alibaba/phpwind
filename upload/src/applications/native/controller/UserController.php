@@ -105,6 +105,14 @@ class UserController extends NativeBaseController {
 
         //
         $this->uid=$isSuccess['uid'];
+
+        //
+        $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
+        PwLaiWangSerivce::updateSecret($this->uid, $_userInfo['password']);
+        PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
+
+        //
+        $this->uid=$isSuccess['uid'];
         $this->setOutput( $this->_getUserInfo(), 'data');
         $this->showMessage('USER:login.success');
     }
@@ -424,10 +432,6 @@ class UserController extends NativeBaseController {
                     }
                 } 
             }
-            //
-            $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
-            PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
-            //
             $this->showMessage('success');
         }
         $this->showMessage('operate.fail');
@@ -455,9 +459,6 @@ class UserController extends NativeBaseController {
         if ($result instanceof PwError) {
             $this->showError($result->getError());
         }else{
-            $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
-            PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
-            //
             PwSimpleHook::getInstance('profile_editUser')->runDo($dm);
             $this->showMessage('USER:user.edit.profile.success');
         }
@@ -497,11 +498,26 @@ class UserController extends NativeBaseController {
         if (($result = $userDs->editUser($userDm, PwUser::FETCH_MAIN)) instanceof PwError) {
             $this->showError($result->getError());
         }
-        //
-        $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
-        PwLaiWangSerivce::updateSecret($this->uid, $_userInfo['password']);
-        //
         $this->showMessage('USER:pwd.change.success');
+    }
+
+
+    /**
+     * 检测一个openid在悟空是否注册 
+     * 
+     * @access public
+     * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=user&a=checkLaiwangUser&uid=1
+     * </pre> 
+     */
+    public function checkLaiwangUserAction(){
+        $openid = $this->getInput('uid');
+        $result = PwLaiWangSerivce::selectProfile($openid);
+        //
+        $this->setOutput($result, 'data');
+        $this->showMessage('success');
     }
 
     /**

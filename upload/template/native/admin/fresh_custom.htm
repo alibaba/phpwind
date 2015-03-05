@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<div class="wrap">
+
+<div class="nav">
+    <ul class="cc">
+        <li ><a href="{@url:native/fresh/run}">基本设置</a></li>
+		<li class="current"><a href="{@url:native/fresh/custom}">自定义设置</a></li>
+	</ul>
+</div>
+
+<form class="J_ajaxForm" action="{@url:native/fresh/doCustom}" method="post">
+<div class="table_full">
+	<table width="100%">
+		<col width="th" />
+		<col width="400"/>
+		<col />
+		
+        <tr>
+            <th>热点话题</th>
+            <td>
+                <ul class="switch_list cc">
+                    <li><label><input type="radio" name="hotTopic" value="1" {@Pw::ifcheck($info['hotTopic'])}><span>开启</span></label></li>
+                    <li><label><input type="radio" name="hotTopic" value="0" {@Pw::ifcheck(!$info['hotTopic'])}><span>关闭</span></label></li>
+                </ul>
+            </td>
+            <td><div class="fun_tips"></div></td>
+        </tr>
+        <tr>
+            <th>生活服务</th>
+            <td>
+                <ul class="switch_list cc">
+                    <li><label><input type="radio" name="lifeService" value="1" {@Pw::ifcheck($info['lifeService'])}><span>开启</span></label></li>
+                    <li><label><input type="radio" name="lifeService" value="0" {@Pw::ifcheck(!$info['lifeService'])}><span>关闭</span></label></li>
+                </ul>
+            </td>
+            <td><div class="fun_tips"></div></td>
+        </tr>
+        <tr>
+            <th>同城会</th>
+            <td>
+                <ul class="switch_list cc">
+                    <li><label><input type="radio" name="sameCity" value="1" {@Pw::ifcheck($info['sameCity'])}><span>开启</span></label></li>
+                    <li><label><input type="radio" name="sameCity" value="0" {@Pw::ifcheck(!$info['sameCity'])}><span>关闭</span></label></li>
+                </ul>
+            </td>
+            <td><div class="fun_tips"></div></td>
+        </tr>
+
+
+	</table>
+</div>
+<div class="btn_wrap">
+	<div class="btn_wrap_pd" id="J_sub_wrap">
+   <button type="submit" class="btn btn_submit J_ajax_submit_btn">提交</button>
+	</div>
+</div>
+{$csrf_token}
+</form>
+	
+</div>
+<template source='TPL:admin.common.footer' />
+<script>
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <?php
 /**
- * 来往接入的通讯服务
+ * 来往(悟空)接入的通讯服务
  *
  * @fileName: PwLaiWangSerivce.php
  * @author: dongyong<dongyong.ydy@alibaba-inc.com>
@@ -235,8 +235,7 @@ class PwLaiWangSerivce {
         $request->setHeader($headers);
         $result = $request->send('POST');
         if( $result ){
-            echo $result;
-            $result = json_decode($request, true);
+            $result = json_decode($result, true);
             if( $result['success']==true ){
                 return true; 
             }
@@ -261,7 +260,7 @@ class PwLaiWangSerivce {
         );
         sort($signature_array, SORT_STRING);
         $signature= sha1(implode($signature_array));
-        return "Wukong nonce=\"{$nonce}\", domain=\"".self::$wk_domain."\", timestamp=\"{$timestamp}\", signature_method=\"sha1\", version=\"1.0\", signature=\"{$signature}\"";
+        return "Wukong nonce=\"{$nonce}\", domain=\"".self::$wk_setting['domain']."\", timestamp=\"{$timestamp}\", signature_method=\"sha1\", version=\"1.0\", signature=\"{$signature}\"";
     }
 
 }
