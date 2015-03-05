@@ -33,9 +33,11 @@ class PwForumService {
         foreach($categoryList as $k=>$v){
             if($v['type']!='category' || $v['isshow']==0){
                 unset($categoryList[$k]);
+                continue;
             }
             if($this->life_fid && ($v['fid']==$this->life_fid || $v['parentid']==$this->life_fid)){
                 unset($categoryList[$k]);
+                continue;
             }
             $categoryList[$k]['name'] = strip_tags($v['name']);
         }
@@ -53,9 +55,11 @@ class PwForumService {
         foreach($forumList as $k=>$v){
             if($v['type']!='forum' || $v['isshow']==0){
                 unset($forumList[$k]);
+                continue;
             }
             if($this->life_fid && $v['parentid']==$this->life_fid){
                 unset($forumList[$k]);
+                continue;
             }
             $forumList[$k]['name'] = strip_tags($v['name']);
         }
@@ -106,6 +110,7 @@ class PwForumService {
      */
     private function _filterForumData($forumList){
         if( $forumList  ){
+            $vieworder = array();
             foreach ($forumList as $key=>$forum) {
                 $forumList[$key] = array(
                     'fid'   =>$forum['fid'],
@@ -118,11 +123,13 @@ class PwForumService {
                     'logo'  =>$forum['logo']?Pw::getPath($forum['logo']):"",
                     'fup'   =>$forum['fup'],
                     'fupname'=>$forum['fupname'],
+                    'vieworder'=>intval($forum['vieworder']),
                     'lastpost_time'=>Pw::time2str($forum['lastpost_time'], 'auto'),
                 );  
-
+                $vieworder[] = intval($forum['vieworder']);
             }   
         }
+        array_multisort($vieworder,SORT_ASC,$forumList);
         return $forumList; 
     }
 
