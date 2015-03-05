@@ -518,7 +518,7 @@ class Pw {
 	}
 
     /**
-     * 格式化移动端帖子内容去除ubb标签、分享链接内容、推广链接内容
+     * 格式化移动端帖子内容去除ubb标签、分享链接内容、推广链接内容、去除html标签
      * @param str $content
      * @return array
      */
@@ -536,8 +536,8 @@ class Pw {
                 'title'=>str_replace(array("[","]"), array("［","］"), $share_data[3]),
             );
         }
-        $content = preg_replace('/\][^\[]+\[\/(tao|share|flash|mp3)/i', '][', $content);
-        $content = preg_replace('/\[[^\]]*\]/i',' ',$content);
+        $content = preg_replace('/\][^\[]+\[\/(tao|share|flash|mp3|img)/i', '][', $content);
+        $content = preg_replace('/\[[^\]]*\]/i',' ',  strip_tags($content));
         ///$content = str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim(Wekit::load('forum.srv.PwThreadService')->displayContent($content,1,array(),strlen($content)),'.')); //过滤ubb标签  
 
         return array("share"=>$share,"content"=>$content);
