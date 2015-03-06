@@ -1,6 +1,6 @@
 <?php
 /**
- * 移动端banner管理
+ * 移动端发现管理
  *
  * @fileName: FreshController.php
  * @author: dongyong<dongyong.ydy@alibaba-inc.com>
@@ -24,7 +24,6 @@ class FreshController extends AdminBaseController {
     }
 
     public function addAction(){
-
         $fid = $this->getInput('fid','get');
         $oneFresh = $this->_getDao()->getOneFresh($fid);
 
@@ -33,6 +32,12 @@ class FreshController extends AdminBaseController {
         $this->setOutput( $oneFresh, 'oneFresh');
     }
 
+    /**
+     * 发存修改一个发现数据 
+     * 
+     * @access public
+     * @return void
+     */
     public function doAddAction(){
         list($fid,$title,$href,$des,$vieworder) = $this->getInput(array('fid','title','href','des','vieworder'));
         $title  = trim($title);
@@ -92,7 +97,7 @@ class FreshController extends AdminBaseController {
     }
 
     /**
-     * 删除 
+     * 删除一个发现 
      * 
      * @access public
      * @return void
