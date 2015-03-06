@@ -15,12 +15,16 @@ Wind::import('SRV:like.PwLikeContent');
 
 class MyController extends NativeBaseController {
 
+    protected $userInfo = array();
+
     /**
      * global post: securityKey
      */
     public function beforeAction($handlerAdapter) {
         parent::beforeAction($handlerAdapter);
         $this->checkUserSessionValid();
+        //
+        $this->userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN);
     }
     
     /**
@@ -48,6 +52,12 @@ class MyController extends NativeBaseController {
         if ($result instanceof PwError) {
             $this->showError($result->getError());
         }   
+
+        //
+        $push_msg = $this->userInfo['username']. '关注了你';
+        PwLaiWangSerivce::pushMessage($uid, $push_msg, $push_msg);  
+
+        //
         $this->showMessage('success');
     }
 
@@ -71,6 +81,11 @@ class MyController extends NativeBaseController {
 		if ($result instanceof PwError) {
 			$this->showError($result->getError());
 		}
+        //
+        $push_msg = $this->userInfo['username']. '取消关注了你';
+        PwLaiWangSerivce::pushMessage($uid, $push_msg, $push_msg);  
+
+        //
 		$this->showMessage('success');
     }
 
@@ -199,6 +214,12 @@ class MyController extends NativeBaseController {
         $resource = $this->_getLikeService()->addLike($userBo, $typeid, $fromid);
         if ($resource instanceof PwError) $this->showError($resource->getError());
 
+        //
+        $thread = Wekit::load('forum.PwThread')->getThread($tid);
+        $push_msg = '《'.$thread['subject'].'》已被 '.$this->userInfo['username']. '喜欢'; 
+        PwLaiWangSerivce::pushMessage($thread['created_userid'], $push_msg, $push_msg); 
+
+        //
         $needcheck = false;
         if($resource['extend']['needcheck'])  $needcheck = false;
         $data['likecount'] = $resource['likecount'];
@@ -216,7 +237,10 @@ class MyController extends NativeBaseController {
         $logid = (int) $this->getInput('logid');
         if (!$logid) $this->showError('BBS:like.fail');
         $resource = $this->_getLikeService()->delLike($this->uid, $logid);
-        if ($resource) $this->showMessage('BBS:like.success');
+        
+        if ($resource) {
+            $this->showMessage('BBS:like.success');
+        }
         $this->showError('BBS:like.fail');
     }
 
@@ -319,6 +343,10 @@ class MyController extends NativeBaseController {
             'created_time'=>time(),
         );
         if( $this->_getCollectService()->addCollect($data)!==false ){
+            $thread = Wekit::load('forum.PwThread')->getThread($tid);
+            $push_msg = '《'.$thread['subject'].'》已被 '.$this->userInfo['username']. '收藏'; 
+            PwLaiWangSerivce::pushMessage($thread['created_userid'], $push_msg, $push_msg); 
+            //
             $this->showMessage('success');
         }
         $this->showError('fail');
@@ -338,6 +366,10 @@ class MyController extends NativeBaseController {
     public function delCollectAction(){
         $tid = intval($this->getInput('tid'));
         if( $this->_getCollectService()->delCollect($this->uid, $tid)!==false ){
+            $thread = Wekit::load('forum.PwThread')->getThread($tid);
+            $push_msg = '《'.$thread['subject'].'》已被 '.$this->userInfo['username']. '取消收藏'; 
+            PwLaiWangSerivce::pushMessage($thread['created_userid'], $push_msg, $push_msg); 
+            //
             $this->showMessage('success');
         }
         $this->showError('fail');

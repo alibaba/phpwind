@@ -26,7 +26,6 @@ abstract class NativeBaseController extends PwBaseController {
         //
         //更新来往appKey&appSecret
         $this->_getLaiWangSerivce();
-
 	}
 
     /**

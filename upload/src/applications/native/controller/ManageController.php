@@ -66,9 +66,9 @@ class ManageController extends NativeBaseController {
 
         $this->manage->execute();
         $sendnotice = $this->getInput('sendnotice');
-        if ($sendnotice) {
+//        if ($sendnotice) {
             $this->_sendMessage($action, $this->manage->getData());
-        }  
+ //       }  
         $this->showMessage('operate.success');
     }
 
@@ -200,6 +200,22 @@ class ManageController extends NativeBaseController {
      * send messages
      */
     protected function _sendMessage($action, $threads) {
+        switch($action){
+        case 'doban':
+            foreach ($threads as $v) {
+                $push_msg = '您的帐号已被禁止发布、禁止头像、禁止签名限制。';
+                PwLaiWangSerivce::pushMessage($v['created_userid'], $push_msg, $push_msg);
+            }
+            return;
+            break;
+        case 'dodelete_reply':
+            foreach ($threads as $v) {
+                $push_msg = "《".mb_substr($v['content'],0,30)."》 回复已被删除";
+                PwLaiWangSerivce::pushMessage($v['created_userid'], $push_msg, $push_msg);
+            }
+            return;
+            break;
+        }
         if (!is_array($threads) || !$threads || !$action || $action == 'doban') return false;
         $noticeService = Wekit::load('message.srv.PwNoticeService');
         $reason = $this->getInput('reason');
@@ -220,7 +236,11 @@ class ManageController extends NativeBaseController {
                 $tmp && $params['manageTypeString'] = implode(',', $tmp);
             } else {
                 $params['manageTypeString'] = $this->_getManageActionName($action);
-            }   
+            }
+            //laiwang   
+            $push_msg = "《{$params['manageThreadTitle']}》被删除。";
+            PwLaiWangSerivce::pushMessage($threads['created_userid'], $push_msg, $push_msg);
+            //
             $noticeService->sendNotice($thread['created_userid'], 'threadmanage', $thread['tid'], $params);
         }   
     } 

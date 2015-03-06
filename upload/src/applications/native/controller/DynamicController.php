@@ -23,8 +23,6 @@ class DynamicController extends NativeBaseController {
         $this->loginUser = new PwUserBo($this->uid);
         $this->loginUser->resetGid($this->loginUser->gid);
     }
-
-    
     
     /**
      * 获取最热帖子列表
@@ -47,8 +45,6 @@ class DynamicController extends NativeBaseController {
         $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'threads_list'=>$threads_list);
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');
-        
-        
     }
 
     /**
@@ -64,7 +60,8 @@ class DynamicController extends NativeBaseController {
     public function setHotAction() {
         $tid = $this->getInput('tid');
         $tid = (int)$tid;
-        if ($this->uid && $tid) {
+
+        if ($this->uid && $tid && array_search(3,$this->loginUser->groups)!==false ) {
             $threadsWeightDao = Wekit::loadDao('native.dao.PwThreadsWeightDao');
 
             //获取帖子最高权重，将其作为管理员推送帖子的初始权重置顶
@@ -86,6 +83,10 @@ class DynamicController extends NativeBaseController {
                 $res = $threadsWeightDao->insertValue($data);
             }
             if($res){
+                $thread = Wekit::load('forum.PwThread')->getThread($tid);
+                $push_msg = '《'.$thread['subject'].'》已被推荐热贴'; 
+                PwLaiWangSerivce::pushMessage($thread['created_userid'], $push_msg, $push_msg); 
+                //
                 $this->showMessage('NATIVE:sethot.success');
             }else{
                 $this->showMessage('NATIVE:sethot.failed');

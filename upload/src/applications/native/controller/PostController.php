@@ -162,6 +162,10 @@ class PostController extends NativeBaseController {
         //记录回帖位置信息
         $data = array('pid'=>$pid,'created_address'=>$created_address,'area_code'=>$area_code);
         $res = Wekit::loadDao('native.dao.PwPostsPlaceDao')->insertValue($data);
+        //
+        $push_msg = '《'.$info['subject'].'》已被 '.$this->loginUser->info['username']. '回复'; 
+        PwLaiWangSerivce::pushMessage($info['created_userid'], $push_msg, $push_msg); 
+        //
         $this->showMessage('success');
     }
 
