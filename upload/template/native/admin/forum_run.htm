@@ -9,6 +9,22 @@
         <div class="wrap">
             <!--# if ($forums) { #-->
             <form class="J_ajaxForm" action="{@url:native/forum/doEdit}" method="post">
+                <div class="h_a">* 默认频道：<span class="red">移动端用户发帖时，如未选择任何版面则默认发到此版面</span></div>
+                
+                <div class="home_info">
+                <select name="fid_default">
+                            <option value="0">请选择默认板块</option>
+                <!--# 
+                    foreach($forums as $v) {  
+                        if($v['isdefault']){
+                #-->
+                            <option value="{$v['fid']}" selected>{$v['name']}</option>
+                        <!--# }else{ #-->
+                            <option value="{$v['fid']}">{$v['name']}</option>
+                        <!--# } #-->
+                <!--# } #-->
+                </select>
+                </div>
                 
                 <div class="h_a">*动态最新、最热数据来自于以下版面：</div>
                 <div class="table_list">
@@ -18,44 +34,43 @@
                             </colgroup>
                             <!--# 
                             $i = 0;
-                            foreach($forums as $v) { 
-                                $checked = $v['isdefault'] != -1 ? 'checked' : '';
-                                $disabled = $v['isdefault'] != -1 ? '' : 'disabled';
+                            foreach($categories as $value) { 
                             #-->
-                            
                             <tbody>
                             <tr>
                                 <td>
-                                    <input type="checkbox" name="forums[{$i}][fid]" {$checked} value="{$v['fid']}" text="{$v['name']}"/>
-                                    <input type="text" name="forums[{$i}][order]" {$disabled} class="input mr5" style="width:25px;" value="{$v['order']}"/>
-                                    {$v['name']}&nbsp;&nbsp;
+                                    <input type="checkbox" value="{$value['fid']}" text="{$value['name']}" name="category"/>
+                                    {$value['name']}&nbsp;&nbsp;
                                 </td>
                             </tr>
                             </tbody>
+                                <!--# 
+                                foreach($value['forums'] as $v) { 
+                                    $checked = $v['checked'] ? 'checked' : '';
+                                    $disabled = $v['checked'] ? '' : 'disabled';
+                                #-->
+
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="checkbox" name="forums[{$i}][fid]" {$checked} value="{$v['fid']}" text="{$v['name']}" id="forum{$value['fid']}_{$v['fid']}"/>
+                                        <input type="hidden" name="forums[{$i}][order]" class="input mr5" style="width:25px;" value="0"/>
+                                        {$v['name']}&nbsp;&nbsp;
+                                    </td>
+                                </tr>
+                                </tbody>
+                                <!--# 
+                                $i++;
+                                } 
+                                #-->
                             <!--# 
-                            $i++;
                             } 
                             #-->
                          
                     </table>               
                 </div>
                 
-                <div class="h_a">* 默认频道：<span class="red">移动端用户发帖时，如未选择任何版面则默认发到此版面</span></div>
-                
-                <div class="home_info">
-                <select name="fid_default">
-                            <option value="0">请选择默认板块</option>
-                <!--# 
-                    foreach($forums as $v) {  
-                        if($v['isdefault'] == 0){
-                #-->
-                            <option value="{$v['fid']}">{$v['name']}</option>
-                        <!--# }else if($v['isdefault'] == 1){ #-->
-                            <option value="{$v['fid']}" selected>{$v['name']}</option>
-                        <!--# } #-->
-                <!--# } #-->
-                </select>
-                </div>
                 <div class="btn_wrap">
                         <div class="btn_wrap_pd">
                                 <button type="submit" class="btn btn_submit">保存</button>
@@ -72,6 +87,7 @@
     </body>
     <script type="text/javascript">
         $(document).ready(function(){
+            /*
             $("input[type='checkbox']").bind('click',function(){
                 //alert($(this).attr('value')+'----'+$(this).attr('checked'));
                 var fid = $(this).attr('value');
@@ -84,6 +100,15 @@
                     $("select[name='fid_default'] option[value='"+fid+"']").remove(); 
                 }
             });
+            */
+           $("input[name='category']").bind('click',function(){
+               var cat_id = $(this).attr('value');
+               if($(this).attr('checked') == 'checked'){
+                    $("input[id^='forum"+cat_id+"_']").attr("checked","checked");
+                }else{
+                    $("input[id^='forum"+cat_id+"_']").attr("checked",false);
+                }
+           });
             
             $(".btn_submit").bind("click",function(){
                 if($("[name='fid_default']").val()==0){

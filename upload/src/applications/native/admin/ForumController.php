@@ -15,17 +15,52 @@ class ForumController extends AdminBaseController {
          * 
          */
         $fids = isset($configs['forum.fids']) && $configs['forum.fids'] ? $configs['forum.fids'] : array();
-        //
+        $life_fid = isset($configs['forum.life_fid']) && $configs['forum.life_fid'] ? $configs['forum.life_fid'] : 0;
         $fid_default = isset($configs['forum.fid.default']) && $configs['forum.fid.default'] ? intval($configs['forum.fid.default']) : 0;
 
         //获取允许在移动端展示的一级板块
         $forums = Wekit::load('forum.PwForum')->getCommonForumList(PwForum::FETCH_MAIN | PwForum::FETCH_STATISTICS);
+        $categories = array();
         $forums_life = Wekit::loadDao('native.dao.PwForumLifeDao')->fetchForumLifeList();//批量获取生活服务版块用于过滤
         
-        foreach($forums as $k=>$v){//过滤非1级版块以及生活服务板块
-            if($v['type']!='forum' || array_key_exists($k, $forums_life)) unset($forums[$k]);
+        $vieworder = array();
+        foreach($forums as $v){
+            $vieworder[] = $v['vieworder'];
         }
-
+        array_multisort($vieworder,SORT_ASC, $forums);
+        foreach($forums as $k=>$v){//过滤非分类、非1级版块、以及生活服务板块          
+            if($v['type']=="category" && $v['fid']!=$life_fid){//分类
+                $categories[$k] = $v;
+                $categories[$k]['name'] = strip_tags($v['name']);
+                unset($forums[$k]);
+            }else if($v['type']=='forum' && !array_key_exists($v['fid'], $forums_life)){//一级版块
+                $forums[$k]['name'] = strip_tags($v['name']);
+                if(intval($v['fid']) === $fid_default){
+                    $forums[$k]['isdefault'] = true;//移动端发帖默认版面
+                }else{
+                    $forums[$k]['isdefault'] = false;
+                }
+                if (array_key_exists($v['fid'], $fids)) {
+                    $forums[$k]['checked'] = true;//允许在移动端展示的版面，并设置可见
+                }else{
+                    $forums[$k]['checked'] = false;//允许在移动端展示的版面，但不可见
+                }          
+            }else{//其他
+                unset($forums[$k]);
+            }
+        }
+//        var_dump($forums);exit;
+        //格式化分类下的一级版块
+        foreach($categories as $k=>$v){
+            $categories[$k]['forums'] = array();
+            foreach($forums as $forum_key=>$forum_value){
+                if($v['fid']==$forum_value['parentid']){
+                    $categories[$k]['forums'][$forum_key] = $forum_value;
+                }
+            }
+        }
+//        var_dump($categories);exit;
+        /*
         $orders = array();
         $forums_tmp = array();
         foreach($forums as $k=>$v){//从版块列表中筛选归类
@@ -47,7 +82,10 @@ class ForumController extends AdminBaseController {
         }
         array_multisort($orders,SORT_ASC, $forums);
         $forums = array_merge($forums,$forums_tmp);
+         * 
+         */
         $this->setOutput($forums, 'forums');
+        $this->setOutput($categories, 'categories');
     }
     
     public function doEditAction(){
@@ -55,7 +93,7 @@ class ForumController extends AdminBaseController {
         $forums = array();
         if(isset($_POST['forums']) && $_POST['forums']){
             foreach($_POST['forums'] as $v){
-                $forums[intval($v['fid'])] = intval($v['order']);
+                isset($v['fid']) ? $forums[intval($v['fid'])] = intval($v['order']):"";
             }
         }
         $fid_default = isset($_POST['fid_default']) && $_POST['fid_default'] ? intval($_POST['fid_default']) : 0;
