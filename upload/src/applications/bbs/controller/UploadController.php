@@ -73,6 +73,41 @@ class UploadController extends PwBaseController {
 	}
 
     /**
+     * 淘宝推广图片 
+     * 
+     * @access public
+     * @return void
+     */
+    public function dotaoAction(){
+        if (!$user = $this->_getUser()) {
+            $this->showError('login.not');
+        }
+        $fid = $this->getInput('fid', 'post');
+        //
+        $this->_accpetUploadForH5();
+        //
+        Wind::import('SRV:upload.action.PwTaoUpload');
+        Wind::import('LIB:upload.PwUpload');
+        $bhv = new PwTaoUpload();
+        $bhv->filename = date('YmdHis');
+        //
+        $upload = new PwUpload($bhv);
+        if (($result = $upload->check()) === true) {
+            $result = $upload->execute();
+        }
+        if ($result !== true) {
+            $this->showError($result->getError());
+        }
+        if (!$data = $bhv->getAttachInfo()) {
+            $this->showError('upload.fail');
+        }
+        $data['path'] = Pw::getPath($data['path'].$data['filename']);
+        // 
+        $this->setOutput($data, 'data');
+        $this->showMessage('upload.success');
+    }
+
+    /**
      * 对h5上传图片支持 
      * 
      * @access protected

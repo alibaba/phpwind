@@ -105,7 +105,7 @@
                 formData.append('Filedata', new Blob([btoa('.')],{type:'image/jpeg'}),'t.jpg');
                 formData.append('Filename', document.getElementById("imgBrowser").toDataURL('image/jpeg') );
                 $.ajax({
-                    url:ATTACH_CONFIG.uploadUrl,
+                    url:ATTACH_CONFIG.uploadUrl.replace('a=dorun','a=dotao'),
                     type:'post',
                     dataType:'json',
                     timeout: 3000,
@@ -123,7 +123,7 @@
                     <dd><span class="go"><a href="'+link+'">'+button_type+'</a></span></dd>\
                     <dd style="clear:both;"></dd>\
                     </dl>';
-                        $('#mainForm').append('<input type="hidden" name="flashatt['+ret.data.aid+'][desc]" />');
+                        //$('#mainForm').append('<input type="hidden" name="flashatt['+ret.data.aid+'][desc]" />');
                         //
                         _self.insertHTML(_html);
                         _self.hideDialog();
