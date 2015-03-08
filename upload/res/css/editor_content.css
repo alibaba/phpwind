@@ -435,5 +435,9 @@ $Id: editor_content.css 24233 2013-01-23 06:36:49Z yanchixia $
 .taobaoCanvas .title{font-size:14px;font-weight:bold;min-height:30px;}
 .taobaoCanvas .price{font-weight:bold;color:#fc7600;margin-bottom:5px}
 
+/**分享**/
+.shareCanvas{min-height:50px; border:1px solid #f7f7f7;background:#f7f7f7 right top no-repeat;} 
+.shareCanvas img{width:52px; height:52px; margin-right:3px; vertical-align:middle;} 
+.shareCanvas a{color:#0069ec;} 
 
 

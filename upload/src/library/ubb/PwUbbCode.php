@@ -346,7 +346,7 @@ class PwUbbCode {
 	}
 
     public static function parseShare($message) {
-		return preg_replace("/\[share=([^,]+),([^\]]+)\]([^\[]+)\[\/share\]/eis", "self::createShare('\\1', '\\2', '\\3')", $message);
+		return preg_replace("/\[share=([^,]+),([^\]]*)\]([^\[]+)\[\/share\]/eis", "self::createShare('\\1', '\\2', '\\3')", $message);
 	}
 
 	public static function parseRemind($message, $remindUser) {
@@ -778,12 +778,16 @@ class PwUbbCode {
      */
     public static function createShare($link, $img, $title){
         $link = self::escapeUrl(urldecode($link));
-        $img  = self::escapeUrl(urldecode($img));
+        if( $img=="" ){
+            $img = Wekit::getGlobal('url', 'res').'/images/editor/link.png';
+        }else{
+            $img = self::escapeUrl(urldecode($img));
+        }
         $html = '
-            <dl class="shareCanvas">
-            <dt><img src="'.$img.'" /></dt>
-            <dd class="title"><a href="'.$link.'">'.$title.'</a></dd>
-            </dl>';
+            <div class="shareCanvas">
+            <img src="'.$img.'" align="absmiddle" />
+            <a href="'.$link.'" target="_blank">'.$title.'</a>
+            </div>';
         return self::_pushCode($html);
     }
 

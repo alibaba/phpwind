@@ -207,26 +207,30 @@ class ReadController extends NativeBaseController {
         $this->showMessage('success');
     }
 
+    /**
+     * 分享到其它平台使用的链接 
+     * 
+     * @access public
+     * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=read&a=sharePage&tid=21
+     * </pre>
+     */
     public function sharePageAction(){
         $tid = intval($this->getInput('tid','get'));
         list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
         
         $threadDisplay = new PwThreadDisplay($tid, $this->loginUser);
-        //$threadDisplay = new PwNativeThreadDisplay($tid, $this->loginUser);
         $this->runHook('c_read_run', $threadDisplay);
 
         if (($result = $threadDisplay->check()) !== true) {
             $this->showError($result->getError());
         }
 
-        if ($uid) {
-            Wind::import('SRV:forum.srv.threadDisplay.PwUserRead');
-            $dataSource = new PwUserRead($threadDisplay->thread, $uid);
-        } else {
-            Wind::import('SRV:forum.srv.threadDisplay.PwCommonRead');
-            $dataSource = new PwCommonRead($threadDisplay->thread);
-        }
-        
+        Wind::import('SRV:forum.srv.threadDisplay.PwCommonRead');
+        $dataSource = new PwCommonRead($threadDisplay->thread);
+
         //数据分页
         $perpage = $pwforum->forumset['readperpage'] ? $pwforum->forumset['readperpage'] : Wekit::C('bbs', 'read.perpage');
         $dataSource->setPage($page)
@@ -242,7 +246,10 @@ class ReadController extends NativeBaseController {
         $threadInfo['content'] = preg_replace('/onclick="([^"]+)"/i','',$threadInfo['content']);
         $threadInfo['content'] = str_replace('style="max-width:700px;"','',$threadInfo['content']);
 
+        //帖子数据列表
+        //        $threadList = $threadDisplay->getList();
 
+        $this->setOutput(Wekit::getGlobal('url', 'res'), 'resPath');
         $this->setOutput($threadInfo,'threadInfo');
         $this->setOutput($threadDisplay, 'threadDisplay'); 
         $this->setOutput(PwCreditBo::getInstance(), 'creditBo'); 
