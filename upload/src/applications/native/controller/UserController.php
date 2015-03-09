@@ -108,6 +108,7 @@ class UserController extends NativeBaseController {
 
         //
         $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
+        PwLaiWangSerivce::registerUser($this->uid, $_userInfo['password'], $_userInfo['username'], Pw::getAvatar($this->uid,'big'), $_userInfo['gender']);
         PwLaiWangSerivce::updateSecret($this->uid, $_userInfo['password']);
         PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
 
@@ -186,7 +187,7 @@ class UserController extends NativeBaseController {
 		if (($info = $registerService->register()) instanceof PwError) {
 			$this->showError($info->getError());
         } else {
-            PwLaiWangSerivce::registerUser($info['uid'], $info['username'], $info['password'], '', 1); 
+            PwLaiWangSerivce::registerUser($info['uid'], $info['password'], $info['username'], '', 1); 
             //
             if (1 == Wekit::C('register', 'active.mail')) {
                 $this->showMessage('USER:active.sendemail.success');

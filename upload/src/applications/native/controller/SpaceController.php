@@ -80,6 +80,7 @@ class SpaceController extends NativeBaseController {
 
         //
         $data = array(
+            'uid'       =>$this->uid,
             'userInfo'  =>isset($space->spaceUser)
             ?array(
                 'username'  =>$space->spaceUser['username'],

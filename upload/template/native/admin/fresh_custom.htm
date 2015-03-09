@@ -9,7 +9,7 @@
 <div class="nav">
     <ul class="cc">
         <li ><a href="{@url:native/fresh/run}">基本设置</a></li>
-		<li class="current"><a href="{@url:native/fresh/custom}">自定义设置</a></li>
+		<li class="current"><a href="{@url:native/fresh/custom}">精彩推荐自定义设置</a></li>
 	</ul>
 </div>
 
@@ -50,7 +50,16 @@
             </td>
             <td><div class="fun_tips"></div></td>
         </tr>
-
+        <tr>
+            <th>精彩推荐</th>
+            <td>
+                <ul class="switch_list cc">
+                    <li><label><input type="radio" name="goodRecommend" value="1" {@Pw::ifcheck($info['goodRecommend'])}><span>开启</span></label></li>
+                    <li><label><input type="radio" name="goodRecommend" value="0" {@Pw::ifcheck(!$info['goodRecommend'])}><span>关闭</span></label></li>
+                </ul>
+            </td>
+            <td><div class="fun_tips"></div></td>
+        </tr>
 
 	</table>
 </div>

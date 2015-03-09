@@ -17,7 +17,7 @@ Wind::import('WIND:security.WindMcryptDes');
 class PwLaiWangSerivce {
 
     //debug
-    const PW_CREATER_URI        = 'http://10.101.81.197:8030';
+    //const PW_CREATER_URI        = 'http://10.101.81.197:8030';
     const WK_TIMEOUT            = 2;
     const WK_API_REGISTER       = 'https://sandbox-wkapi.laiwang.com/v1/user/register';
     const WK_API_UPDATE_SECRET  = 'https://sandbox-wkapi.laiwang.com/v1/user/update/secret';
@@ -35,7 +35,7 @@ class PwLaiWangSerivce {
     public static $wk_appSecret= 'B1CC50C442D96B3ACA920616D95C64B2';
 
     //online
-    //const PW_CREATER_URI        = 'http://phpwind.aliyun.com';
+    const PW_CREATER_URI        = 'http://phpwind.aliyun.com';
     //const WK_TIMEOUT = 2;
     //const WK_API_REGISTER       = 'https://wkapi.laiwang.com/v1/user/register';
     //const WK_API_UPDATE_SECRET  = 'https://wkapi.laiwang.com/v1/user/update/secret';

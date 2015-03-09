@@ -137,12 +137,13 @@ class FreshController extends AdminBaseController {
      * @return void
      */
     public function doCustomAction(){
-        list($hotTopic, $lifeService, $sameCity) = $this->getInput( array('hotTopic','lifeService','sameCity') );
+        list($hotTopic, $lifeService, $sameCity, $goodRecommend) = $this->getInput( array('hotTopic','lifeService','sameCity','goodRecommend') );
         $config = new PwConfigSet('freshSetting');
         $config
             ->set('hotTopic',$hotTopic)
             ->set('lifeService',$lifeService)
             ->set('sameCity',$sameCity)
+            ->set('goodRecommend',$goodRecommend)
             ->flush();
         $this->showMessage('success', 'native/Fresh/custom', true);
     }

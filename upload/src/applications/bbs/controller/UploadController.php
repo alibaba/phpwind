@@ -30,8 +30,6 @@ class UploadController extends PwBaseController {
         $fid = $this->getInput('fid', 'post');
 
         //
-        $this->_accpetUploadForH5();
-        //
 		Wind::import('SRV:upload.action.PwAttMultiUpload');
 		Wind::import('LIB:upload.PwUpload');
 		$bhv = new PwAttMultiUpload($user, $fid);
@@ -124,15 +122,19 @@ class UploadController extends PwBaseController {
         }
     }
 
-	protected function _getUser() {
-        $winduser = Pw::getCookie('winduser');
+    protected function _getUser() {
+        $authkey = 'winduser';                                                                                                                            
+        $pre = Wekit::C('site', 'cookie.pre');
+        $pre && $authkey = $pre . '_' . $authkey;
 
-		list($uid, $password) = explode("\t", Pw::decrypt($winduser));
-		$user = new PwUserBo($uid);
-		if (!$user->isExists() || Pw::getPwdCode($user->info['password']) != $password) {
-			return null;
-		}
-		unset($user->info['password']);
-		return $user;
+        $winduser = $this->getInput($authkey, 'post');
+
+        list($uid, $password) = explode("\t", Pw::decrypt(urldecode($winduser)));
+        $user = new PwUserBo($uid);
+        if (!$user->isExists() || Pw::getPwdCode($user->info['password']) != $password) {
+            return null;
+        }   
+        unset($user->info['password']);
+        return $user;
 	}
 }
