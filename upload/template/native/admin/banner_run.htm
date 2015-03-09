@@ -35,7 +35,7 @@
 					<!--# foreach ($configData as $pos => $banner) { #-->
 			<tr id="J_forum_tr_{$banner['banner_id']}">
                 <td><input type="text" class="input mr5" name="bid[{$banner['banner_id']}]" value="{$banner['vieworder']}" style="width:20px;"></td>
-                <td class="tar"><img src="{@Pw::getPath($banner['img'])}" style="width:200px"/></td>
+                <td class="tar"><img src="{@Pw::getPath($banner['img'])}?r=<!--# echo mt_rand(1,200); #-->" style="width:200px"/></td>
                 <td>{$banner['title']}</td>
                 <td>{$banner['type']} ({$banner['href']})</td>
                 <td><a href="{@url:native/Banner/add}&bid={$banner['banner_id']}" class="mr5 J_dialog" role="button">[编辑]</a><a href="{@url:native/Banner/del}" class="mr5 J_ajax_del" data-pdata="{'bid': '{$banner['banner_id']}'}">[删除]</a></td>

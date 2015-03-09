@@ -13,7 +13,7 @@
         <li>如果你启用了移动版，还需要去<a href="http://phpwind.aliyun.com">APP生成平台</a>作相应的修改</li>
 	</ul>
 </div>
-<form class="J_ajaxForm" action="{@url:native/AccountSecurity/doSessionKey}" method="post">
+<form class="J_ajaxForm" action="{@url:native/AccountSecurity/doSessionKey}" method="post" onsubmit="event.stopPropagation();return false">
 <input type="hidden" name="type" value="alipay" />
 <div class="table_full">
 	<table width="100%">
@@ -33,14 +33,14 @@
 </div>
 <div class="btn_wrap">
 	<div class="btn_wrap_pd" id="J_sub_wrap">
-        <button type="submit" class="btn btn_submit J_ajax_submit_btn" onclick="if(confirm('是否确认，确认后需要更新生成平台秘钥')){return true;}">提交</button>
+        <button type="submit" class="btn btn_submit J_ajax_submit_btn" onclick="if(!confirm('是否确认，确认后需要更新生成平台秘钥')){$(this).unbind();location.reload();}">提交</button>
 	</div>
 </div>
 </form>
 </div>
 <template source='TPL:admin.common.footer' />
 <script>
-    function RandPwd()    {
+    function RandPwd(){
         var str="1234567890!@#$%^&*()abcdefghigklmnopqrst";
         var arr=[];
         for(var i=0;i<str.length-1;i++){
@@ -50,6 +50,6 @@
         str=arr.join("");
         $("input[name=securityKey]").val(str.substring(0,32));
     }
-    </script>
+</script>
 </body>
 </html>

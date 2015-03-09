@@ -105,13 +105,13 @@ return array(
     'admin_accountsecurity' => array('帐号安全', 'native/AccountSecurity/*', '', '', 'admin'),
     
     'native_base' => array('移动版信息', 'native/Index/*', '', '', 'native'),
-    'native_startup' => array('启动画面设置', 'native/StartUp/*', '', '', 'native'),
+    'native_startup' => array('启动画面', 'native/StartUp/*', '', '', 'native'),
     'native_banner' => array('Banner管理', 'native/Banner/*', '', '', 'native'),
 //    'native_ad' => array('广告推广管理', 'native/Ad/*', '', '', 'native'),
-    'native_accountsecurity' => array('第三方平台接入', 'native/ThirdOpenPlatform/*', '', '', 'native'),
+    'native_accountsecurity' => array('三方平台接入', 'native/ThirdOpenPlatform/*', '', '', 'native'),
 //    'native_laiwang' => array('云im接入', 'native/ThirdOpenPlatform/wukong', '', '', 'native'),
     'native_forum' => array('频道管理', 'native/forum/*', '', '', 'native'),
-    'native_life' => array('生活服务设置', 'native/life/*', '', '', 'native'),
+    'native_life' => array('生活服务', 'native/life/*', '', '', 'native'),
     'native_fresh' => array('发现管理', 'native/fresh/*', '', '', 'native'),
 
 

@@ -109,7 +109,7 @@ class ReadController extends NativeBaseController {
         $forumInfo = $threadDisplay->getForum();
         $simpleForumInfo = array(
             'fid'=>$forumInfo->fid,
-            'name'=>$forumInfo->foruminfo['name'],
+            'name'=>preg_replace('/<\?[^>]+>/i','',$forumInfo->foruminfo['name']),
         );
 
         //帖子数据列表

@@ -33,7 +33,7 @@
 						<th>图片</th>
                         <td><input type="file" name="Filename"/><br />
                             <!--# if(isset($config['startup.img'])){ #-->
-                            <img src="{@Pw::getPath($config['startup.img'])}" />
+                            <img src="{@Pw::getPath($config['startup.img'])}?r=<!--# echo mt_rand(1,200); #-->" />
                             <!--# } #-->
                         </td>
 						<td>

@@ -1,15 +1,10 @@
 <?php
 /**
  * 用户登录,注册等接口
- *
  * 注意：客户端在请求时需要携带cookie <br>
- * csrf_token=pw;PHPSESSID=guid <br>
- * authOpenAccountAction() <br>
- * openAccountRegisterAction() <br>
- * openAccountLoginAction() <br>
  *
  * @fileName: UserController.php
- * @author: dongyong<dongyong.ydy@alibaba-inc.com>
+ * @author: dongyong<dongyong.ydy@alibaba-inc.com><34214399@qq.com>
  * @license: http://www.phpwind.com
  * @version: $Id
  * @lastchange: 2014-12-15 19:10:43

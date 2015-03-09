@@ -3,7 +3,7 @@
  * mobile应用基础类 
  *
  * @fileName: NativeBaseController.php
- * @author: dongyong<dongyong.ydy@alibaba-inc.com>
+ * @author: dongyong<dongyong.ydy@alibaba-inc.com><34214399@qq.com>
  * @license: http://www.phpwind.com
  * @version: $Id
  * @lastchange: 2014-12-17 15:53:58
