@@ -26,6 +26,9 @@ class LifeController extends AdminBaseController {
 	public function run() {
 		$forumLifeDao = Wekit::loadDao('native.dao.PwForumLifeDao');
                 $res = $forumLifeDao->fetchForumLifeList();
+                foreach($res as $k=>$v){
+                    $res[$k]['name'] = strip_tags($v['name']);
+                }
                 $this->setOutput($res, 'forums');
 //                var_dump($res);
 //                exit;

@@ -56,6 +56,8 @@ class LifeController extends NativeBaseController {
             $user_fids = $forumUserDao->getFroumByUid($this->uid);
         }
         foreach($forum_list as $k=>$v){
+            $forum_list[$k]['name'] = strip_tags($v['name']);
+            $forum_list[$k]['descrip'] = strip_tags($v['descrip']);
             $forum_list[$k]['address'] = isset($forum_life_list[$k]['address']) ? $forum_life_list[$k]['address'] : '';
             $forum_list[$k]['url'] = isset($forum_life_list[$k]['url']) ? $forum_life_list[$k]['url'] : '';
             if (array_key_exists($k, $user_fids)) {//版面fid是用户关注的

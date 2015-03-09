@@ -58,7 +58,10 @@ class UploadController extends NativeBaseController  {
         $this->setOutput($data, 'data');
         $this->showMessage('upload.success');
     }
-
+    
+    /**
+     * 暂时不用
+     */
     public function replaceAction() {
 
         $aid = $this->getInput('aid');
