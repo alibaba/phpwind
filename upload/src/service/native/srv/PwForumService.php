@@ -75,6 +75,9 @@ class PwForumService {
      */
     public function fetchForum($fids){
         $forumList = $this->_getForumDs()->fetchForum($fids,PwForum::FETCH_MAIN | PwForum::FETCH_STATISTICS);
+        foreach($forumList as $key=>$value){
+            $forumList[$key]['name'] = strip_tags($value['name']);
+        }
         return $this->_filterForumData($forumList);
     }
 
