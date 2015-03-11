@@ -304,8 +304,9 @@ class UserController extends NativeBaseController {
         $accountRelationData = $this->_getUserOpenAccountDs()->getUid($accountData['uid'],$accountData['type']);
         //还没有绑定帐号
         if( empty($accountRelationData) ){
+            $accountData['uid'] = 0;//qq not uid
             $userdata = array(
-                //'securityKey'=>null, //这个键值不存在,android走注册流程
+                //'securityKey'=>null, //这个键值对不存在,android走注册流程
                 'userinfo'=>$accountData,
                 'laiwangSetting' => PwLaiWangSerivce::$wk_setting,
             );
