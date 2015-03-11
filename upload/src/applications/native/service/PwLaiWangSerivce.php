@@ -18,39 +18,39 @@ class PwLaiWangSerivce {
 
     //debug
     //const PW_CREATER_URI        = 'http://10.101.81.197:8030';
-    const WK_TIMEOUT            = 2;
-    const WK_API_REGISTER       = 'https://sandbox-wkapi.laiwang.com/v1/user/register';
-    const WK_API_UPDATE_SECRET  = 'https://sandbox-wkapi.laiwang.com/v1/user/update/secret';
-    const WK_API_UPDATE_PROFILE = 'https://sandbox-wkapi.laiwang.com/v1/user/profile/update';
-    const WK_API_SELECT_PROFILE = 'https://sandbox-wkapi.laiwang.com/v1/user/profile';
-    const WK_API_PUSH_MESSAGE   = 'https://sandbox-wkapi.laiwang.com/v1/notification/user';
-    public static $wk_setting      = array(
-        'org'       =>'demo',
-        'domain'    =>'demo',
-        'appKey'    =>'815678BC16A624B292E4FA6C79A818D7',
-        'openid'    =>0,   //openid
-        'secretToken'=>'',  //用户需要这个登录来往
-    );
-    public static $wk_appToken = 'demo';
-    public static $wk_appSecret= 'B1CC50C442D96B3ACA920616D95C64B2';
-
-    //online
-    const PW_CREATER_URI        = 'http://phpwind.aliyun.com';
-    //const WK_TIMEOUT = 2;
-    //const WK_API_REGISTER       = 'https://wkapi.laiwang.com/v1/user/register';
-    //const WK_API_UPDATE_SECRET  = 'https://wkapi.laiwang.com/v1/user/update/secret';
-    //const WK_API_UPDATE_PROFILE = 'https://wkapi.laiwang.com/v1/user/profile/update';
-    //const WK_API_SELECT_PROFILE = 'https://wkapi.laiwang.com/v1/user/profile';
-    //const WK_API_PUSH_MESSAGE   = 'https://wkapi.laiwang.com/v1/notification/user';
+    //const WK_TIMEOUT            = 2;
+    //const WK_API_REGISTER       = 'https://sandbox-wkapi.laiwang.com/v1/user/register';
+    //const WK_API_UPDATE_SECRET  = 'https://sandbox-wkapi.laiwang.com/v1/user/update/secret';
+    //const WK_API_UPDATE_PROFILE = 'https://sandbox-wkapi.laiwang.com/v1/user/profile/update';
+    //const WK_API_SELECT_PROFILE = 'https://sandbox-wkapi.laiwang.com/v1/user/profile';
+    //const WK_API_PUSH_MESSAGE   = 'https://sandbox-wkapi.laiwang.com/v1/notification/user';
     //public static $wk_setting      = array(
-    //    'org'       =>'',
-    //    'domain'    =>'',
-    //    'appKey'    =>'',
+    //    'org'       =>'demo',
+    //    'domain'    =>'demo',
+    //    'appKey'    =>'815678BC16A624B292E4FA6C79A818D7',
     //    'openid'    =>0,   //openid
     //    'secretToken'=>'',  //用户需要这个登录来往
     //);
-    //public static $wk_appToken = '';
-    //public static $wk_appSecret= '';
+    //public static $wk_appToken = 'demo';
+    //public static $wk_appSecret= 'B1CC50C442D96B3ACA920616D95C64B2';
+
+    //online
+    const PW_CREATER_URI        = 'http://phpwind.aliyun.com';
+    const WK_TIMEOUT = 2;
+    const WK_API_REGISTER       = 'https://wkapi.laiwang.com/v1/user/register';
+    const WK_API_UPDATE_SECRET  = 'https://wkapi.laiwang.com/v1/user/update/secret';
+    const WK_API_UPDATE_PROFILE = 'https://wkapi.laiwang.com/v1/user/profile/update';
+    const WK_API_SELECT_PROFILE = 'https://wkapi.laiwang.com/v1/user/profile';
+    const WK_API_PUSH_MESSAGE   = 'https://wkapi.laiwang.com/v1/notification/user';
+    public static $wk_setting      = array(
+        'org'       =>'',
+        'domain'    =>'',
+        'appKey'    =>'',
+        'openid'    =>0,   //openid
+        'secretToken'=>'',  //用户需要这个登录来往
+    );
+    public static $wk_appToken = '';
+    public static $wk_appSecret= '';
 
     function __construct(){
         $_config = Wekit::C()->getValues('wukong');

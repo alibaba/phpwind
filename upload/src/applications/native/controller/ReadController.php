@@ -42,7 +42,6 @@ class ReadController extends NativeBaseController {
         $tid = intval($this->getInput('tid','get'));
         list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
         
-        //$threadDisplay = new PwThreadDisplay($tid, $this->loginUser);
         $threadDisplay = new PwNativeThreadDisplay($tid, $this->loginUser);
         $this->runHook('c_read_run', $threadDisplay);
 
@@ -109,7 +108,7 @@ class ReadController extends NativeBaseController {
         $forumInfo = $threadDisplay->getForum();
         $simpleForumInfo = array(
             'fid'=>$forumInfo->fid,
-            'name'=>preg_replace('/<\?[^>]+>/i','',$forumInfo->foruminfo['name']),
+            'name'=>preg_replace('/<\/?[^>]+>/i','',$forumInfo->foruminfo['name']),
         );
 
         //帖子数据列表
@@ -221,13 +220,23 @@ class ReadController extends NativeBaseController {
         $tid = intval($this->getInput('tid','get'));
         list($page, $uid, $desc) = $this->getInput(array('page', 'uid', 'desc'), 'get');
         
+         
         $threadDisplay = new PwThreadDisplay($tid, $this->loginUser);
         $this->runHook('c_read_run', $threadDisplay);
 
         if (($result = $threadDisplay->check()) !== true) {
             $this->showError($result->getError());
         }
+        $_cache = Wekit::cache()->fetch(array('level', 'group_right'));
 
+        $pwforum = $threadDisplay->getForum();
+        if ($pwforum->foruminfo['password']) {
+            if (!$this->uid) {
+                $this->forwardAction('u/login/run', array('backurl' => WindUrlHelper::createUrl('bbs/cate/run', array('fid' => $$pwforum->fid))));
+            } elseif (Pw::getPwdCode($pwforum->foruminfo['password']) != Pw::getCookie('fp_' . $pwforum->fid)) {
+                $this->forwardAction('bbs/forum/password', array('fid' => $pwforum->fid));
+            }
+        }
         Wind::import('SRV:forum.srv.threadDisplay.PwCommonRead');
         $dataSource = new PwCommonRead($threadDisplay->thread);
 
@@ -247,10 +256,11 @@ class ReadController extends NativeBaseController {
         $threadInfo['content'] = str_replace('style="max-width:700px;"','',$threadInfo['content']);
 
         //帖子数据列表
-        //        $threadList = $threadDisplay->getList();
+        $threadList = $threadDisplay->getList();
 
         $this->setOutput(Wekit::getGlobal('url', 'res'), 'resPath');
         $this->setOutput($threadInfo,'threadInfo');
+        $this->setOutput(array_slice($threadList,1,3),'threadList');
         $this->setOutput($threadDisplay, 'threadDisplay'); 
         $this->setOutput(PwCreditBo::getInstance(), 'creditBo'); 
     }

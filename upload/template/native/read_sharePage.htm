@@ -6,7 +6,7 @@
 
         <title>{$threadInfo['subject']}</title>
         <style>
-            body{font-size:1.1rem;}
+            body{font-size:1rem; }
             dd,dl{margin:0; padding:0;}            
             img{max-width:100%}
             a{text-decoration:none;}
@@ -25,11 +25,11 @@
 
             /*推广*/
             .taobaoCanvas{border:1px dashed #CCC;background:#f7f7f7 right top no-repeat;padding:10px;margin:1em 0;}
-            .taobaoCanvas .go { border-radius: 5px; box-shadow: 0px 1px 1px #666666; font-family: Arial; color: #ffffff; font-size: 18px; background: #fc7600; padding: 2px 20px 2px 20px; text-decoration: none;  }
+            .taobaoCanvas .go { border-radius: 5px; box-shadow: 0px 1px 1px #666666; font-family: Arial; color: #ffffff; font-size: 1.5rem; background: #fc7600; padding: 2px 20px 2px 20px; text-decoration: none;  }
             .taobaoCanvas .go a{text-decoration: none;color:#fff}
-            .taobaoCanvas dt{float:left;width:160px;height:160px;padding:0 15px 5px; 5px;}
-            .taobaoCanvas dt img{width:160px;height:160px;}
-            .taobaoCanvas .title{font-size:14px;font-weight:bold;min-height:30px;}                                                                                    
+            .taobaoCanvas dt{float:left;width:4.2rem;height:4.2rem;padding:0 0.2rem 0.1rem; 0.1rem;}
+            .taobaoCanvas dt img{width:4rem;height:4rem;}
+            .taobaoCanvas .title{font-weight:bold;min-height:1.2rem;}
             .taobaoCanvas .price{font-weight:bold;color:#fc7600;margin-bottom:5px}
 
             /**分享**/                                                                                                                                                
@@ -38,9 +38,15 @@
             .shareCanvas a{color:#0069ec;}
 
             /**下载**/
-            .app_download{background:#0069ec; padding:10px; color:#fff; }
-            .app_download img{width:48px; height:48px; margin-right:3px; }
+            .app_download{background:#0069ec; padding:0.3rem; color:#fff; text-align:center; }
+            .app_download img{width:2.5rem; height:2.5rem; margin-right:0.2rem; }
             .app_download a{color:#fff;}
+
+            .main_thread_count{border:0.1rem solid #f7f7f7; text-align:center; height:2rem; line-height:2rem }
+
+            .rp{border-top:0.1rem solid #cccccc; margin-top:0.5rem; padding:0.3rem; font-size:0.9rem }
+            .rp dd{line-height:1.2rem}
+            .rp .size2{font-size:0.6rem}
 
         </style>
     </head>
@@ -92,15 +98,23 @@
                 </div>
                 <!--# } #-->
                 <!--# } #-->
-
             </div>
+
+            <div class="main_thread_count">{$threadInfo['replies']}个回复, {$threadInfo['like_count']}个喜欢</div>
+
+            <!--# foreach ($threadList as $key => $value) { #--> 
+            <dl class="rp">
+                <dd>评论{$key+1} 来自于:{$value['created_username']}</dd>
+                <dd class="size2">{@Pw::time2str($value['created_time'],'auto');} &nbsp; {$value['like_count']}人喜欢</dd>
+                <dd><!--# echo strip_tags(htmlspecialchars_decode($value['content'])); #--></dd>
+            </dl>
+            <!--# } #-->
 
             <div class="app_download">
                 <img src="http://phpwind.aliyun.com/app/icon?site=<!--# echo urlencode(Wekit::C('site','info.url')); #-->" align="absmiddle" />
                 <a href="http://phpwind.aliyun.com/app/download?site=<!--# echo urlencode(Wekit::C('site','info.url')); #-->">下载客户端，参与其中</a>
                 <img src="{$resPath}/images/editor/app_download.png" align="absmiddle" />
             </div>
-
 
         </div>
 
