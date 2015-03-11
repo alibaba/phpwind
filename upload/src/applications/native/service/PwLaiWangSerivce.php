@@ -156,8 +156,9 @@ class PwLaiWangSerivce {
             'nick'  =>$username,
             'avatar'=>$avatar,
             'gender'=>$gender,
+            'extension'=>'',
         );
-        return self::request(self::WK_API_UPDATE_PROFILE, $params);
+        return self::request(self::WK_API_UPDATE_PROFILE, 'profile='.json_encode($params) );
     }
 
     /**
