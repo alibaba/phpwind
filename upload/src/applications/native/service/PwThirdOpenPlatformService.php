@@ -185,7 +185,6 @@ class PwThirdOpenPlatformService {
             $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['userinfo_uri'],$this->access_token,$this->oauth_uid,$this->_appkey);
             $_userinfo_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
             $_userinfo_result = json_decode($_userinfo_result,true);
-            print_r($_userinfo_result);
             //
             if( isset($_userinfo_result['name']) ){
                 $info = array(

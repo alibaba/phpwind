@@ -321,6 +321,12 @@ class UserController extends NativeBaseController {
             }
             $this->uid=$info['uid'];
             $userdata = $this->_getUserInfo();
+
+            //
+            $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
+            PwLaiWangSerivce::registerUser($this->uid, $_userInfo['password'], $_userInfo['username'], Pw::getAvatar($this->uid,'big'), $_userInfo['gender']);
+            PwLaiWangSerivce::updateSecret($this->uid, $_userInfo['password']);
+            PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
         }
         //success
         $this->setOutput($userdata,'data');
