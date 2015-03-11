@@ -520,7 +520,7 @@ class UserController extends NativeBaseController {
         $openid = $this->getInput('uid');
         $result = PwLaiWangSerivce::selectProfile($openid);
         //
-        $this->setOutput($result, 'data');
+        $this->setOutput($result?'1':'0', 'data');
         $this->showMessage('success');
     }
 
