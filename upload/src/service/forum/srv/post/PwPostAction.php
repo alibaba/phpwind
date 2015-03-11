@@ -158,6 +158,9 @@ abstract class PwPostAction extends PwBaseHookService {
 		}
 		if ($this->forum->forumset['topic_type'] && $this->forum->forumset['force_topic_type'] && !$postDm->getTopictype()) {
 			$topicTypes = Wekit::load('SRV:forum.PwTopicType')->getTypesByFid($this->forum->fid);
+                        if(isset($_GET['m']) && $_GET['m']=='native'){//移动版发帖忽略强制主题分类
+                            $topicTypes = array();
+                        }
 			if ($topicTypes) {
 				return new PwError('BBS:post.topictype.empty');
 			}
