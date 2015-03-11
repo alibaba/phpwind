@@ -102,3 +102,9 @@ REPLACE INTO {pre}user_permission_groups (`gid`, `rkey`, `rtype`, `rvalue`, `vty
 DELETE FROM `{pre}common_cron` WHERE `cron_file`='PwCronDoUpdateWeight';
 
 INSERT INTO {pre}common_cron SET  `subject` ='热帖权重计算', `loop_type` ='now', `cron_file` ='PwCronDoUpdateWeight', `isopen` ='2', `created_time` ='{time}', `loop_daytime` ='0-2-0', `next_time` ='{time}'
+INSERT INTO {pre}user_permission_groups (`gid`, `rkey`, `rtype`, `rvalue`, `vtype`) VALUES ('3', 'allow_publish_tao', 'basic', '1', 'string');
+INSERT INTO {pre}common_config (`name`, `namespace`, `value`, `vtype`, `description`) VALUES ('goodRecommend', 'freshSetting', '1', 'string', NULL);
+INSERT INTO {pre}common_config (`name`, `namespace`, `value`, `vtype`, `description`) VALUES ('hotTopic', 'freshSetting', '1', 'string', NULL);
+INSERT INTO {pre}common_config (`name`, `namespace`, `value`, `vtype`, `description`) VALUES ('lifeService', 'freshSetting', '1', 'string', NULL);
+INSERT INTO {pre}common_config (`name`, `namespace`, `value`, `vtype`, `description`) VALUES ('sameCity', 'freshSetting', '1', 'string', NULL);
+
