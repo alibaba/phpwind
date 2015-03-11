@@ -126,5 +126,10 @@ INSERT INTO `pw_common_config` (`name`, `namespace`, `value`, `vtype`, `descript
 ('key', 'verify', MD5(RAND()), 'string', ''),
 ('homeUrl', 'site', 'index.php?m=bbs', 'string', ''),
 ('windid', 'site', 'local', 'string', ''),
+('3', 'allow_publish_tao', 'basic', '1', 'string'),
+('goodRecommend', 'freshSetting', '1', 'string', ''),
+('hotTopic', 'freshSetting', '1', 'string', ''),
+('lifeService', 'freshSetting', '1', 'string', ''),
+('sameCity', 'freshSetting', '1', 'string', '');
 ('homeRouter', 'site', 'a:3:{s:1:"m";s:3:"bbs";s:1:"c";s:5:"index";s:1:"a";s:3:"run";}', 'array', '');
-			
+
