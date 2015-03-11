@@ -128,6 +128,9 @@ class UploadController extends PwBaseController {
         $pre && $authkey = $pre . '_' . $authkey;
 
         $winduser = $this->getInput($authkey, 'post');
+        if( !$winduser ){
+            $winduser = Pw::getCookie('winduser');
+        }
 
         list($uid, $password) = explode("\t", Pw::decrypt(urldecode($winduser)));
         $user = new PwUserBo($uid);
