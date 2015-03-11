@@ -46,7 +46,7 @@ class PwLaiWangSerivce {
         'org'       =>'',
         'domain'    =>'',
         'appKey'    =>'',
-        'openid'    =>0,   //openid
+        'openid'    =>'',   //openid
         'secretToken'=>'',  //用户需要这个登录来往
     );
     public static $wk_appToken = '';
@@ -66,7 +66,7 @@ class PwLaiWangSerivce {
             unset($_config['android.appSecret']);
             unset($_config['appToken']);
             //
-            self::$wk_setting = $_config;
+            self::$wk_setting = array_merge(self::$wk_setting, $_config);
         }
     }
 
@@ -230,6 +230,14 @@ class PwLaiWangSerivce {
      * @return void
      */
     private static function request($uri, $params){
+        //必须有配置 
+        foreach (self::$wk_setting as $v) {
+            if( !$v ){
+                return false;
+            }
+        }
+
+        //
         $request = Wind::getComponent('httptransfer', array($uri, self::WK_TIMEOUT));
         $headers = array('Authorization'=> self::_getAuthorization());
         $request->setData($params);

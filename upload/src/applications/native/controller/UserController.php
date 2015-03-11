@@ -305,9 +305,11 @@ class UserController extends NativeBaseController {
         //还没有绑定帐号
         if( empty($accountRelationData) ){
             $userdata = array(
-                //'securityKey'=>null,
+                //'securityKey'=>null, //这个键值不存在,android走注册流程
                 'userinfo'=>$accountData,
+                'laiwangSetting' => PwLaiWangSerivce::$wk_setting,
             );
+
         }else{
             /* [验证用户名和密码是否正确] */
             $login = new PwLoginService();
@@ -320,13 +322,12 @@ class UserController extends NativeBaseController {
                 $this->showError('USER:user.syn.error');
             }
             $this->uid=$info['uid'];
-            $userdata = $this->_getUserInfo();
-
-            //
             $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
             PwLaiWangSerivce::registerUser($this->uid, $_userInfo['password'], $_userInfo['username'], Pw::getAvatar($this->uid,'big'), $_userInfo['gender']);
             PwLaiWangSerivce::updateSecret($this->uid, $_userInfo['password']);
             PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
+            
+            $userdata = $this->_getUserInfo();
         }
         //success
         $this->setOutput($userdata,'data');

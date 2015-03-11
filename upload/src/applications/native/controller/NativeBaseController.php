@@ -235,8 +235,8 @@ abstract class NativeBaseController extends PwBaseController {
      * @return array()
      * @example
      * <pre>
-     * //post: access_token&platformname&native_name <br>
-     * post: access_token&platformname(如果直接传递token就只需要二个参数)
+     * //post: access_token&platformname&native_name&oauth_uid(sina use) <br>
+     * post: access_token&platformname&oauth_uid(sina use)(如果直接传递token就只需要二个参数)
      * </pre>
      */
     protected function authThirdPlatform(){
