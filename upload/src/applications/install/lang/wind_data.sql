@@ -91,7 +91,6 @@ INSERT INTO `pw_task_group` (`taskid`, `gid`, `is_auto`, `end_time`) VALUES
 (3, -1, 0, 4197024000),
 (4, -1, 1, 4197024000);
 
-REPLACE INTO `pw_user_permission_groups` (`gid`, `rkey`, `rtype`, `rvalue`, `vtype`) VALUES ('3', 'allow_publish_tao', 'basic', '1', 'string');
+INSERT INTO `pw_common_cron` SET  `subject` ='热帖权重计算', `loop_type` ='now', `cron_file` ='PwCronDoUpdateWeight', `isopen` ='2', `created_time` ='{time}', `loop_daytime` ='0-2-0', `next_time` ='{time}';
 
-DELETE FROM `pw_common_cron` WHERE `cron_file`='PwCronDoUpdateWeight';
 

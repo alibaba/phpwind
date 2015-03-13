@@ -758,3 +758,6 @@ INSERT INTO `pw_user_permission_groups` (`gid`, `rkey`, `rtype`, `rvalue`, `vtyp
 (16, 'allow_participate_vote', 'basic', '1', 'string'),
 (16, 'allow_view_vote', 'basic', '0', 'string'),
 (16, 'manage_level', 'system', '50', 'string');
+INSERT INTO `pw_user_permission_groups` (`gid`, `rkey`, `rtype`, `rvalue`, `vtype`) VALUES
+('3', 'allow_publish_tao', 'basic', '1', 'string'); 
+
