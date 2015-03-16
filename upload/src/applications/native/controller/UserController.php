@@ -289,8 +289,8 @@ class UserController extends NativeBaseController {
 
 
     /**
-     * 开放帐号登录; (通过第三方开放平台认证通过后,获得的帐号id在本地查找是否存在,如果存在登录成功 ) 
-     * 如果没绑定第三方账号；结果不返回securityKey，则返回第三方账号用户信息；否则返回论坛账号信息
+     * 开放帐号登录：通过第三方开放平台认证通过后,获得的帐号id在本地查找是否存在,如果存在登录成功。
+     * 如果没绑定第三方账号，那么结果不返回securityKey，而是返回第三方账号用户信息；否则返回securityKey以及论坛账号信息。
      * @access public
      * @return string sessionid
      * @example
