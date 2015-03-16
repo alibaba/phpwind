@@ -301,9 +301,9 @@ class UserController extends NativeBaseController {
     public function openAccountLoginAction(){
         $accountData=$this->authThirdPlatform();
         //
-        $accountRelationData = $this->_getUserOpenAccountDs()->getUid($accountData['uid'],$accountData['type']);
+        $accountRelationData = $this->_getUserOpenAccountDs()->getUid($accountData['uid'], $accountData['type']);
         //还没有绑定帐号
-        if( empty($accountRelationData) ){
+        if (empty($accountRelationData)){
             $accountData['uid'] = 0;//qq not uid
             $userdata = array(
                 //'securityKey'=>null, //这个键值对不存在,android走注册流程
@@ -311,7 +311,7 @@ class UserController extends NativeBaseController {
                 'laiwangSetting' => PwLaiWangSerivce::$wk_setting,
             );
 
-        }else{
+        } else {
             /* [验证用户名和密码是否正确] */
             $login = new PwLoginService();
             $this->runHook('c_login_dorun', $login);
