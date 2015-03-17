@@ -221,9 +221,9 @@ class PostController extends NativeBaseController {
 
         list($tid, $pid, $page, $simple) = $this->getInput(array('tid', 'pid', 'page', 'simple'), 'get');
         $page = intval($page);
+        $perpage = $page ? $this->perpage : 3;//没有分页参数，默认展示3条针对一个楼层的回复
         !$page && $page = 1;
-        $perpage = $page ? $this->perpage : 10;//没有分页参数，默认展示3条针对一个楼层的回复
-
+        
         //$info = Wekit::load('forum.PwThread')->getThread($tid);
         $replydb = $data = array();
         if ($pid) {
