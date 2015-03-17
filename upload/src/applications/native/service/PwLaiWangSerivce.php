@@ -231,8 +231,8 @@ class PwLaiWangSerivce {
      */
     private static function request($uri, $params){
         //必须有配置 
-        foreach (self::$wk_setting as $v) {
-            if( !$v ){
+        foreach (self::$wk_setting as $k=>$v) {
+            if( !$v && $k!="openid" && $k!="secretToken"){
                 return false;
             }
         }
