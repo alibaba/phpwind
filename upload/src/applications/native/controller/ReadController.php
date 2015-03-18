@@ -254,7 +254,15 @@ class ReadController extends NativeBaseController {
         $threadInfo['content'] = preg_replace('/onload="([^"]+)"/i','',$threadInfo['content']);
         $threadInfo['content'] = preg_replace('/onclick="([^"]+)"/i','',$threadInfo['content']);
         $threadInfo['content'] = str_replace('style="max-width:700px;"','',$threadInfo['content']);
-
+        preg_match_all('/<div class="J_video" data-url="(.+?\.swf)".*?><\/div>/i',$threadInfo['content'],$matches);
+        if(isset($matches[0]) && $matches[0]){
+            $count = count($matches[0]);
+            for($i=0;$i<$count;$i++){
+                $vedio = '<embed src="'.$matches[1][$i].'" allowFullScreen="true" quality="high" width="240" height="200" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>';
+                echo $vedio."<br>";
+                $threadInfo['content'] = str_replace($matches[0][$i],$vedio,$threadInfo['content']);
+            }
+        }
         //帖子数据列表
         $threadList = $threadDisplay->getList();
 
