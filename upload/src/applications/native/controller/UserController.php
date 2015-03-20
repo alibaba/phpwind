@@ -49,13 +49,15 @@ class UserController extends NativeBaseController {
     }
 
     /**
-     * 检查是否已经成功同步用户到来往
+     * 检查是否已经成功同步用户到来往。
+     *
+     * 如果指定了openid，则检查openid；如果未指定，则检查当前的登录用户。
      *
      * @access public
      * @return void
      * @example
      <pre>
-     /index.php?m=native&c=user&a=checkLaiwang
+     /index.php?m=native&c=user&a=checkLaiwang&openid=1
      <br>
      post: securityKey <br>
      response: {"referer":"","refresh":false,"state":"success","data":{"laiwangOK":true},
@@ -63,11 +65,22 @@ class UserController extends NativeBaseController {
      </pre>
      */
     public function checkLaiwangAction() {
-        if (!$this->isLogin()) {
-            $this->showError('USER:user.not.login');
+        $openid = intval($this->getInput('openid'));
+
+        if (empty($openid)) {
+            if (!$this->isLogin()) {
+                $this->showError('USER:user.not.login');
+            }
+        }
+        // trick, this is bad
+
+        if (!empty($openid)) {
+            $olduid    = $this->uid;
+            $this->uid = $openid;
         }
 
         //
+        $userDs = Wekit::load('user.PwUser');
         $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
         $laiwangOK = PwLaiWangSerivce::registerUser($this->uid,
                                                     $_userInfo['password'],
@@ -78,6 +91,11 @@ class UserController extends NativeBaseController {
         PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'],
                                         Pw::getAvatar($this->uid, 'big'),
                                         $_userInfo['gender']);
+
+        if (!empty($openid)) {
+            $this->uid = $olduid;
+        }
+
         $this->setOutput(array('laiwangOK' => $laiwangOK), 'data');
         $this->showMessage('success');
     }
