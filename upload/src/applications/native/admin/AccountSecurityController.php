@@ -33,5 +33,18 @@ class AccountSecurityController extends AdminBaseController {
         $config->set('securityKey', $this->getInput('securityKey', 'post'))->flush();
         $this->showMessage('ADMIN:success');
     }
-
+    
+    /**
+     * App聊天系统通讯秘钥一键注册
+     * @access public
+     * @return 
+     * @example
+     * 
+     */
+    public function doWukongRegistAction(){
+        $_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
+        $res = Wekit::load("APPS:native.service.PwLaiWangSerivce")->saveAppekySetting($_securityKey['value']);
+        $this->showMessage('ADMIN:success','native/AccountSecurity/run/',true);
+    }
+    
 }

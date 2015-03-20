@@ -82,6 +82,7 @@ final class WindHttpCurl extends AbstractWindHttp {
         //https
         $this->request(CURLOPT_SSL_VERIFYPEER, 0);
 		$this->request(CURLOPT_SSL_VERIFYHOST, 0);
+//                $this->request(CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
 		if ($options && is_array($options)) {
 			curl_setopt_array($this->httpHandler, $options);
 		}
