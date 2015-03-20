@@ -14,6 +14,9 @@ Wind::import('WSRV:base.WindidUtility');
 Wind::import('WIND:http.session.WindSession');
 Wind::import('WIND:security.WindMcryptDes');
 
+// 用户已经存在
+define('LAIWANG_ERROR_USER_DUPLICATE', '110004');
+
 class PwLaiWangSerivce {
 
     //debug
@@ -255,11 +258,15 @@ class PwLaiWangSerivce {
         $result = $request->send('POST');
         if( $result ){
             $result = json_decode($result, true);
-            if( $result['success']==true ){
+            if ($result['success']==true) {
                 return true; 
             }
+            // 来往用户注册提示重复时，我们认为是正确的结果
+            if ($uri == self::WK_API_REGISTER && $result['errorCode'] == LAIWANG_ERROR_USER_DUPLICATE) {
+                return true;
+            }
         }
-        return false; 
+        return false;
     }
 
     /**
