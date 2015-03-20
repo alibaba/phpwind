@@ -49,6 +49,40 @@ class UserController extends NativeBaseController {
     }
 
     /**
+     * 检查是否已经成功同步用户到来往
+     *
+     * @access public
+     * @return void
+     * @example
+     <pre>
+     /index.php?m=native&c=user&a=checkLaiwang
+     <br>
+     post: securityKey <br>
+     response: {"referer":"","refresh":false,"state":"success","data":{"laiwangOK":true},
+                "html":"","message":["\u6b22\u8fce\u56de\u6765..."],"__error":""}
+     </pre>
+     */
+    public function checkLaiwangAction() {
+        if (!$this->isLogin()) {
+            $this->showError('USER:user.not.login');
+        }
+
+        //
+        $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
+        $laiwangOK = PwLaiWangSerivce::registerUser($this->uid,
+                                                    $_userInfo['password'],
+                                                    $_userInfo['username'],
+                                                    Pw::getAvatar($this->uid, 'big'),
+                                                    $_userInfo['gender']);
+        PwLaiWangSerivce::updateSecret($this->uid, $_userInfo['password']);
+        PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'],
+                                        Pw::getAvatar($this->uid, 'big'),
+                                        $_userInfo['gender']);
+        $this->setOutput(array('laiwangOK' => $laiwangOK), 'data');
+        $this->showMessage('success');
+    }
+
+    /**
      * 登录;并校验验证码
      * @access public
      * @return string
