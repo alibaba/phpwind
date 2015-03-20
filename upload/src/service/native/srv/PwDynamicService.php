@@ -37,6 +37,9 @@ class PwDynamicService {
             $imgs = array_shift($PwNativeThreadService->getThreadAttach(array($k),array(0)));
             ksort($imgs);
             $imgs = array_slice($imgs,0, 9);
+            foreach($imgs as $imgs_k=>$imgs_v){
+                $imgs[$imgs_k]['realpath'] = str_replace("/thumb/mini","",$imgs_v['path']);
+            }
             $threads[$k]['content'] = array(
 //                                            'text'=>  str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim($PwThreadService->displayContent($content,1,array(),70),'.')),//帖子内容文本
 //                                            'text'=> str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),Pw::substrs($format_content['content'],70,0,false)),//帖子内容文本截字
