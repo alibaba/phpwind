@@ -54,20 +54,24 @@ class PwLaiWangSerivce {
 
     function __construct(){
         $_config = Wekit::C()->getValues('wukong');
-        if( empty($_config) ){
+        if (empty($_config)) {
             $_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
-            self::saveAppekySetting($_securityKey['value']);
-        }else{
-            $_config['appKey']  = $_config['android.appKey'];
-            self::$wk_appToken  = $_config['appToken'];
-            self::$wk_appSecret = $_config['android.appSecret'];
-            //
-            unset($_config['android.appKey']);
-            unset($_config['android.appSecret']);
-            unset($_config['appToken']);
-            //
-            self::$wk_setting = array_merge(self::$wk_setting, $_config);
+            $_config = self::saveAppekySetting($_securityKey['value']);
         }
+        if (empty($_config)) {
+            error_log('No laiwang info found');
+            return;
+        }
+
+        $_config['appKey']  = $_config['android.appKey'];
+        self::$wk_appToken  = $_config['appToken'];
+        self::$wk_appSecret = $_config['android.appSecret'];
+        //
+        unset($_config['android.appKey']);
+        unset($_config['android.appSecret']);
+        unset($_config['appToken']);
+        //
+        self::$wk_setting = array_merge(self::$wk_setting, $_config);
     }
 
     /**
@@ -83,10 +87,14 @@ class PwLaiWangSerivce {
         $_uri = self::PW_CREATER_URI.'/api/getlaiwanginfo?siteurl='.urlencode($config['value']);
         $unsecurityKey = WindidUtility::buildRequest($_uri,array(),true,WK_TIMEOUT,'get');
         $unsecurityKey = json_decode($unsecurityKey, true);
-        if( $unsecurityKey && $unsecurityKey['status']==200 ){
+        if ($unsecurityKey && $unsecurityKey['status']==200) {
             $_unsecurityKey = Pw::decrypt($unsecurityKey['data']['info'],$key);
             $appSettingData = unserialize($_unsecurityKey);
-            //
+            // 解密错了或者其他情况不保存空的数据到数据库
+            if (!$appSettingData) {
+                return array();
+            }
+            // 保存laiwang appkey等
             $config = new PwConfigSet('wukong');
             $config
                 ->set('appToken',$appSettingData['appToken'])
@@ -95,7 +103,9 @@ class PwLaiWangSerivce {
                 ->set('android.appKey',$appSettingData['Android']['appKey'])
                 ->set('android.appSecret',$appSettingData['Android']['appSecret'])
                 ->flush();
+            return $appSettingData;
         }
+        return array();
     }
 
 
