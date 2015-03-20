@@ -8,7 +8,7 @@
  * @license: http://www.phpwind.com
  * @version: $Id
  * @lastchange: 2014-12-15 19:10:43
- * @desc: 
+ * @desc:
  **/
 defined('WEKIT_VERSION') || exit('Forbidden');
 
@@ -24,7 +24,7 @@ class UserController extends NativeBaseController {
 
     /**
      * 校验用户是否登录; 返回appid接口数据
-     * 
+     *
      * @access public
      * @return void
      * @example
@@ -46,7 +46,7 @@ class UserController extends NativeBaseController {
         }
         $this->setOutput($data, 'data');
         $this->showMessage('USER:login.success');
-    } 
+    }
 
     /**
      * 登录;并校验验证码
@@ -56,7 +56,7 @@ class UserController extends NativeBaseController {
      <pre>
      /index.php?m=native&c=user&a=doLogin <br>
      post: username&password&csrf_token&code&_json=1 <br>
-     response: 
+     response:
     {
         "referer": "",
             "refresh": false,
@@ -70,17 +70,17 @@ class UserController extends NativeBaseController {
      </pre>
      */
     public function doLoginAction(){
-        
+
         list($username, $password, $code) = $this->getInput(array('username', 'password', 'code'));
-        
+
         if (empty($username) || empty($password)) $this->showError('USER:login.user.require');
 
         //
         if( $this->_showVerify() ){
-            $veryfy = $this->_getVerifyService();                                                                                                         
+            $veryfy = $this->_getVerifyService();
             if ($veryfy->checkVerify($code) !== true) {
                 $this->showError('USER:verifycode.error');
-            }        
+            }
         }
 
         /* [验证用户名和密码是否正确] */
@@ -115,19 +115,19 @@ class UserController extends NativeBaseController {
 
         //
         $this->uid=$isSuccess['uid'];
-        $this->setOutput(array_merge($this->_getUserInfo(), array('laiwangOK' => $laiwangOK)), 'data');
+        $this->setOutput($this->_getUserInfo($laiwangOK), 'data');
         $this->showMessage('USER:login.success');
     }
 
     /**
-     * 注册帐号 
+     * 注册帐号
      * @access public
      * @return void
      * @example
      <pre>
      /index.php?m=native&c=user&a=doRegister    <br>
-     post: username&password&repassword&email&code 
-     response: {err:"",data:""} 
+     post: username&password&repassword&email&code
+     response: {err:"",data:""}
      </pre>
      */
     public function doRegisterAction(){
@@ -149,10 +149,10 @@ class UserController extends NativeBaseController {
 		}
 
         if( $this->_showVerify() ){
-            $veryfy = $this->_getVerifyService();                                                                                                         
+            $veryfy = $this->_getVerifyService();
             if ($veryfy->checkVerify($code) !== true) {
                 $this->showError('USER:verifycode.error');
-            }        
+            }
         }
 
         Wind::import('SRC:service.user.dm.PwUserInfoDm');
@@ -188,21 +188,21 @@ class UserController extends NativeBaseController {
 		if (($info = $registerService->register()) instanceof PwError) {
 			$this->showError($info->getError());
         } else {
-            PwLaiWangSerivce::registerUser($info['uid'], $info['password'], $info['username'], '', 1); 
+            $laiwangOK = PwLaiWangSerivce::registerUser($info['uid'], $info['password'], $info['username'], '', 1);
             //
             if (1 == Wekit::C('register', 'active.mail')) {
                 $this->showMessage('USER:active.sendemail.success');
             } else {
                 $this->uid = $info['uid'];
-                $this->setOutput($this->_getUserInfo(), 'data');                                                                                       
+                $this->setOutput($this->_getUserInfo($laiwangOK), 'data');
                 $this->showMessage('USER:register.success');
 			}
 		}
     }
 
     /**
-     * 找回密码 
-     * 
+     * 找回密码
+     *
      * @access public
      * @return void
      */
@@ -210,9 +210,9 @@ class UserController extends NativeBaseController {
 
         $step = $this->getInput('step');
         $username = $this->getInput('username');
-        
+
         //
-        Wind::import('SRV:user.srv.PwFindPassword'); 
+        Wind::import('SRV:user.srv.PwFindPassword');
         $findPasswordBp = new PwFindPassword($username);
 
         //
@@ -238,7 +238,7 @@ class UserController extends NativeBaseController {
             break;
         case 3:
             //_statu 找回密码
-            $statu = $this->getInput('_statu', 'get');                                                                                 
+            $statu = $this->getInput('_statu', 'get');
             !$statu && $statu = $this->getInput('statu', 'post');
             if (!$statu) $this->showError('USER:illegal.request');
             list($username, $way, $value) = PwFindPassword::parserFindPwdIdentify($statu);
@@ -261,7 +261,7 @@ class UserController extends NativeBaseController {
             $this->showMessage("USER:findpwd.over.validate.success");
             break;
         case 4:
-            $statu = $this->getInput('_statu', 'get');                                                                                 
+            $statu = $this->getInput('_statu', 'get');
             !$statu && $statu = $this->getInput('statu', 'post');
             if (!$statu) $this->showError('USER:illegal.request');
             list($username, $way, $value) = PwFindPassword::parserFindPwdIdentify($statu);
@@ -287,7 +287,7 @@ class UserController extends NativeBaseController {
                 //检查找回密码次数及更新
                 $findPasswordBp = new PwFindPassword($userInfo['username']);
                 $findPasswordBp->success($type);
-            }   
+            }
             $this->showMessage('USER:findpwd.success');
             break;
         }
@@ -330,11 +330,15 @@ class UserController extends NativeBaseController {
             }
             $this->uid=$info['uid'];
             $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
-            PwLaiWangSerivce::registerUser($this->uid, $_userInfo['password'], $_userInfo['username'], Pw::getAvatar($this->uid,'big'), $_userInfo['gender']);
+            $laiwangOK = PwLaiWangSerivce::registerUser($this->uid,
+                                                        $_userInfo['password'],
+                                                        $_userInfo['username'],
+                                                        Pw::getAvatar($this->uid,'big'),
+                                                        $_userInfo['gender']);
             PwLaiWangSerivce::updateSecret($this->uid, $_userInfo['password']);
-            PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'], Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
-            
-            $userdata = $this->_getUserInfo();
+            PwLaiWangSerivce::updateProfile($this->uid, $_userInfo['username'],
+                                            Pw::getAvatar($this->uid, 'big'), $_userInfo['gender']);
+            $userdata = $this->_getUserInfo($laiwangOK);
         }
         //success
         $this->setOutput($userdata,'data');
@@ -353,7 +357,7 @@ class UserController extends NativeBaseController {
      */
     public function openAccountRegisterAction() {
         $accountData=$this->authThirdPlatform();
-        // 
+        //
         list($username,$email,$sex) = $this->getInput(array('username','email','sex'));
         //随机密码
         $password = substr(str_shuffle('abcdefghigklmnopqrstuvwxyz1234567890~!@#$%^&*()'),0,7);
@@ -380,10 +384,14 @@ class UserController extends NativeBaseController {
             if( $this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type'])==false ){
                 $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
                 //
-                PwLaiWangSerivce::registerUser($info['uid'], $info['username'], $info['password'], Pw::getAvatar($info['uid'],'big'), $accountData['gender']); 
-                //
-                $this->uid=$info['uid'];
-                $userdata = $this->_getUserInfo($info['uid']);
+                $laiwangOK = PwLaiWangSerivce::registerUser($info['uid'],
+                                                            $info['username'],
+                                                            $info['password'],
+                                                            Pw::getAvatar($info['uid'],'big'),
+                                                            $accountData['gender']);
+                // 重置uid
+                $this->uid = $info['uid'];
+                $userdata  = $this->_getUserInfo($laiwangOK);
                 $this->setOutput($userdata,'data');
                 $this->showMessage('USER:register.success');
             }
@@ -391,7 +399,7 @@ class UserController extends NativeBaseController {
     }
 
     /**
-     * 修改头像 
+     * 修改头像
      * @access public
      * @return void
      * @example
@@ -414,7 +422,7 @@ class UserController extends NativeBaseController {
             foreach ($_FILES as $key => $value) {
                 if (!PwUpload::isUploadedFile($value['tmp_name']) || !$bhv->allowType($key)) {
                     continue;
-                }   
+                }
             }
             $file = new PwUploadFile($key, $value);
             if (($result = $upload->checkFile($file)) !== true) {
@@ -433,14 +441,14 @@ class UserController extends NativeBaseController {
             if ($bhv->allowThumb()) {
                 $thumbInfo = $bhv->getThumbInfo($file->filename, $file->savedir);
                 foreach ($thumbInfo as $key => $value) {
-                    $thumburl = $file->store->getAbsolutePath($value[0], $value[1]); 
+                    $thumburl = $file->store->getAbsolutePath($value[0], $value[1]);
                     $thumburl = str_replace('attachment','windid/attachment',$thumburl);
                     //
                     $result = $image->makeThumb($thumburl, $value[2], $value[3], $quality, $value[4], $value[5]);
                     if ($result === true && $image->filename != $thumburl) {
                         $ts = $image->getThumb();
                     }
-                } 
+                }
             }
             $this->showMessage('success');
         }
@@ -448,7 +456,7 @@ class UserController extends NativeBaseController {
     }
 
     /**
-     * 修改性别 
+     * 修改性别
      * @access public
      * @return void
      * @example
@@ -459,7 +467,7 @@ class UserController extends NativeBaseController {
      */
     public function doSexAction(){
         $this->checkUserSessionValid();
-        // 
+        //
         $userDm = new PwUserInfoDm($this->uid);
         $userDm->setGender($this->getInput('gender', 'post'));
 
@@ -475,7 +483,7 @@ class UserController extends NativeBaseController {
     }
 
     /**
-     * 保存修改密码 
+     * 保存修改密码
      * @access public
      * @return void
      * @example
@@ -490,13 +498,13 @@ class UserController extends NativeBaseController {
         list($newPwd, $oldPwd, $rePwd) = $this->getInput(array('newPwd', 'oldPwd', 'rePwd'), 'post');
         if (!$oldPwd) {
             $this->showError('USER:pwd.change.oldpwd.require');
-        }   
+        }
         if (!$newPwd) {
             $this->showError('USER:pwd.change.newpwd.require');
-        }   
+        }
         if ($rePwd != $newPwd) {
             $this->showError('USER:user.error.-20');
-        }   
+        }
         $this->checkOldPwd($this->uid, $oldPwd);
 
         Wind::import('SRC:service.user.dm.PwUserInfoDm');
@@ -513,14 +521,14 @@ class UserController extends NativeBaseController {
 
 
     /**
-     * 检测一个openid在悟空是否注册 
-     * 
+     * 检测一个openid在悟空是否注册
+     *
      * @access public
      * @return void
      * @example
      * <pre>
      * /index.php?m=native&c=user&a=checkLaiwangUser&uid=1
-     * </pre> 
+     * </pre>
      */
     public function checkLaiwangUserAction(){
         $openid = $this->getInput('uid');
@@ -534,7 +542,7 @@ class UserController extends NativeBaseController {
      * 是否需要显示验证码 <br>
      * 需要cookie携带 PHPSESSID <br>
      * /index.php?m=verify&a=get&rand=rand()
-     * 
+     *
      * @access public
      * @return boolean
      * @example
@@ -550,7 +558,7 @@ class UserController extends NativeBaseController {
 
     /**
      * 判断是否需要展示验证码
-     * 
+     *
      * @return boolean
      */
     private function _showVerify() {
@@ -569,13 +577,13 @@ class UserController extends NativeBaseController {
 
     /**
      * 开放平台帐号关联ds
-     * 
+     *
      * @access private
      * @return void
      */
     private function _getUserOpenAccountDs() {
         return Wekit::load('native.PwOpenAccount');
-    }   
+    }
 
 
 }

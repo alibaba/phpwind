@@ -70,7 +70,7 @@ abstract class NativeBaseController extends PwBaseController {
      * @access private
      * @return void
      */
-    protected function _getUserInfo(){
+    protected function _getUserInfo($laiwangOK = true){
         //
         $_userInfo = $this->_getUserAllInfo(PwUser::FETCH_MAIN+PwUser::FETCH_INFO);
 
@@ -85,6 +85,8 @@ abstract class NativeBaseController extends PwBaseController {
         $wk_setting = PwLaiWangSerivce::$wk_setting;
         $wk_setting['openid']       = $_userInfo['uid'];
         $wk_setting['secretToken']  = PwLaiWangSerivce::getSecretToken($_userInfo['uid'], $_userInfo['password']);
+        // 是否已经成功同步用户到来往
+        $wk_setting['laiwangOK']    = $laiwangOK;
 
         //返回数据
         $_data = array(
