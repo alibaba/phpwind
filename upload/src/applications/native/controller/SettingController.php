@@ -57,6 +57,39 @@ class SettingController extends PwBaseController {
 
 
     /**
+     * 查询laiwang帐号信息
+     * 
+     * @access public
+     * @return void
+     */
+    public function getLaiwangInfoAction(){
+        $config = Wekit::C()->getValues('wukong');
+        if (empty($config) || !isset($config['ios.appKey'])) {
+            $data = array('info' => '');
+        } else {
+            $cont = array('appToken' => $config['appToken'],
+                          'org'      => $config['org'],
+                          'domain'   => $config['domain'],
+                          'Android'  => array(
+                                        'appKey'    => $config['android.appKey'],
+                                        'appSecret' => $config['android.appSecret'],
+                                        ),
+                          'iOS'      => array(
+                                        'appKey'    => $config['ios.appKey'],
+                                        'appSecret' => $config['ios.appSecret'],
+                                        ),
+                    );
+            $cont = serialize($cont);
+            $_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
+            $cont = Pw::encrypt($cont, $_securityKey['value']);
+            $data = array('info' => $cont ? $cont : '');
+        }
+
+        $this->setOutput($data, 'data');
+        $this->showMessage("success");
+    }
+
+    /**
      * 阿里妈妈广告 
      * 
      * @access public
