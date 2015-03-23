@@ -91,6 +91,7 @@ return array(
 	'cache_m' => array('缓存管理', 'bbs/cache/*', '', '', 'data'),
 	'data_hook' => array('Hook管理', 'hook/manage/*', '', '', 'data'),
 	'cron_operations' => array('计划任务', 'cron/cron/*', '', '', 'data'),
+        'native_wukong' => array('App聊天修复', 'native/wukong/*', '', '', 'data'),
 	'log_manage' => array('管理日志', 'log/manage,loginlog,adminlog/*', '', '', 'data'),
 
 	//'app_album' => array('相册管理', 'app/manage/*?app=album', '', '', 'appcenter'),
