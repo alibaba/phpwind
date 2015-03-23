@@ -57,7 +57,7 @@ class PwLaiWangSerivce {
 
     function __construct(){
         $_config = Wekit::C()->getValues('wukong');
-        if (empty($_config)) {
+        if (empty($_config) || !isset($_config['ios.appKey'])) {
             $_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
             $_config = self::saveAppekySetting($_securityKey['value']);
         }
