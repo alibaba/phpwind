@@ -124,7 +124,7 @@ class SettingController extends PwBaseController {
             'imgmd5'=>'',
             'status'=>'',
         );
-        $data['status'] = isset($this->config['startup.status']) ? $this->config['startup.status'] : 0;
+        $data['status'] = isset($this->config['startup.status']) ? "{$this->config['startup.status']}" : "0";
         if(isset($this->config['startup.status']) && $this->config['startup.status'] ){
             $_imgmd5 = Pw::getPath($this->config['startup.img']);
             if( $imgmd5!=$_imgmd5 ){
