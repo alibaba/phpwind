@@ -18,8 +18,8 @@ class PwFreshUpload extends PwUploadAction {
 	public $mime = array();
 
 	public function __construct() {
-		$this->ftype = array('jpg' => 2000, 'jpeg' => 2000, 'png' => 2000, 'gif' => 2000);
-        $this->mime = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif');
+		$this->ftype = array('jpg' => 2000, 'jpeg' => 2000, 'png' => 2000, 'gif' => 2000,'svg'=>2000);
+        $this->mime = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif','image/svg+xml');
 	}
 	
 	/**

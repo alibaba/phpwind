@@ -20,6 +20,7 @@ banner.file.empty="文件不能为空"
 banner.link.empty="点击指向不能为空"
 banner.clickType.empty="请选择点击类型"
 banner.num.out="Banner数量超过限制"
+upload.empty="请选择一个附件"
 
 fresh.title.empty="标题不能为空"
 fresh.file.empty="文件不能为空"

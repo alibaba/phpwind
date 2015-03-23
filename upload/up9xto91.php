@@ -246,10 +246,14 @@ $(function(){
 
 <?php
 }else if($_GET['action']=="dorun"){//用户提交基本信息，执行升级过程
+//    header("Content-type: text/html; charset=utf-8");
+//    echo "脚本开始执行...<br>";
     ignore_user_abort(true);
     set_time_limit(0);
     error_reporting(0);
     ini_set( 'display_errors', 'Off' );
+//    error_reporting(E_ALL);
+//    ini_set( 'display_errors', 'On' );
     /*
     print str_pad("", 10000);
     @ob_flush();
@@ -257,21 +261,29 @@ $(function(){
     sleep(5);
      */
     //检查lock文件是否存在
+//    echo "检查lock文件是否存在...<br>";
     if (file_exists("./data/up9xto91.lock")) {
 	showError('升级程序已被锁定, 如需重新运行，请先删除./data/up9xto91.lock');
     }
     //判断native目录是否存在
+//    echo "判断native目录是否存在...<br>";
     if(!is_dir("./src/applications/native")){
         showError("./src/applications/native 目录不存在,请确保升级包中文件正确覆盖，并且不要修改目录名字");
     }
-        
+//    echo "检查扩展是否缺少...<br>";
     $extensions = get_loaded_extensions();
     if(!in_array("mcrypt", $extensions))showError("缺少mcrypt扩展");
     if(!in_array("curl", $extensions))showError("缺少curl扩展");
+    $curl_version = curl_version();
+    if(strpos($curl_version['ssl_version'],"NSS")!==false){
+        showError("您的主机操作系统curl库的ssl_version为".$curl_version['ssl_version'].",需要将其升级为OpenSSL，否则会影响APP的聊天功能");
+    }
     //执行数据库升级
+//    echo "引入数据库脚本...<br>";
     $sql_source = file_get_contents("./pw_new.sql");
 //    var_dump($sql_source);
     $err_msg = '';
+//    echo "加载本地数据库配置...<br>";
     $db_conf = include_once './conf/database.php';
     $username = $db_conf['user'];
     $password = $db_conf['pwd'];
@@ -284,32 +296,37 @@ $(function(){
     $dbname = trim(substr($dsn[1],strpos($dsn[1], "=")+1));
     $port = trim(substr($dsn[2],strpos($dsn[2], "=")+1));
 //    var_dump($host,$dbname,$port);exit;
-
+//    echo "格式化数据库脚本...<br>";
       
     $sql_source = str_replace(array("{pre}","{charset}","{time}"),array($dbpre,$charset,time()), $sql_source);
 //    var_dump($sql_source);
 //    $con = mysql_connect($host.":".$port,$username,$password) or die('Could not connect: ' . mysql_error());
+//    echo "连接数据库...<br>";
     $con = mysql_connect($host.":".$port,$username,$password) or showError('Could not connect: ' . mysql_error());
     mysql_select_db($dbname, $con) or showError('Can\'t use foo : ' . mysql_error());
+//    echo "设置查询字符集...<br>";
     $result = mysql_query("SET character_set_connection= 'utf8', character_set_results= 'utf8', character_set_client=BINARY, sql_mode=''") or die("Invalid query: " . mysql_error());
     $result = mysql_query("SET NAMES 'utf8'") or die("Invalid query: " . mysql_error());
     $sql_source = explode(';', $sql_source);
+//    echo "校验sql语句...<br>";
     foreach($sql_source as $k => $v){
         $sql_source[$k] = trim($v);
         if(!$sql_source[$k])unset($sql_source[$k]);
     }
-
+//    echo "逐条执行sql...<br>";
     foreach($sql_source as $sql){
         //执行sql
         $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
     }
     //将站点所有一级版面设置为移动端可显示版面
+//    echo "查找站点一级版面...<br>";
     $sql = "SELECT fid FROM `".$dbpre."bbs_forum` WHERE TYPE='forum'";
     $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
     $fids = array();
     while ($row = mysql_fetch_array($result,MYSQL_ASSOC)) {
         $fids[$row['fid']] = 0;
     }
+//    echo "将一级版面默认设置为移动端可显示版面...<br>";
     $fids = serialize($fids);
 //    var_dump($fids);exit;
     $sql = "REPLACE INTO `".$dbpre."common_config` (`name`, `namespace`, `value`, `vtype`) VALUES ('forum.fids', 'native', '".$fids."', 'array');";
@@ -320,13 +337,18 @@ $(function(){
     $dirname = $dirname == "\\" ? "" : $dirname;
     $http_host = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:'')).$dirname."/index.php?m=cron";
     $http_server = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:''));
+//    echo "触发热帖权重计算...<br>";
     @file_get_contents($http_host);
     //生成lock文件
+//    echo "生成lock文件...<br>";
     file_put_contents("./data/up9xto91.lock", "pw9.0.1移动版");
     $success_text = "恭喜！您的站点已成功升级至phpwind 9.0.1移动版本！
                     感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛<a href='http://www.phpwind.net' target='_blank'>（http://www.phpwind.net）</a> 
                     <a href='$http_server' target='_blank'>返回站点首页</a>";
+//    echo "升级结束...<br>";
     showMsg($success_text);
+}else{
+    echo "args error";
 }
 
 

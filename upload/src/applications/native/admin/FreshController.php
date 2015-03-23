@@ -51,6 +51,8 @@ class FreshController extends AdminBaseController {
         if( empty($href) ){
             $this->showError("NATIVE:fresh.link.empty");
         }
+        if(Pw::strlen($title)>5) $this->showError("名称不能超过5个字符", 'native/fresh/run/',true);
+        if(Pw::strlen($des)>9) $this->showError("备注不能超过9个字符", 'native/fresh/run/',true);
         if( $fid ){
             $fname = $fid;
         }else{
@@ -58,7 +60,7 @@ class FreshController extends AdminBaseController {
             $fname = count($maxId)?$maxId['fresh_id']+1:1;
         }
         if( !$fid && !$_FILES ){
-            $this->showError('upload.empty');
+            $this->showError('NATIVE:upload.empty');
         }
         if( $_FILES ){
             Wind::import('SRV:upload.action.PwFreshUpload');                                                                                                
