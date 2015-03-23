@@ -105,6 +105,8 @@ class PwLaiWangSerivce {
                 ->set('org',$appSettingData['org'])
                 ->set('android.appKey',$appSettingData['Android']['appKey'])
                 ->set('android.appSecret',$appSettingData['Android']['appSecret'])
+                ->set('ios.appKey',$appSettingData['iOS']['appKey'])
+                ->set('ios.appSecret',$appSettingData['iOS']['appSecret'])
                 ->flush();
             return $appSettingData;
         }
