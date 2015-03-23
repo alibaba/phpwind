@@ -51,8 +51,8 @@ class FreshController extends AdminBaseController {
         if( empty($href) ){
             $this->showError("NATIVE:fresh.link.empty");
         }
-        if(Pw::strlen($title)>5) $this->showError("名称不能超过5个字符", 'native/fresh/run/',true);
-        if(Pw::strlen($des)>9) $this->showError("备注不能超过9个字符", 'native/fresh/run/',true);
+        if(Pw::strlen($title)>5) $this->showError("名称不能超过5个字符");
+        if(Pw::strlen($des)>9) $this->showError("备注不能超过9个字符");
         if( $fid ){
             $fname = $fid;
         }else{
