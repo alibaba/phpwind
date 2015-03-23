@@ -13,15 +13,25 @@
         <input type="hidden" name="img" value="{$oneFresh['img']}" />
 <div>
     <div class="pop_cont">
-        <div class="mb15"><h4 class="mb5"><span class="red">*</span>logo(150*150、jpg、png)</h4>
-            <input type="file" name="Filename" value="" />
+        <div class="mb15">
+            <span class="red">*</span>
+            <b>图片</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="file" name="Filename" value="" style="width:150px;"/>
+            (150*150、jpg、png、svg)
         </div>
-        <div class="mb15"><h4 class="mb5"><span class="red">*</span>名称</h4><input name="title" type="text" value="{$oneFresh['title']}" class="input" style="width:200px;"></div>
-        <div class="mb15"><h4 class="mb5"><span class="red">*</span>目标链接</h4>
-            <input name="href" type="text" class="input" value="{$oneFresh['href']}" style="width:396px;">
+        <div class="mb15">
+            <span class="red">*</span><b>名称</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input name="title" type="text" value="{$oneFresh['title']}" class="input" style="width:200px;">
+            (最多5个字符)
         </div>
-        <div class="mb15"><h4 class="mb5">备注</h4>
-            <input name="des" type="text" class="input" value="{$oneFresh['des']}" style="width:396px;">
+        <div class="mb15">
+            <span class="red">*</span><b>目标链接</b>&nbsp;&nbsp;&nbsp;&nbsp;
+            <input name="href" type="text" class="input" value="{$oneFresh['href']}" style="width:200px;">
+        </div>
+        <div class="mb15">
+            <b>备注</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input name="des" type="text" class="input" value="{$oneFresh['des']}" style="width:200px;">
+            (最多9个字符)
         </div>
 	</div>
 	<div class="pop_bottom cc">
