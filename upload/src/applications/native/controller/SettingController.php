@@ -113,7 +113,7 @@ class SettingController extends PwBaseController {
      * <pre>
      * /index.php?m=native&c=Setting&a=startup <br>
      * post: imgmd5 <br>
-     * reponse: img&imgmd5
+     * reponse: img&imgmd5&status
      * </pre>
      */
     public function startupAction(){
@@ -122,7 +122,9 @@ class SettingController extends PwBaseController {
         $data = array(
             'img'=>'',
             'imgmd5'=>'',
+            'status'=>'',
         );
+        $data['status'] = isset($this->config['startup.status']) ? "{$this->config['startup.status']}" : "0";
         if(isset($this->config['startup.status']) && $this->config['startup.status'] ){
             $_imgmd5 = Pw::getPath($this->config['startup.img']);
             if( $imgmd5!=$_imgmd5 ){
