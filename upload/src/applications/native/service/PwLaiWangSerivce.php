@@ -62,7 +62,8 @@ class PwLaiWangSerivce {
             $_config = self::saveAppekySetting($_securityKey['value']);
         }
         if (empty($_config)) {
-            error_log('No laiwang info found');
+            $info = Wekit::C()->getConfigByName('site', 'info.url');
+            error_log('No laiwang info found for: '.$info['value']);
             return;
         }
 
