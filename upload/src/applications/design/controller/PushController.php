@@ -29,7 +29,7 @@ class PushController extends PwBaseController{
                 $pageList[0] = Array(
                                     'page_id' => 0,
                                     'page_type' => 0,
-                                    'page_name' => "移动版首页",
+                                    'page_name' => "移动端首页",
                                     'page_router' =>"",
                                     'page_unique' => 0,
                                     'is_unique' => 0,
@@ -67,7 +67,7 @@ class PushController extends PwBaseController{
 			if ($v['model_flag'] != $fromtype) continue;
 			$option .= '<option value="'.$v['module_id'].'">'.$v['module_name'].'</option>';
 		}
-                $pageid === 0 && $option = '<option value="0">动态最热</option>';//增加推送帖子到移动版
+                $pageid === 0 && $option = '<option value="0">最热</option>';//增加推送帖子到移动版
 		if (!$option) $option = '<option value="">无可用模块</option>';
 		$this->setOutput($option, 'html');
 		$this->showMessage("operate.success");
