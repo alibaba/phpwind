@@ -38,8 +38,9 @@ class UserController extends NativeBaseController {
     public function checkLoginStatusAction(){
 
         $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
-        if( $this->isLogin() ){
-            $data = array_merge($this->_getUserInfo(),$data) ;
+        if ($this->isLogin()) {
+            // TODO: 先将laiwangOK设置成false
+            $data = array_merge($this->_getUserInfo(false),$data) ;
             //
             $this->setOutput($data, 'data');
             $this->showMessage('USER:login.success');
