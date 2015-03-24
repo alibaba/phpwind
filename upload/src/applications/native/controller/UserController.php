@@ -366,7 +366,7 @@ class UserController extends NativeBaseController {
             $userdata = array(
                 //'securityKey'=>null, //这个键值对不存在,android走注册流程
                 'userinfo'=>$accountData,
-                'laiwangSetting' => PwLaiWangSerivce::$wk_setting,
+                'laiwangSetting' => array_merge(array('laiwangOK'=> false), PwLaiWangSerivce::$wk_setting),
             );
 
         } else {

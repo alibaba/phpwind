@@ -73,6 +73,7 @@ class PwLaiWangSerivce {
         //
         unset($_config['android.appKey']);
         unset($_config['android.appSecret']);
+        unset($_config['ios.appSecret']);
         unset($_config['appToken']);
         //
         self::$wk_setting = array_merge(self::$wk_setting, $_config);
