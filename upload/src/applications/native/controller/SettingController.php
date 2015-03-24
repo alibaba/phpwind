@@ -58,11 +58,12 @@ class SettingController extends PwBaseController {
 
     /**
      * 查询laiwang帐号信息
+     * 注意为了兼容旧的phpwind代码，当设置项中不存在ios的appkey时，返回空的结果。
      * 
      * @access public
      * @return void
      */
-    public function getLaiwangInfoAction(){
+    public function getLaiwangInfoAction() {
         $config = Wekit::C()->getValues('wukong');
         if (empty($config) || !isset($config['ios.appKey'])) {
             $data = array('info' => '');
