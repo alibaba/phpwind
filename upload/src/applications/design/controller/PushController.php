@@ -25,7 +25,19 @@ class PushController extends PwBaseController{
 		if (!$data) $this->showError("operate.fail");
 		$pageList = $this->_getPermissionsService()->getPermissionsAllPage($this->loginUser->uid);
 		if (!$pageList) $this->showError("push.page.empty");
-		
+                //增加推送帖子到移动版
+                $pageList[0] = Array(
+                                    'page_id' => 0,
+                                    'page_type' => 0,
+                                    'page_name' => "移动版首页",
+                                    'page_router' =>"",
+                                    'page_unique' => 0,
+                                    'is_unique' => 0,
+                                    'module_ids' =>"",
+                                    'struct_names' => "",
+                                    'segments' => "",
+                                    'design_lock' =>""
+                                );
 		$this->setOutput($pageList, 'pageList');
 		
 		$first = array_shift($pageList);
@@ -55,6 +67,7 @@ class PushController extends PwBaseController{
 			if ($v['model_flag'] != $fromtype) continue;
 			$option .= '<option value="'.$v['module_id'].'">'.$v['module_name'].'</option>';
 		}
+                $pageid === 0 && $option = '<option value="0">动态最热</option>';//增加推送帖子到移动版
 		if (!$option) $option = '<option value="">无可用模块</option>';
 		$this->setOutput($option, 'html');
 		$this->showMessage("operate.success");
@@ -69,6 +82,43 @@ class PushController extends PwBaseController{
 		$fromtype = $this->getInput('fromtype', 'post');
 		$start = $this->getInput('start_time', 'post');
 		$end = $this->getInput('end_time', 'post');
+                /* 增加推送帖子到移动版start */
+                if($pageid===0 && $moduleid===0){//推送移动端热帖
+                    $tid = (int)$this->getInput('tid');
+                    $tid || $this->showError("operate.fail");
+//                    $this->forwardRedirect(WindUrlHelper::createUrl('native/dynamic/sethot'));
+                    $threadsWeightDao = Wekit::loadDao('native.dao.PwThreadsWeightDao');
+
+                    //获取帖子最高权重，将其作为管理员推送帖子的初始权重置顶
+                    $weightData = $threadsWeightDao->getMaxWeight();
+                    isset($weightData['weight']) ? $max_weight = intval($weightData['weight'])+1:1;
+                    //
+                    $data = array(
+                        'create_time'   =>time(),
+                        'weight'        =>$max_weight,
+                        'create_userid' =>$this->loginUser->uid,
+                        'create_username'=>$this->loginUser->username,
+                        'tid'           =>$tid,
+                    );
+                    $threadWeight = $threadsWeightDao->getByTid($tid);
+                    
+                    if($threadWeight){//更新数据
+                        $res = $threadsWeightDao->updateValue($data);
+                    }else{//新增数据
+                        $res = $threadsWeightDao->insertValue($data);
+                    }
+                    if($res){
+                        $thread = Wekit::load('forum.PwThread')->getThread($tid);
+                        $push_msg = '《'.$thread['subject'].'》已被推荐热贴'; 
+                        Wekit::load("APPS:native.service.PwLaiWangSerivce");
+                        PwLaiWangSerivce::pushMessage($thread['created_userid'], $push_msg, $push_msg); 
+                        //
+                        $this->showMessage('NATIVE:sethot.success');
+                    }else{
+                        $this->showMessage('NATIVE:sethot.failed');
+                    }                                  
+                }
+                /* 增加推送帖子到移动版end */
 		if ($moduleid < 1) $this->showError("operate.fail");
 		$permiss = $this->_getPermissionsService()->getPermissionsForModule($this->loginUser->uid, $moduleid, $pageid);
 		$pushService = $this->_getPushService();
