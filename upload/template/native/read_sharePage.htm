@@ -70,9 +70,21 @@
                 <!--# if ($attach['pic']) { #-->
                 <div class="read_attach_pic">
                     <div class="ct">
-                        <ul class="cc big_img J_gallery_list" style="display:{@$_isShowSmall ? 'none' : ''}">
+                        <ul class="cc big_img J_gallery_list" style="display:{@$_isShowSmall ? 'none' : ''};list-style:none">
                             <!--# foreach ($attach['pic'] as $key => $value) { #-->
-                            <li class="J_gallery_items"><span class="J_attach_img_wrap"><div class="img_info J_img_info"><!--# if ($value['descrip']) { #--><p>描述：{$value['descrip']}</p><!--# } #--><p>图片：{$value['name']}<!--# if ($threadPermission['deleteatt']) { #--><a class="J_read_img_del w" href="{@url:bbs/attach/delete}" data-pdata="{'aid':'{$value['aid']}'}">[删除]</a><!--# } #--></p></div><a data-big="{$value['url']}" href="javascript:;">{$value['img']|html}</a></span></li>
+                            <li class="J_gallery_items">
+                                <span class="J_attach_img_wrap">
+                                    <div class="img_info J_img_info">
+                                    <!--# if ($threadPermission['deleteatt']) { #-->
+                                    <a class="J_read_img_del w" href="{@url:bbs/attach/delete}" data-pdata="{'aid':'{$value['aid']}'}">[删除]</a>
+                                    <!--# } #-->
+                                    </p>
+                                    </div>
+                                    <a data-big="{$value['url']}" href="javascript:;">
+                                        <img border="0" title="点击查看原图" width='100%' src="{$value['url']}" class="J_post_img">
+                                    </a>
+                                </span>
+                            </li>
                             <!--# } #-->
                         </ul>
                     </div>

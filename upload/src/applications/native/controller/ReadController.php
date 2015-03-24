@@ -154,6 +154,7 @@ class ReadController extends NativeBaseController {
             'collect_status'=>isset($collectStatusInfo[$tid]) && array_search($this->uid, $collectStatusInfo[$tid])!==false?1:0,
             'display_title' =>isset($threadFromtypeList[$tid]) && $threadFromtypeList[$tid] ? 1:0,
         );
+        $simpleForumInfo['display_title'] = $simpleThreadInfo['display_title'];
 
         //位置
         $threadPlace = $this->_getThreadPlaceService()->fetchByTids( array($tid) );
