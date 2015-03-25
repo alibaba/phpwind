@@ -434,7 +434,7 @@ class UserController extends NativeBaseController {
             $this->showError($info->getError());
         } else {
             //这里注册成功，要把第三方帐号的头像下载下来并处理，这里还没有做
-            if( $this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type'])==false ){
+            if ($this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type']) == false) {
                 $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
                 //
                 $laiwangOK = PwLaiWangSerivce::registerUser($info['uid'],

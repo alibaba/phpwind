@@ -257,6 +257,13 @@ class PwLaiWangSerivce {
         //
         $request = Wind::getComponent('httptransfer', array($uri, self::WK_TIMEOUT));
         $headers = array('Authorization'=> self::_getAuthorization());
+
+        // 对于https，如果是OpenSSL，设置上这个选项
+        $curl_version = curl_version();
+        if (strstr($curl_version['ssl_version'], 'OpenSSL') !== false) {
+            $request->request(CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
+        }
+
         $request->setData($params);
         $request->setHeader($headers);
         $result = $request->send('POST');
