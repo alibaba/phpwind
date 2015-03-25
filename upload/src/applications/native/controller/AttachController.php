@@ -20,8 +20,15 @@ class AttachController extends NativeBaseController {
 
     }
 
+    /**
+     * 附件下载
+     * /index.php?m=native&c=attach&a=download&aid=77
+     */
     public function downloadAction() {
-
+//        $this->uid = 1;
+            $this->loginUser = new PwUserBo($this->uid);
+        
+//            var_dump($this->uid);exit;
             $aid = (int)$this->getInput('aid', 'get');
             $submit = (int)$this->getInput('submit', 'post');
             $attach = Wekit::load('attach.PwThreadAttach')->getAttach($aid);
@@ -33,6 +40,8 @@ class AttachController extends NativeBaseController {
             if (!$forum->isForum()) {
                     $this->showError('data.error');
             }
+            /*
+            ///////////////////////////////////////////////
             if ($attach['cost'] && !$this->loginUser->isExists()) {
                     $this->showError('download.fail.login.not','bbs/attach/download');
             }
@@ -70,9 +79,14 @@ class AttachController extends NativeBaseController {
             } else {
                     $dataShow = $lang->getMessage('BBS:thread.attachbuy.message.success');
             }
+            //////////////////////////////////////////////////////////
+             * 
+             */
             $submit = 1;
             !$submit && $this->showMessage($dataShow);
-
+            
+            /*
+            //////////////////////////////////////////////////////
             //购买积分操作
             $this->_operateBuyCredit($attach);
 
@@ -93,6 +107,9 @@ class AttachController extends NativeBaseController {
             $dm = new PwThreadAttachDm($aid);
             $dm->addHits(1);
             Wekit::load('attach.PwThreadAttach')->updateAttach($dm);
+            /////////////////////////////////////////////////////////////////////////////////
+             * 
+             */
 
             $filename = basename($attach['path']);
             $fileext = substr(strrchr($attach['path'], '.'), 1);
