@@ -60,6 +60,7 @@ if(strpos($ssl_version,"OpenSSL")!==false){
 }
 
 $x = curl_exec($ch);
+$error_msg = "";
 if(!$x){
     $error_msg = curl_error($ch);
 }
