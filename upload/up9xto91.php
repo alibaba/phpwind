@@ -275,8 +275,13 @@ $(function(){
     if(!in_array("mcrypt", $extensions))showError("缺少mcrypt扩展");
     if(!in_array("curl", $extensions))showError("缺少curl扩展");
     $curl_version = curl_version();
-    if(strpos($curl_version['ssl_version'],"NSS")!==false){
-        showError("您的主机操作系统curl库的ssl_version为".$curl_version['ssl_version'].",需要将其升级为OpenSSL，否则会影响APP的聊天功能");
+    $ssl_version = $curl_version['ssl_version'];
+    if(strpos($ssl_version,"NSS")!==false){
+        $arr = explode("/", $ssl_version);
+        $arr = explode(".", $arr[1]);
+        if($arr[1]<16){
+            showError("检测失败！您当前主机的操作系统curl库依赖的SSL版本为".$curl_version['ssl_version']."，NSS版本过低，请您联系主机运营商将NSS库升级为3.16或以上（如果您拥有主机的管理员权限也可以自行升级），否则会影响APP的聊天功能。");
+        }
     }
     //执行数据库升级
 //    echo "引入数据库脚本...<br>";
