@@ -18,14 +18,20 @@
  * 使用中如果您遇到任何问题请反馈至http://www.phpwind.net/，我们会第一时间排查处理。
  * 
  */
+//ini_set("display_errors",1);
+//error_reporting(E_ALL);
 error_reporting(0);
 ini_set( 'display_errors', 'Off' );
+header("Content-Type:text/html;charset=utf-8"); 
 
 $extensions = get_loaded_extensions();
 if(!in_array("curl", $extensions))showError("缺少curl扩展");
 $curl_version = curl_version();
 $ssl_version = $curl_version['ssl_version'];
+//$ssl_version = "NSS/3.14.5";
+$error_txt = "";
 if(strpos($ssl_version,"NSS")!==false){
+    $error_txt = "如果您是刚升级完NSS，请您将php也同时升级到新版";
     $arr = explode("/", $ssl_version);
     $arr = explode(".", $arr[1]);
     if($arr[1]<16){
@@ -33,12 +39,43 @@ if(strpos($ssl_version,"NSS")!==false){
     }
 }
 
-showMsg("检测成功！您当前的系统curl库依赖的SSL库版本为".$curl_version['ssl_version']);
+
+$url='https://wkapi.laiwang.com/v1/user/profile';//查看用户信息    
+$params=array(
+    'openid'=>14,
+);
+$ch = curl_init($url);
+curl_setopt($ch, CURLOPT_VERBOSE, 1);
+curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 0);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
+curl_setopt($ch, CURLOPT_SSLVERSION , 1);
+curl_setopt($ch, CURLOPT_VERBOSE,true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params) );
+if(strpos($ssl_version,"OpenSSL")!==false){
+    curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, 'TLSv1');
+}
+
+$x = curl_exec($ch);
+if(!$x){
+    $error_msg = curl_error($ch);
+}
+$httpCode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
+//        var_dump(curl_getinfo($ch, CURLINFO_HEADER_OUT));
+//            $error_message = curl_strerror($errno);
+//            echo "cURL error ({$errno}):\n {$error_message}"."<br>";
 
 
-
-
-
+if($httpCode){
+    showMsg("检测成功！您当前的系统curl库依赖的SSL库版本为".$curl_version['ssl_version']."<br>httpCode:{$httpCode}");
+}else{
+    $errno = curl_errno($ch);
+    showMsg("检测失败！{$error_txt}<br>httpCode:{$httpCode}<br>errorMsg:{$error_msg}<br>errorno:{$errno}");
+}
+    
 /*错误信息页面*/
 function showError($msg, $url = false) {
 	global $action,$token;
