@@ -346,7 +346,7 @@ class PwUbbCode {
 	}
 
     public static function parseShare($message) {
-		return preg_replace("/\[share=([^,]+),([^\]]*)\]([^\[]+)\[\/share\]/eis", "self::createShare('\\1', '\\2', '\\3')", $message);
+		return preg_replace("/\[share=([^,]+),([^\]]*)\](.+?)\[\/share\]/eis", "self::createShare('\\1', '\\2', '\\3')", $message);
 	}
 
 	public static function parseRemind($message, $remindUser) {
