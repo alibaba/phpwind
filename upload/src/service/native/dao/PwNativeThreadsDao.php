@@ -255,7 +255,7 @@ class PwNativeThreadsDao extends PwThreadsDao {
      * 获取同城帖子数量
      */
     public function getCityThreadCount($city){
-        if(!$this->fids || !$city) 0;
+        if(!$this->fids || !$city) return 0;
         $dao = $GLOBALS['acloud_object_dao'];//ACloudVerCoreDao
         $prefix = $dao->getDB()->getTablePrefix();
         $sql = "SELECT COUNT(*) count
@@ -267,6 +267,26 @@ class PwNativeThreadsDao extends PwThreadsDao {
         $smt = $this->getConnection()->query($sql);
         $res = $smt->fetch();
         return $res['count'];
+    }
+    
+    /**
+     * 根据用户uid获取用户发帖时所在位置
+     */
+    public function getCityByUid($uid){
+        if(!$this->fids || !$uid) return "";
+        $dao = $GLOBALS['acloud_object_dao'];//ACloudVerCoreDao
+        $prefix = $dao->getDB()->getTablePrefix();          
+        $sql = "SELECT p.`created_address` 
+                FROM `{$prefix}bbs_threads_place` p 
+                LEFT JOIN `%s` t 
+                ON p.`tid`=t.`tid` 
+                WHERE p.`created_address`!='' AND t.`created_userid`=%s 
+                ORDER BY t.`created_time` DESC 
+                LIMIT 1;";
+        $sql = $this->_bindSql($sql, $this->getTable(),$uid);
+        $smt = $this->getConnection()->query($sql);
+        $res = $smt->fetch();
+        return $res['created_address'];
     }
     
     public function fetchThreads($tids) {

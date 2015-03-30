@@ -54,4 +54,24 @@ class PwPostsPlaceDao extends PwBaseDao {
             return $smt->fetch();
         }
         
+        /**
+         * 根据用户id获取回帖时的位置信息
+         */
+        public function getCityByUid($uid){
+            if(!$uid) return "";
+            $dao = $GLOBALS['acloud_object_dao'];//ACloudVerCoreDao
+            $prefix = $dao->getDB()->getTablePrefix();          
+            $sql = "SELECT p.`created_address` 
+                    FROM `%s` p 
+                    LEFT JOIN `{$prefix}bbs_posts` t 
+                    ON p.`pid`=t.`pid` 
+                    WHERE t.`created_userid`=%s AND p.`created_address`!='' 
+                    ORDER BY t.`created_time` DESC 
+                    LIMIT 1;";
+            $sql = $this->_bindSql($sql, $this->getTable(),$uid);
+            $smt = $this->getConnection()->query($sql);
+            $res = $smt->fetch();
+            return $res['created_address'];
+        }
+        
 }

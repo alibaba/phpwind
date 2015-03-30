@@ -77,15 +77,17 @@ class SpaceController extends NativeBaseController {
 
         //帖子发布来源
         $threadFromtypeList = $this->_getThreadsPlaceService()->getThreadFormTypeByTids($_tids);
-
-        //
+        
+        $location_text = Wekit::loadDao('native.dao.PwNativeThreadsDao')->getCityByUid($spaceUid);
+        $location_text || $location_text = Wekit::loadDao('native.dao.PwPostsPlaceDao')->getCityByUid($spaceUid);
+        $location_text || $location_text = $space->spaceUser['location_text'];
         $data = array(
             'uid'       =>$this->uid,
             'userInfo'  =>isset($space->spaceUser)
             ?array(
                 'username'  =>$space->spaceUser['username'],
                 'gender'    =>$space->spaceUser['gender'],
-                'location_text'=>$space->spaceUser['location_text'],
+                'location_text'=>$location_text,
                 'avatar'    =>Pw::getAvatar($spaceUid)
             )
             :array('username'=>'','gender'=>0,'location_text'=>'','avatar'=>''),
