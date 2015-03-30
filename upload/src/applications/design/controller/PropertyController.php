@@ -63,6 +63,7 @@ class PropertyController extends PwBaseController{
 		if (empty($name)) $this->showError('DESIGN:module.name.empty');
 		$cache = $this->getInput('cache','post');
 		$property = $this->getInput('property','post');
+                isset($property['html']) && $property['html'] = $this->_getDesignService()->filterTemplate($property['html']);
 		if ($property['limit'] > 200) $this->showError('DESIGN:maxlimit.error');
 		$cls = sprintf('PwDesign%sDataService', ucwords($model));
 		Wind::import('SRV:design.srv.model.'.$model.'.'.$cls);
