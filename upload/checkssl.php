@@ -27,7 +27,7 @@ header("Content-Type:text/html;charset=utf-8");
 $extensions = get_loaded_extensions();
 if(!in_array("curl", $extensions))showError("缺少curl扩展");
 $curl_version = curl_version();
-$ssl_version = $curl_version['ssl_version'];
+$ssl_version = isset($curl_version['ssl_version']) ? $curl_version['ssl_version'] : "";
 //$ssl_version = "NSS/3.14.5";
 $error_txt = "";
 if(strpos($ssl_version,"NSS")!==false){
@@ -37,6 +37,8 @@ if(strpos($ssl_version,"NSS")!==false){
     if($arr[1]<16){
         showMsg("检测失败！您当前主机的操作系统curl库依赖的SSL版本为".$curl_version['ssl_version']."，NSS版本过低，请您联系主机运营商将NSS库升级为3.16或以上（如果您拥有主机的管理员权限也可以自行升级），否则会影响APP的聊天功能。");
     }
+}elseif(!$ssl_version){
+    showMsg("检测失败！您当前主机的操作系统没有安装SSL库，请联系您的主机运营商为您安装OpenSSL（如果您拥有主机的管理员权限也可以自行升级），否则会影响APP的聊天功能。<br>curl_version:$ssl_version");
 }
 
 
@@ -74,7 +76,7 @@ if($httpCode){
     showMsg("检测成功！您当前的系统curl库依赖的SSL库版本为".$curl_version['ssl_version']."<br>httpCode:{$httpCode}");
 }else{
     $errno = curl_errno($ch);
-    showMsg("检测失败！{$error_txt}<br>httpCode:{$httpCode}<br>errorMsg:{$error_msg}<br>errorno:{$errno}");
+    showMsg("检测失败！{$error_txt}<br>httpCode:{$httpCode}<br>errorMsg:{$error_msg}<br>errorno:{$errno}<br>curl_version:{$curl_version['ssl_version']}");
 }
     
 /*错误信息页面*/
