@@ -264,12 +264,42 @@ class ReadController extends NativeBaseController {
                 $threadInfo['content'] = str_replace($matches[0][$i],$vedio,$threadInfo['content']);
             }
         }
+        //帖子内容音频资源
+        preg_match_all('/<div class="J_audio".*?data-url="(.+?)".*?><\/div>/i',$threadInfo['content'],$matches);
+        if(isset($matches[0]) && $matches[0]){
+            $count = count($matches[0]);
+            for($i=0;$i<$count;$i++){
+                $audio = '<br><audio controls="controls" src="'.$matches[1][$i].'">不支持音乐</audio>';
+                $threadInfo['content'] = str_replace($matches[0][$i],$audio,$threadInfo['content']);
+            }
+        }
         //帖子数据列表
         $threadList = $threadDisplay->getList();
+        $threadList = array_slice($threadList,1,3);
+        foreach($threadList as $k=>$v){
+            preg_match_all('/<div class="J_video" data-url="(.+?\.swf)".*?><\/div>/i',$v['content'],$matches);
+            if(isset($matches[0]) && $matches[0]){
+                $count = count($matches[0]);
+                for($i=0;$i<$count;$i++){
+                    $vedio = '<embed src="'.$matches[1][$i].'" allowFullScreen="true" quality="high" width="240" height="200" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>';
+    //                echo $vedio."<br>";
+                    $threadList[$k]['content'] = str_replace($matches[0][$i],$vedio,$v['content']);
+                }
+            }
 
+            preg_match_all('/<div class="J_audio".*?data-url="(.+?)".*?><\/div>/i',$v['content'],$matches);
+            if(isset($matches[0]) && $matches[0]){
+                $count = count($matches[0]);
+                for($i=0;$i<$count;$i++){
+                    $audio = '<br><audio controls="controls" src="'.$matches[1][$i].'">不支持音乐</audio>';
+                    $threadList[$k]['content'] = str_replace($matches[0][$i],$audio,$v['content']);
+                }
+            }
+        }
+//var_dump($threadList);exit;
         $this->setOutput(Wekit::getGlobal('url', 'res'), 'resPath');
         $this->setOutput($threadInfo,'threadInfo');
-        $this->setOutput(array_slice($threadList,1,3),'threadList');
+        $this->setOutput($threadList,'threadList');
         $this->setOutput($threadDisplay, 'threadDisplay'); 
         $this->setOutput(PwCreditBo::getInstance(), 'creditBo'); 
     }
