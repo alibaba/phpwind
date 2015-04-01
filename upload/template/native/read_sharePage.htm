@@ -14,6 +14,8 @@
             a:visited{text-decoration:none;}
             a:hover{text-decoration:underline;}
             a:active{text-decoration:underline;}
+			.stitle{font-weight:bold;font-size:1.2rem;height:1.8rem}
+            .username{font-size:0.9rem;height:1.8rem;color:#919191;}
 
             #read_body{padding:0.2rem;}
             header{height:3.8rem;}
@@ -25,10 +27,10 @@
 
             /*推广*/
             .taobaoCanvas{border:1px dashed #CCC;background:#f7f7f7 right top no-repeat;padding:10px;margin:1em 0;}
-            .taobaoCanvas .go { border-radius: 5px; box-shadow: 0px 1px 1px #666666; font-family: Arial; color: #ffffff; font-size: 1.5rem; background: #fc7600; padding: 2px 20px 2px 20px; text-decoration: none;  }
+            .taobaoCanvas .go { border-radius: 5px; box-shadow: 0px 1px 1px #666666; font-family: Arial; color: #ffffff; font-size: 1rem; background: #fc7600; padding: 2px 20px 2px 20px; text-decoration: none;  }
             .taobaoCanvas .go a{text-decoration: none;color:#fff}
-            .taobaoCanvas dt{float:left;width:4.2rem;height:4.2rem;padding:0 0.2rem 0.1rem; 0.1rem;}
-            .taobaoCanvas dt img{width:4rem;height:4rem;}
+            .taobaoCanvas dt{float:left;width:5.3rem;height:5.3rem;padding:0 0.2rem 0.1rem; 0.1rem;}
+            .taobaoCanvas dt img{width:5rem;height:5rem;}
             .taobaoCanvas .title{font-weight:bold;min-height:1.2rem;}
             .taobaoCanvas .price{font-weight:bold;color:#fc7600;margin-bottom:5px}
 
@@ -42,24 +44,19 @@
             .app_download img{width:2.5rem; height:2.5rem; margin-right:0.2rem; }
             .app_download a{color:#fff;}
 
-            .main_thread_count{border:0.1rem solid #f7f7f7; text-align:center; height:2rem; line-height:2rem }
+            .main_thread_count{border-top:1px dotted #ccc; text-align:center; height:2rem; line-height:2rem;margin-top:2rem;padding-top:0.5rem}
 
             .rp{border-top:0.1rem solid #cccccc; margin-top:0.5rem; padding:0.3rem; font-size:0.9rem }
-            .rp dd{line-height:1.2rem}
+            .rp dd{line-height:1.5rem}
             .rp .size2{font-size:0.6rem}
+			.img_info{display:none}
 
         </style>
     </head>
     <body>
         <div id="read_body">
-            <header>
-                <div class="avatar_v" ><img src="{@Pw::getAvatar($threadInfo['created_userid'],'small')}" alt="" class="per-image" /></div>
-                <dl>
-                    <dd>{$threadInfo['created_username']}</dd>
-                    <dd>{@Pw::time2str($threadInfo['created_time'],'auto')}</dd>
-                </dl>
-                <div class="clear:both;width:100%"></div>
-            </header>
+			<div class="stitle">{$threadInfo['subject']}</div>
+			<div class="username"><span style="margin-right:1.5rem">{$threadInfo['created_username']}</span><span>{@Pw::time2str($threadInfo['created_time'],'auto')}</span></div>
             <div class="clear:both;width:100%"></div>
             <div class="thread_body">
                 {$threadInfo['content']|html}
@@ -68,27 +65,10 @@
 
                 <!--# if ($threadDisplay->attach && $attach = $threadDisplay->attach->getList(0)) { #-->
                 <!--# if ($attach['pic']) { #-->
-                <div class="read_attach_pic">
-                    <div class="ct">
-                        <ul class="cc big_img J_gallery_list" style="display:{@$_isShowSmall ? 'none' : ''};list-style:none">
-                            <!--# foreach ($attach['pic'] as $key => $value) { #-->
-                            <li class="J_gallery_items">
-                                <span class="J_attach_img_wrap">
-                                    <div class="img_info J_img_info">
-                                    <!--# if ($threadPermission['deleteatt']) { #-->
-                                    <a class="J_read_img_del w" href="{@url:bbs/attach/delete}" data-pdata="{'aid':'{$value['aid']}'}">[删除]</a>
-                                    <!--# } #-->
-                                    </p>
-                                    </div>
-                                    <a data-big="{$value['url']}" href="javascript:;">
-                                        <img border="0" title="点击查看原图" width='100%' src="{$value['url']}" class="J_post_img">
-                                    </a>
-                                </span>
-                            </li>
-                            <!--# } #-->
-                        </ul>
-                    </div>
-                </div>
+				<div style="padding:0.5rem 0 0.5rem 0">
+				<img border="0" width='100%' src="{$value['url']}" class="J_post_img">
+				</div>
+                
                 <!--# } #-->
                 <!--# if ($attach['downattach']) { #-->
                 <div class="read_attach_downattach">
@@ -98,12 +78,6 @@
                             <span class="name" title="{$value['descrip']}"><span class="file_list_wrap"><span class="file_icon_{$value['ext']}"></span></span><a class="J_attach_post_buy" data-cost="<!--# if ($value['cost']) { #-->true<!--# } #-->" href="{@url:bbs/attach/download?aid=$value['aid']}" data-credit="{$loginUser->getCredit($value['ctype'])}" data-countrel="#J_attach_count_{$value['aid']}">{$value['name']}</a>&nbsp;({$value['size']}KB)&nbsp;</span>
                             <span class="cost"><span class="" id="J_attach_count_{$value['aid']}">{$value['hits']}</span></span>
                             <span class="time">{@Pw::time2str($value['created_time'], 'auto')}</span>
-                            <span class="operate">
-                                <!--# if ($value['cost']) { #-->
-                                售价<span class="org mr10">{$value['cost']}{$creditBo->cType[$value['ctype']]}</span><a href="{@url:bbs/attach/record?aid=$value['aid']}" title="查看记录" class="mr10 fn J_buy_record" data-aid="{$value['aid']}">[记录]</a>
-                                <!--# } #-->
-                                <!--# if ($threadPermission['deleteatt']) { #--><a class="J_attach_post_del" data-pdata="{'aid':'{$value['aid']}'}" data-rel="#J_att_{$value['aid']}" href="{@url:bbs/attach/delete}">[删除]</a><!--# } #-->
-                            </span>
                         </dd>
                         <!--# } #-->
                     </dl>
@@ -118,7 +92,7 @@
             <dl class="rp">
                 <dd>评论{$key+1} 来自于:{$value['created_username']}</dd>
                 <dd class="size2">{@Pw::time2str($value['created_time'],'auto');} &nbsp; {$value['like_count']}人喜欢</dd>
-                <dd><!--# echo strip_tags(htmlspecialchars_decode($value['content'])); #--></dd>
+                <dd>{$value['content']|html}</dd>
             </dl>
             <!--# } #-->
 
