@@ -260,7 +260,7 @@ class ReadController extends NativeBaseController {
             $count = count($matches[0]);
             for($i=0;$i<$count;$i++){
                 $vedio = '<embed src="'.$matches[1][$i].'" allowFullScreen="true" quality="high" width="240" height="200" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>';
-                echo $vedio."<br>";
+//                echo $vedio."<br>";
                 $threadInfo['content'] = str_replace($matches[0][$i],$vedio,$threadInfo['content']);
             }
         }
