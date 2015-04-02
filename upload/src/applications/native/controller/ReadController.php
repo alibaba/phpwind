@@ -259,7 +259,7 @@ class ReadController extends NativeBaseController {
         if(isset($matches[0]) && $matches[0]){
             $count = count($matches[0]);
             for($i=0;$i<$count;$i++){
-                $vedio = '<embed src="'.$matches[1][$i].'" allowFullScreen="true" quality="high" width="240" height="200" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>';
+                $vedio = '<embed src="'.$matches[1][$i].'" allowFullScreen="true" quality="high" width="240" height="200" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed><br>';
 //                echo $vedio."<br>";
                 $threadInfo['content'] = str_replace($matches[0][$i],$vedio,$threadInfo['content']);
             }
@@ -269,7 +269,7 @@ class ReadController extends NativeBaseController {
         if(isset($matches[0]) && $matches[0]){
             $count = count($matches[0]);
             for($i=0;$i<$count;$i++){
-                $audio = '<br><audio controls="controls" src="'.$matches[1][$i].'">不支持音乐</audio>';
+                $audio = '<br><audio controls="controls" src="'.$matches[1][$i].'">不支持音乐</audio><br>';
                 $threadInfo['content'] = str_replace($matches[0][$i],$audio,$threadInfo['content']);
             }
         }
@@ -277,11 +277,11 @@ class ReadController extends NativeBaseController {
         $threadList = $threadDisplay->getList();
         $threadList = array_slice($threadList,1,3);
         foreach($threadList as $k=>$v){
-            preg_match_all('/<div class="J_video" data-url="(.+?\.swf)".*?><\/div>/i',$v['content'],$matches);
+            preg_match_all('/<div class="J_video" data-url="(.+?\.swf.*?)".*?><\/div>/i',$v['content'],$matches);
             if(isset($matches[0]) && $matches[0]){
                 $count = count($matches[0]);
                 for($i=0;$i<$count;$i++){
-                    $vedio = '<embed src="'.$matches[1][$i].'" allowFullScreen="true" quality="high" width="240" height="200" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>';
+                    $vedio = '<embed src="'.$matches[1][$i].'" allowFullScreen="true" quality="high" width="240" height="200" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed><br>';
     //                echo $vedio."<br>";
                     $threadList[$k]['content'] = str_replace($matches[0][$i],$vedio,$v['content']);
                 }
@@ -291,7 +291,7 @@ class ReadController extends NativeBaseController {
             if(isset($matches[0]) && $matches[0]){
                 $count = count($matches[0]);
                 for($i=0;$i<$count;$i++){
-                    $audio = '<br><audio controls="controls" src="'.$matches[1][$i].'">不支持音乐</audio>';
+                    $audio = '<br><audio controls="controls" src="'.$matches[1][$i].'">不支持音乐</audio><br>';
                     $threadList[$k]['content'] = str_replace($matches[0][$i],$audio,$v['content']);
                 }
             }
