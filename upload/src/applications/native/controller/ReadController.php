@@ -255,7 +255,7 @@ class ReadController extends NativeBaseController {
         $threadInfo['content'] = preg_replace('/onload="([^"]+)"/i','',$threadInfo['content']);
         $threadInfo['content'] = preg_replace('/onclick="([^"]+)"/i','',$threadInfo['content']);
         $threadInfo['content'] = str_replace('style="max-width:700px;"','',$threadInfo['content']);
-        preg_match_all('/<div class="J_video" data-url="(.+?\.swf)".*?><\/div>/i',$threadInfo['content'],$matches);
+        preg_match_all('/<div class="J_video" data-url="(.+?\.swf.*?)".*?><\/div>/i',$threadInfo['content'],$matches);
         if(isset($matches[0]) && $matches[0]){
             $count = count($matches[0]);
             for($i=0;$i<$count;$i++){
