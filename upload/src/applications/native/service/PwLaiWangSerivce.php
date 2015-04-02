@@ -141,6 +141,7 @@ class PwLaiWangSerivce {
         return self::request(self::WK_API_REGISTER, $params);
     }
 
+    const DEFAULT_PWD = 'b1ff423f07537e0dd5818f78c110b472';
     /**
      * 更新用户密码 
      * 
@@ -150,6 +151,11 @@ class PwLaiWangSerivce {
      * @return void
      */
     public static function updateSecret($uid, $newpwd){
+        // 某些DX转过来的程序，pw_user表里的password字段会是空的
+        // 绕过这个bug，不会有安全问题
+        if (empty($newpwd)) {
+            $newpwd = self::DEFAULT_PWD;
+        }
         $params = array(
             'openid'   =>$uid,
             'newsecret'=>$newpwd,
@@ -227,6 +233,11 @@ class PwLaiWangSerivce {
      * @return void
      */
     public static function getSecretToken($openId, $openSecret){
+        // 某些DX转过来的程序，pw_user表里的password字段会是空的
+        // 绕过这个bug，不会有安全问题
+        if (empty($openSecret)) {
+            $openSecret = self::DEFAULT_PWD;
+        }
         $params = array(
             'org'   =>self::$wk_setting['org'],
             'domain'=>self::$wk_setting['domain'],
