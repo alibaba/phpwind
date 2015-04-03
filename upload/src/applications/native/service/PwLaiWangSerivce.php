@@ -45,6 +45,9 @@ class PwLaiWangSerivce {
     const WK_API_UPDATE_PROFILE = 'https://wkapi.laiwang.com/v1/user/profile/update';
     const WK_API_SELECT_PROFILE = 'https://wkapi.laiwang.com/v1/user/profile';
     const WK_API_PUSH_MESSAGE   = 'https://wkapi.laiwang.com/v1/notification/user';
+    const WK_API_CREATE_TALK    = 'https://wkapi.laiwang.com/v1/im/conversation/create';
+    const WK_API_SEND_MESSAGE   = 'https://wkapi.laiwang.com/v1/im/message/send';
+
     public static $wk_setting      = array(
         'org'       =>'',
         'domain'    =>'',
@@ -226,6 +229,59 @@ class PwLaiWangSerivce {
         return self::request(self::WK_API_PUSH_MESSAGE, $params);
     }
 
+    const CONVERSATION_SINGLE = 1;
+    const CONVERSATION_MULTI  = 2;
+
+    /**
+     * createConversation
+     *
+     * @param $uids 参与会话的openids，其中第0项是发起者
+     * @param $type 1是单聊，2是群聊
+     *
+     * @return array("data" => array("conversationId" => "1:19"),
+     *               "success" => true)
+     *
+     * @access public
+     * @return void
+     */
+    public static function createConversation(array $uids, $type)
+    {
+        $content = array(
+                   'openId' => $uids[0],
+                   'type'   => $type,
+                   'icon'   => '',
+                   'title'  => '',
+                   'members'=> $uids,
+                   );
+        return self::request(self::WK_API_CREATE_TALK, json_encode($content),
+                             array('Content-Type' => 'application/json'), true);
+    }
+
+    /**
+     * sendMessage
+     *
+     * @param $content 参考来往服务端开发文档，比如文本类型的content是：
+     *                 array('contentType' => 'TEXT', 'text' => '呵呵')
+     * @param $extension key-value形式的array
+     *
+     * @return array("data" => array("createdAt" => "2015-04-03T07:11:17.948Z", "messageId" => 435430),
+     *               "success" => true)
+     *
+     * @access public
+     * @return void
+     */
+    public static function sendMessage($senderId, $conversationId, $content, $extension = array())
+    {
+        $data = array(
+                'senderId'  => $senderId,
+                'conversationId' => $conversationId,
+                'content'   => $content,
+                'extension' => $extension,
+                );
+        return self::request(self::WK_API_SEND_MESSAGE, json_encode($data, JSON_FORCE_OBJECT),
+                             array('Content-Type' => 'application/json'), true);
+    }
+
     /**
      * 生成来往用户的SecretToken 
      * 
@@ -257,7 +313,7 @@ class PwLaiWangSerivce {
      * @access private
      * @return void
      */
-    private static function request($uri, $params){
+    private static function request($uri, $params, $headers = array(), $returndata = false){
         //必须有配置 
         foreach (self::$wk_setting as $k=>$v) {
             if( !$v && $k!="openid" && $k!="secretToken"){
@@ -267,7 +323,7 @@ class PwLaiWangSerivce {
 
         //
         $request = Wind::getComponent('httptransfer', array($uri, self::WK_TIMEOUT));
-        $headers = array('Authorization'=> self::_getAuthorization());
+        $headers = array_merge($headers, array('Authorization'=> self::_getAuthorization()));
 
         // 对于https，如果是OpenSSL，设置上这个选项
         $curl_version = curl_version();
@@ -278,8 +334,14 @@ class PwLaiWangSerivce {
         $request->setData($params);
         $request->setHeader($headers);
         $result = $request->send('POST');
-        if( $result ){
+        if ($result){
             $result = json_decode($result, true);
+
+            // 是否返回json_decode之后的原始数据
+            if ($returndata) {
+                return $result;
+            }
+
             if ($result['success']==true) {
                 return true; 
             }
