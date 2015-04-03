@@ -244,13 +244,13 @@ class PwLaiWangSerivce {
      * @access public
      * @return void
      */
-    public static function createConversation(array $uids, $type)
+    public static function createConversation(array $uids, $type, $title = '', $icon = '')
     {
         $content = array(
                    'openId' => $uids[0],
                    'type'   => $type,
-                   'icon'   => '',
-                   'title'  => '',
+                   'icon'   => $icon,
+                   'title'  => $title,
                    'members'=> $uids,
                    );
         return self::request(self::WK_API_CREATE_TALK, json_encode($content),
