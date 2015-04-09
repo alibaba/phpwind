@@ -36,9 +36,7 @@
 					<td>
                         <input type="text" class="input length_5" name="user" value="<!--#
                         if ($config['usertype'] == 1) echo $config['username'];
-                        else echo $config['userid'];
-                        #-->
-                        ">
+                        else echo $config['userid'];#-->">
 					</td>
 					<td><div class="fun_tips">默认使用“admin”用户名，您可以更改</div></td>
 				</tr>
@@ -56,14 +54,14 @@
 					<td>
 						<div class="single_image_up">
 							 <a href="">上传图片</a>
-							 <input name="logo" type="file" class="J_upload_preview" data-preview="#j_forum_preview_logo">
+							 <input name="avatar" type="file" class="J_upload_preview" data-preview="#j_forum_preview_logo">
 						</div>
 						<img id="j_forum_preview_logo" <!--#
                         if (empty($config['avatar'])) echo 'style="display:none"';
                         else echo 'src="'.$config['avatar'].'"'
                         #--> />
 					</td>
-					<td><div class="fun_tips">logo图片大小不能超过300k</div></td>
+					<td><div class="fun_tips">头像图片大小不能超过300k</div></td>
 				</tr>
 			</table>
 		</div>
