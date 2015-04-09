@@ -26,7 +26,7 @@ class StartUpController extends AdminBaseController {
         //
         $config = new PwConfigSet('native');
         if( count($_FILES) ){
-            Wind::import('SRV:upload.action.PwStartUpUpload');                                                                                                
+            Wind::import('SRV:upload.action.PwStartUpUpload');
             Wind::import('LIB:upload.PwUpload');
             $bhv = new PwStartUpUpload();
             $bhv->filename = 'startup';
