@@ -71,14 +71,9 @@ abstract class NativeBaseController extends PwBaseController {
      */
     protected function notifierSetting()
     {
-        $config = Wekit::C()->getValues('notifier');
-        if (empty($config)) {
-            Wind::import('APPS:native.admin.NotifierController');
-            $config = NotifierController::$defaultNotifier;
-            $config['avatar'] = Pw::getAvatar(NotifierController::DEFAULT_SENDER_UID, 'big');
-        } else {
-            $config['avatar'] = Pw::getPath($config['avatar']);
-        }
+        Wind::import('APPS:native.service.PwLaiWangSerivce');
+        $config = PwLaiWangSerivce::getNotifier();
+
         // 返回uid，nickname，avatar
         return array(
                'uid'      => $config['userid'],

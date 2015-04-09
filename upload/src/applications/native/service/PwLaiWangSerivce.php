@@ -281,7 +281,31 @@ class PwLaiWangSerivce {
                              array('Content-Type' => 'application/json'), true);
     }
 
-    const ADMIN_UID = 1;
+    // 也就是 admin 啊啊啊
+    const DEFAULT_SENDER_UID = 1;
+
+    const USERTYPE_NAME = 1;
+    const USERTYPE_ID   = 2;
+
+    public static $defaultNotifier = array(
+        'usertype'  => self::USERTYPE_NAME,
+        'userid'    => self::DEFAULT_SENDER_UID,
+        'username'  => 'admin',
+        'avatar'    => '',
+        'nickname'  => '小助手',
+    );
+
+    public static function getNotifier()
+    {
+        $config = Wekit::C()->getValues('notifier');
+        if (empty($config)) {
+            $config = self::$defaultNotifier;
+            $config['avatar'] = Pw::getAvatar(self::DEFAULT_SENDER_UID, 'big');
+        } else {
+            $config['avatar'] = Pw::getPath($config['avatar']);
+        }
+        return $config;
+    }
 
     /**
      * sendNotification：以admin的形式给其他用户发通知消息

@@ -12,22 +12,9 @@
  *
  */
 Wind::import('ADMIN:library.AdminBaseController');
+Wind::import('APPS:native.service.PwLaiWangSerivce');
 
 class NotifierController extends AdminBaseController {
-
-    // 也就是 admin 啊啊啊
-    const DEFAULT_SENDER_UID = 1;
-
-    public static $defaultNotifier = array(
-        'usertype'  => NotifierController::USERTYPE_NAME,
-        'userid'    => NotifierController::DEFAULT_SENDER_UID,
-        'username'  => 'admin',
-        'avatar'    => '',
-        'nickname'  => '小助手',
-    );
-
-    const USERTYPE_NAME = 1;
-    const USERTYPE_ID   = 2;
 
     /**
      * (non-PHPdoc)
@@ -35,13 +22,7 @@ class NotifierController extends AdminBaseController {
 	 */
     public function run()
     {
-        $config = Wekit::C()->getValues('notifier');
-        if (empty($config)) {
-            $config = self::$defaultNotifier;
-            $config['avatar'] = Pw::getAvatar(self::DEFAULT_SENDER_UID, 'big');
-        } else {
-            $config['avatar'] = Pw::getPath($config['avatar']);
-        }
+        $config = PwLaiWangSerivce::getNotifier();
         $this->setOutput($config, 'config');
     }
 
@@ -92,17 +73,17 @@ class NotifierController extends AdminBaseController {
 
         $nickname = $this->getInput('nickname');
         if (empty($nickname)) {
-            $nickname = self::$defaultNotifier['nickname'];
+            $nickname = PwLaiWangSerivce::$defaultNotifier['nickname'];
         }
 
         $usertype = intval($this->getInput('usertype'));
-        if ($usertype != self::USERTYPE_NAME && $usertype != self::USERTYPE_ID) {
-            $usertype = self::USERTYPE_NAME;
+        if ($usertype != PwLaiWangSerivce::USERTYPE_NAME && $usertype != PwLaiWangSerivce::USERTYPE_ID) {
+            $usertype = PwLaiWangSerivce::USERTYPE_NAME;
         }
 
         $user = $this->getInput('user');
 
-        if ($usertype == self::USERTYPE_NAME) {
+        if ($usertype == PwLaiWangSerivce::USERTYPE_NAME) {
             $userinfo = Wekit::load('user.PwUser')->getUserByName($user, PwUser::FETCH_MAIN);
         } else {
             $userinfo = Wekit::load('user.PwUser')->getUserByUid($user, PwUser::FETCH_MAIN);
