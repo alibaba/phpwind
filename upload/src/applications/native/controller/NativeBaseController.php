@@ -75,7 +75,7 @@ abstract class NativeBaseController extends PwBaseController {
         if (empty($config)) {
             Wind::import('APPS:native.admin.NotifierController');
             $config = NotifierController::$defaultNotifier;
-            $config['avatar'] = Pw::getAvatar(1, 'big');
+            $config['avatar'] = Pw::getAvatar(NotifierController::DEFAULT_SENDER_UID, 'big');
         } else {
             $config['avatar'] = Pw::getPath($config['avatar']);
         }

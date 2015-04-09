@@ -15,9 +15,12 @@ Wind::import('ADMIN:library.AdminBaseController');
 
 class NotifierController extends AdminBaseController {
 
+    // 也就是 admin 啊啊啊
+    const DEFAULT_SENDER_UID = 1;
+
     public static $defaultNotifier = array(
         'usertype'  => NotifierController::USERTYPE_NAME,
-        'userid'    => 1,
+        'userid'    => NotifierController::DEFAULT_SENDER_UID,
         'username'  => 'admin',
         'avatar'    => '',
         'nickname'  => '小助手',
@@ -35,7 +38,7 @@ class NotifierController extends AdminBaseController {
         $config = Wekit::C()->getValues('notifier');
         if (empty($config)) {
             $config = self::$defaultNotifier;
-            $config['avatar'] = Pw::getAvatar(1, 'big');
+            $config['avatar'] = Pw::getAvatar(self::DEFAULT_SENDER_UID, 'big');
         } else {
             $config['avatar'] = Pw::getPath($config['avatar']);
         }
