@@ -170,8 +170,8 @@ class PostController extends NativeBaseController {
                   'message' => ($rpid > 0 ?
                           $this->loginUser->info['username']." 评论了您的回帖：\n".$content
                         : $this->loginUser->info['username'].' 评论了您的帖子《'.$info['subject']."》：\n".$content),
-                  'url' => ($rpid > 0 ? 'allReplyReply' : 'read'),
-                  'arg' => ($rpid > 0 ? array()
+                  'url' => ($rpid > 0 ? 'read' : 'read'),
+                  'arg' => ($rpid > 0 ? array((string)$tid)
                             : array((string)$tid)),
             )
         );
