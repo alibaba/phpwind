@@ -339,10 +339,10 @@ class PwLaiWangSerivce {
      */
     public static function sendNotification($touid, array $notification)
     {
-        $sender = self::ADMIN_UID;
+        $notifier = self::getNotifier();
 
         // 按照来往的约定，两人会话的会话id，按照"小的uid:大的uid"这样组织
-        $conversation = $sender . ':' . $touid;
+        $conversation = min($notifier['userid'], $touid) . ':' . max($notifier['userid'], $touid);
         $content = array('contentType' => 'TEXT', 'text' => json_encode($notification));
 
         $result = self::sendMessage($sender, $conversation, $content);
