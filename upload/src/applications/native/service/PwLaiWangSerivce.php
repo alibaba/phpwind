@@ -268,7 +268,6 @@ class PwLaiWangSerivce {
      *               "success" => true)
      *
      * @access public
-     * @return void
      */
     public static function sendMessage($senderId, $conversationId, $content, $extension = array())
     {
@@ -280,6 +279,50 @@ class PwLaiWangSerivce {
                 );
         return self::request(self::WK_API_SEND_MESSAGE, json_encode($data, JSON_FORCE_OBJECT),
                              array('Content-Type' => 'application/json'), true);
+    }
+
+    const ADMIN_UID = 1;
+
+    /**
+     * sendNotification：以admin的形式给其他用户发通知消息
+     *
+     * @param $notification 发送的通知，消息格式见下面注释。
+     *
+     * @return true, false
+     *
+     * @access public
+     *
+     * @desc notification
+     *
+     * 1. 关注：xxxx关注了您。--系统消息，回复无效。
+     *    {"type":0, "message":"xxxx关注了您。--系统消息，回复无效"}
+     *
+     * 2.回复主贴：xxxx评论了您的帖子《xxxx》。phpwind://openPostDetailActivity("read", ["35"])
+     *   {"type":1, "message":"xxxx评论了您的帖子《xxxx》", "url":"read", "arg":["35"]}
+     *
+     * 3.回复回帖：xxxx评论了您的回帖《xxxx》。
+     *   phpwind://openNewActivity("allReplyReply", ["tid", "pid","uid","username","avater", "lou","created_time","content"])
+     *
+     *   {"type":2, "message":"xxxx评论了您的回帖《xxxx》。",
+     *    "url":"allReplyReply", "arg":["tid","pid","uid","username","avater","lou","created_time","content"]}
+     *
+     * 4. 被删帖：您的帖子《xxxx》被管理员xxxx执行了删除操作。--系统消息，回复无效。
+     *    {"type":3, "message":"您的帖子《xxxx》被管理员xxxx执行了删除操作。--系统消息，回复无效"}
+     *
+     * 5. 禁止用户：您被管理员xxxx禁止发帖了，同时您的头像、签名将不可见，如要申诉，请联系管理员xxxx。--系统消息，回复无效。
+     *    {"type":4, "message":
+     *     "您被管理员xxxx禁止发帖了，同时您的头像、签名将不可见，如要申诉，请联系管理员xxxx。--系统消息，回复无效。"}
+     */
+    public static function sendNotification($uid, array $notification)
+    {
+        $sender = self::ADMIN_UID;
+
+        // 按照来往的约定，两人会话的会话id，按照"小的uid:大的uid"这样组织
+        $conversation = $sender . ':' . $uid;
+        $content = array('contentType' => 'TEXT', 'text' => json_encode($notification));
+
+        $result = self::sendMessage($sender, $conversation, $content);
+        return $result['success'];
     }
 
     /**
