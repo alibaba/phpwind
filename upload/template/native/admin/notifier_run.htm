@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<div class="wrap">
+
+<form id="J_rigths_form" data-role="list" action="{@url:native/notifier/doset}" method="post" enctype="multipart/form-data">
+<div class="h_a">消息管理</div>
+
+<div class="J_tabs_contents">
+	<div>
+		<div class="table_full">
+			<table width="100%">
+				<tr>
+					<th>系统消息帐号</th>
+					<td>
+						<ul class="switch_list cc">
+							<li><label><input type="radio" value="1" name="usertype" checked="checked">
+                                <span>用户名</span></label>
+                            </li>
+							<li><label><input type="radio" value="2" name="usertype">
+                                <span>用户ID</span></label>
+                            </li>
+						</ul>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+                    <th></th>
+					<td>
+						<input type="text" class="input length_5" value="" name="username" placeholder="">
+					</td>
+					<td><div class="fun_tips">默认使用“admin”用户名，您可以更改</div></td>
+				</tr>
+				
+				
+				<tr>
+					<th>显示昵称</th>
+						<td>
+						<input type="text" class="input length_5"  value="" name="address">
+						</td>
+						<td><div class="fun_tips">默认“小助手”，您可以更改</div></td>
+				</tr>
+                <tr>
+					<th>系统消息头像</th>
+					<td>
+						<div class="single_image_up">
+							 <a href="">上传图片</a>
+							 <input name="logo" type="file" class="J_upload_preview" data-preview="#j_forum_preview_logo">
+						</div>
+						<img id="j_forum_preview_logo" style="display:none" />	
+					</td>
+					<td><div class="fun_tips">logo图片大小不能超过300k</div></td>
+				</tr>
+			</table>
+		</div>
+		
+	</div>
+
+</div>
+
+
+
+<div class="btn_wrap">
+	<div class="btn_wrap_pd">
+		<button type="submit" class="btn btn_submit mr20" id="J_rights_form_btn">提交</button>
+	</div>
+</div>
+</form>
+
+
+</div>
+<template source='TPL:admin.common.footer' />
+
+</body>
+</html>

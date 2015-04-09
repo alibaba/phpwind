@@ -114,6 +114,7 @@ return array(
     'native_forum' => array('频道管理', 'native/forum/*', '', '', 'native'),
     'native_life' => array('生活服务', 'native/life/*', '', '', 'native'),
     'native_fresh' => array('发现管理', 'native/fresh/*', '', '', 'native'),
+    'native_notifier' => array('消息管理', 'native/notifier/*', '', '', 'native'),
 
 
 	//'platform_server' => array('平台首页', 'appcenter/server/run', '', '', 'platform'),
