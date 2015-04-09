@@ -29,4 +29,4 @@ fresh.link.empty="链接不能为空"
 app.check.securityKey.success="认证合法"
 app.check.securityKey.failed="认证不合法"
 
-
+user.notfound="您输入的用户不存在"
