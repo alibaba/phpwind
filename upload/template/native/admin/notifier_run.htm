@@ -17,10 +17,14 @@
 					<th>系统消息帐号</th>
 					<td>
 						<ul class="switch_list cc">
-							<li><label><input type="radio" value="1" name="usertype" checked="checked">
+                            <li><label><input type="radio" value="1" name="usertype" <!--#
+                                if ($config['usertype'] == 1) echo 'checked="checked"';
+                                #--> >
                                 <span>用户名</span></label>
                             </li>
-							<li><label><input type="radio" value="2" name="usertype">
+							<li><label><input type="radio" value="2" name="usertype" <!--#
+                                if ($config['usertype'] == 2) echo 'checked="checked"';
+                                #--> >
                                 <span>用户ID</span></label>
                             </li>
 						</ul>
@@ -30,7 +34,11 @@
 				<tr>
                     <th></th>
 					<td>
-						<input type="text" class="input length_5" value="" name="username" placeholder="">
+                        <input type="text" class="input length_5" name="user" value="<!--#
+                        if ($config['usertype'] == 1) echo $config['username'];
+                        else echo $config['userid'];
+                        #-->
+                        ">
 					</td>
 					<td><div class="fun_tips">默认使用“admin”用户名，您可以更改</div></td>
 				</tr>
@@ -39,7 +47,7 @@
 				<tr>
 					<th>显示昵称</th>
 						<td>
-						<input type="text" class="input length_5"  value="" name="address">
+                            <input type="text" class="input length_5"  value="{$config['nickname']}" name="nickname">
 						</td>
 						<td><div class="fun_tips">默认“小助手”，您可以更改</div></td>
 				</tr>
@@ -50,7 +58,10 @@
 							 <a href="">上传图片</a>
 							 <input name="logo" type="file" class="J_upload_preview" data-preview="#j_forum_preview_logo">
 						</div>
-						<img id="j_forum_preview_logo" style="display:none" />	
+						<img id="j_forum_preview_logo" <!--#
+                        if (empty($config['avatar'])) echo 'style="display:none"';
+                        else echo 'src="'.$config['avatar'].'"'
+                        #--> />
 					</td>
 					<td><div class="fun_tips">logo图片大小不能超过300k</div></td>
 				</tr>

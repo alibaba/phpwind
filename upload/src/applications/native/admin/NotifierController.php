@@ -15,6 +15,9 @@ Wind::import('ADMIN:library.AdminBaseController');
 
 class NotifierController extends AdminBaseController {
 
+    const USERTYPE_NAME = 1;
+    const USERTYPE_ID   = 2;
+
     /**
      * (non-PHPdoc)
 	 * @see WindController::run()
@@ -22,6 +25,13 @@ class NotifierController extends AdminBaseController {
     public function run()
     {
         $config = Wekit::C()->getValues('notifier');
+        if (empty($config)) {
+            $config['usertype'] = self::USERTYPE_NAME;
+            $config['userid']   = 1;
+            $config['username'] = 'admin';
+            $config['avatar']   = '';
+            $config['nickname'] = '小助手';
+        }
         $this->setOutput($config, 'config'); 
     }
     
@@ -36,6 +46,10 @@ class NotifierController extends AdminBaseController {
     {
         $nickname = '';
         $avatar   = '';
+        $usertype = '';
+
+        $username = '';
+        $userid   = '';
 
         $config = new PwConfigSet('notifier');
         $config
