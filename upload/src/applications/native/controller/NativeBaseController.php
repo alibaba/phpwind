@@ -35,7 +35,7 @@ abstract class NativeBaseController extends PwBaseController {
      * @return void
      */
     protected function thirdPlatformAppid(){
-        $config = Wekit::C()->getValues('thirdPlatform');                                                                                                 
+        $config = Wekit::C()->getValues('thirdPlatform');
         //
         $apidata = array();
         if( count($config) ){
@@ -61,6 +61,30 @@ abstract class NativeBaseController extends PwBaseController {
             }
         }
         return $apidata;
+    }
+
+    /**
+     * 获得消息助手的通知设置
+     * 
+     * @access public
+     * @return void
+     */
+    protected function notifierSetting()
+    {
+        $config = Wekit::C()->getValues('notifier');
+        if (empty($config)) {
+            Wind::import('APPS:native.admin.NotifierController');
+            $config = NotifierController::$defaultNotifier;
+            $config['avatar'] = Pw::getAvatar(1, 'big');
+        } else {
+            $config['avatar'] = Pw::getPath($config['avatar']);
+        }
+        // 返回uid，nickname，avatar
+        return array(
+               'uid'      => $config['userid'],
+               'nickname' => $config['nickname'],
+               'avatar'   => $config['avatar'],
+               );
     }
 
     /**

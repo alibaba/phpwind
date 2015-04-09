@@ -37,6 +37,7 @@ class UserController extends NativeBaseController {
      */
     public function checkLoginStatusAction(){
 
+        $data['notifier'] = $this->notifierSetting();
         $data['thirdPlatformAppid'] = $this->thirdPlatformAppid();
         if ($this->isLogin()) {
             // TODO: 先将laiwangOK设置成false
