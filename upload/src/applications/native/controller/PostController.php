@@ -162,9 +162,20 @@ class PostController extends NativeBaseController {
         //记录回帖位置信息
         $data = array('pid'=>$pid,'created_address'=>$created_address,'area_code'=>$area_code);
         $res = Wekit::loadDao('native.dao.PwPostsPlaceDao')->insertValue($data);
-        //
-        $push_msg = '《'.$info['subject'].'》已被 '.$this->loginUser->info['username']. '回复'; 
-        PwLaiWangSerivce::pushMessage($info['created_userid'], $push_msg, $push_msg); 
+
+        // 发送通知
+        // 关于type请查看sendNotification的注释
+        PwLaiWangSerivce::sendNotification($info['created_userid'],
+            array('type' => ($rpid > 0 ? 2 : 1),
+                  'message' => ($rpid > 0 ?
+                          $this->loginUser->info['username']." 评论了您的回帖：\n".$content
+                        : $this->loginUser->info['username'].' 评论了您的帖子《'.$info['subject']."》：\n".$content),
+                  'url' => ($rpid > 0 ? 'allReplyReply' : 'read'),
+                  'arg' => ($rpid > 0 ? array()
+                            : array((string)$tid)),
+            )
+        );
+
         //
         $this->showMessage('success');
     }

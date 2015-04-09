@@ -313,12 +313,12 @@ class PwLaiWangSerivce {
      *    {"type":4, "message":
      *     "您被管理员xxxx禁止发帖了，同时您的头像、签名将不可见，如要申诉，请联系管理员xxxx。--系统消息，回复无效。"}
      */
-    public static function sendNotification($uid, array $notification)
+    public static function sendNotification($touid, array $notification)
     {
         $sender = self::ADMIN_UID;
 
         // 按照来往的约定，两人会话的会话id，按照"小的uid:大的uid"这样组织
-        $conversation = $sender . ':' . $uid;
+        $conversation = $sender . ':' . $touid;
         $content = array('contentType' => 'TEXT', 'text' => json_encode($notification));
 
         $result = self::sendMessage($sender, $conversation, $content);

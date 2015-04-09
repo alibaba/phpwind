@@ -66,9 +66,9 @@ class ManageController extends NativeBaseController {
 
         $this->manage->execute();
         $sendnotice = $this->getInput('sendnotice');
-//        if ($sendnotice) {
+        if ($sendnotice) {
             $this->_sendMessage($action, $this->manage->getData());
- //       }  
+        }
         $this->showMessage('operate.success');
     }
 
@@ -200,18 +200,24 @@ class ManageController extends NativeBaseController {
      * send messages
      */
     protected function _sendMessage($action, $threads) {
+        $userBo = new PwUserBo($this->uid);
         switch($action){
         case 'doban':
             foreach ($threads as $v) {
-                $push_msg = '您的帐号已被禁止发布、禁止头像、禁止签名限制。';
-                PwLaiWangSerivce::pushMessage($v['created_userid'], $push_msg, $push_msg);
+                PwLaiWangSerivce::pushMessage($v['created_userid'], array(
+                    'type'    => 4,
+                    'message' => '您被管理员 '.$userBo->username
+                      .' 禁止发帖了，同时您的头像、签名将不可见，如要申诉，请联系管理员。--系统消息，回复无效。',
+                ));
             }
             return;
             break;
         case 'dodelete_reply':
             foreach ($threads as $v) {
-                $push_msg = "《".mb_substr($v['content'],0,30)."》 回复已被删除";
-                PwLaiWangSerivce::pushMessage($v['created_userid'], $push_msg, $push_msg);
+                PwLaiWangSerivce::pushMessage($v['created_userid'], array(
+                    'type'    => 3,
+                    'message' => "您有一个回帖被删除：\n".mb_substr($v['content'],0,30),
+                ));
             }
             return;
             break;
@@ -237,9 +243,12 @@ class ManageController extends NativeBaseController {
             } else {
                 $params['manageTypeString'] = $this->_getManageActionName($action);
             }
-            //laiwang   
-            $push_msg = "《{$params['manageThreadTitle']}》被删除。";
-            PwLaiWangSerivce::pushMessage($threads['created_userid'], $push_msg, $push_msg);
+            // laiwang
+            PwLaiWangSerivce::sendNotification($threads['created_userid'], array(
+                'type'    => 3,
+                'message' => '您的帖子《'.$params['manageThreadTitle'].'》被管理员 '
+                             .$userBo->username.' 执行了删除操作。--系统消息，回复无效',
+            ));
             //
             $noticeService->sendNotice($thread['created_userid'], 'threadmanage', $thread['tid'], $params);
         }   
