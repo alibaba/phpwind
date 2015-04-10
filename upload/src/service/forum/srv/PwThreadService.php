@@ -15,7 +15,7 @@ Wind::import('LIB:ubb.config.PwUbbCodeConvertThread');
 
 class PwThreadService {
 	
-	public function displayReplylist($replies, $contentLength = 140) {
+	public function displayReplylist($replies, $contentLength = 140,$ubb_flag=true) {
 		$users = Wekit::load('user.PwUser')->fetchUserByUid(array_unique(Pw::collectByKey($replies, 'created_userid')));
 		foreach ($replies as $key => $value) {
 			$value['content'] = WindSecurity::escapeHTML($value['content']);
@@ -23,7 +23,7 @@ class PwThreadService {
 				$value['content'] = '<div class="shield">此帖已被屏蔽</div>';
 			} elseif ($users[$value['created_userid']]['groupid'] == '6') {
 				$value['content'] = '用户被禁言,该主题自动屏蔽!';
-			} elseif ($value['useubb']) {
+			} elseif ($value['useubb'] && $ubb_flag) {
 				$ubb = new PwUbbCodeConvertThread();
 				$value['reminds'] && $ubb->setRemindUser($value['reminds']);
 				$value['content'] = PwSimpleUbbCode::convert($value['content'], $contentLength, $ubb);

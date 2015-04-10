@@ -243,7 +243,7 @@ class PostController extends NativeBaseController {
 
             list($start, $limit) = Pw::page2limit($page, $perpage);
             $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);
-            $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb);
+            $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb,140,false);
             //
             $replyList = array();
             foreach ($replydb as $key=>$v) {
