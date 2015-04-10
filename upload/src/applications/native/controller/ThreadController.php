@@ -71,12 +71,21 @@ class ThreadController extends NativeBaseController {
         if ($pwforum->forumset['jumpurl']) {
             $this->forwardRedirect($pwforum->forumset['jumpurl']);
         }
-        if ($pwforum->foruminfo['password']) {
+//        var_dump($pwforum);exit;
+        if ($pwforum->foruminfo['password']) {//设置了版块访问密码
             if (!$this->loginUser->isExists()) {
-                $this->forwardAction('u/login/run', array('backurl' => WindUrlHelper::createUrl('bbs/cate/run', array('fid' => $fid))));
-            } elseif (Pw::getPwdCode($pwforum->foruminfo['password']) != Pw::getCookie('fp_' . $fid)) {
-                $this->forwardAction('bbs/forum/password', array('fid' => $fid));
-            }
+//                $this->forwardAction('u/login/run', array('backurl' => WindUrlHelper::createUrl('bbs/cate/run', array('fid' => $fid))));
+                $this->showError('该版块为加密版块您需要先登录才能访问！');
+            } else if(!isset($_GET['password'])||empty($_GET['password'])){//提示输入密码
+                $data = array('page_info'=>array(),'user_info'=>array('uid'=>$this->uid,'isjoin'=>$forum_isjoin,'forum_login'=>0),'forum_info'=>'','threads_list'=>array());
+                $this->setOutput($data,'data');
+                $this->showMessage('NATIVE:data.success');
+            }elseif (Pw::getPwdCode($pwforum->foruminfo['password']) != Pw::getPwdCode(md5($_GET['password']))) {//密码错误
+//                $this->forwardAction('bbs/forum/password', array('fid' => $fid));
+                $data = array('page_info'=>array(),'user_info'=>array('uid'=>$this->uid,'isjoin'=>$forum_isjoin,'forum_login'=>1),'forum_info'=>'','threads_list'=>array());
+                $this->setOutput($data,'data');
+                $this->showMessage('NATIVE:data.success');
+            } 
         }
         $isBM = $pwforum->isBM($this->loginUser->username);//检测用户是否是版主
         if ($operateThread = $this->loginUser->getPermission('operate_thread', $isBM, array())) {
