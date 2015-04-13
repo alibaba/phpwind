@@ -166,7 +166,7 @@ class PostController extends NativeBaseController {
         // 发送通知
         // 关于type请查看sendNotification的注释
         PwLaiWangSerivce::sendNotification($info['created_userid'],
-            array('type' => ($rpid > 0 ? 2 : 1),
+            array('type' => ($rpid > 0 ? 3 : 2),
                   'message' => ($rpid > 0 ?
                           $this->loginUser->info['username']." 评论了您的回帖：\n".$content
                         : $this->loginUser->info['username'].' 评论了您的帖子《'.$info['subject']."》：\n".$content),

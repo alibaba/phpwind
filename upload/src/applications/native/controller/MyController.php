@@ -55,7 +55,7 @@ class MyController extends NativeBaseController {
 
         // 发送通知给被关注的人。关于 type 请查看sendNotification的注释。
         PwLaiWangSerivce::sendNotification($uid,
-            array('type' => 0, 'message' => $this->userInfo['username'] . ' 关注了您。--系统消息，回复无效。'));
+            array('type' => 1, 'message' => $this->userInfo['username'] . ' 关注了您。--系统消息，回复无效。'));
 
         //
         $this->showMessage('success');
@@ -82,8 +82,8 @@ class MyController extends NativeBaseController {
 			$this->showError($result->getError());
 		}
         //
-        $push_msg = $this->userInfo['username']. '取消关注了你';
-        PwLaiWangSerivce::pushMessage($uid, $push_msg, $push_msg);  
+        PwLaiWangSerivce::sendNotification($uid, array(
+            'type' => 1, 'message' => $this->userInfo['username'] . ' 取消关注了您。--系统消息，回复无效。'));
 
         //
 		$this->showMessage('success');

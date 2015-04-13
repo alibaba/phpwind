@@ -204,8 +204,8 @@ class ManageController extends NativeBaseController {
         switch($action){
         case 'doban':
             foreach ($threads as $v) {
-                PwLaiWangSerivce::pushMessage($v['created_userid'], array(
-                    'type'    => 4,
+                PwLaiWangSerivce::sendNotification($v['created_userid'], array(
+                    'type'    => 5,
                     'message' => '您被管理员 '.$userBo->username
                       .' 禁止发帖了，同时您的头像、签名将不可见，如要申诉，请联系管理员。--系统消息，回复无效。',
                 ));
@@ -214,8 +214,8 @@ class ManageController extends NativeBaseController {
             break;
         case 'dodelete_reply':
             foreach ($threads as $v) {
-                PwLaiWangSerivce::pushMessage($v['created_userid'], array(
-                    'type'    => 3,
+                PwLaiWangSerivce::sendNotification($v['created_userid'], array(
+                    'type'    => 4,
                     'message' => "您有一个回帖被删除：\n".mb_substr($v['content'],0,30),
                 ));
             }
@@ -245,7 +245,7 @@ class ManageController extends NativeBaseController {
             }
             // laiwang
             PwLaiWangSerivce::sendNotification($threads['created_userid'], array(
-                'type'    => 3,
+                'type'    => 4,
                 'message' => '您的帖子《'.$params['manageThreadTitle'].'》被管理员 '
                              .$userBo->username.' 执行了删除操作。--系统消息，回复无效',
             ));

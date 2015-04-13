@@ -319,22 +319,22 @@ class PwLaiWangSerivce {
      * @desc notification
      *
      * 1. 关注：xxxx关注了您。--系统消息，回复无效。
-     *    {"type":0, "message":"xxxx关注了您。--系统消息，回复无效"}
+     *    {"type":1, "message":"xxxx关注了您。--系统消息，回复无效"}
      *
      * 2.回复主贴：xxxx评论了您的帖子《xxxx》。phpwind://openPostDetailActivity("read", ["35"])
-     *   {"type":1, "message":"xxxx评论了您的帖子《xxxx》", "url":"read", "arg":["35"]}
+     *   {"type":2, "message":"xxxx评论了您的帖子《xxxx》", "url":"read", "arg":["35"]}
      *
      * 3.回复回帖：xxxx评论了您的回帖《xxxx》。
      *   phpwind://openNewActivity("allReplyReply", ["tid", "pid","uid","username","avater", "lou","created_time","content"])
      *
-     *   {"type":2, "message":"xxxx评论了您的回帖《xxxx》。",
+     *   {"type":3, "message":"xxxx评论了您的回帖《xxxx》。",
      *    "url":"allReplyReply", "arg":["tid","pid","uid","username","avater","lou","created_time","content"]}
      *
      * 4. 被删帖：您的帖子《xxxx》被管理员xxxx执行了删除操作。--系统消息，回复无效。
-     *    {"type":3, "message":"您的帖子《xxxx》被管理员xxxx执行了删除操作。--系统消息，回复无效"}
+     *    {"type":4, "message":"您的帖子《xxxx》被管理员xxxx执行了删除操作。--系统消息，回复无效"}
      *
      * 5. 禁止用户：您被管理员xxxx禁止发帖了，同时您的头像、签名将不可见，如要申诉，请联系管理员xxxx。--系统消息，回复无效。
-     *    {"type":4, "message":
+     *    {"type":5, "message":
      *     "您被管理员xxxx禁止发帖了，同时您的头像、签名将不可见，如要申诉，请联系管理员xxxx。--系统消息，回复无效。"}
      */
     public static function sendNotification($touid, array $notification)
