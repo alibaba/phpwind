@@ -216,8 +216,9 @@ class MyController extends NativeBaseController {
 
         //
         $thread = Wekit::load('forum.PwThread')->getThread($tid);
-        $push_msg = '《'.$thread['subject'].'》已被 '.$this->userInfo['username']. '喜欢'; 
-        PwLaiWangSerivce::pushMessage($thread['created_userid'], $push_msg, $push_msg); 
+        PwLaiWangSerivce::sendNotification($thread['created_userid'],
+            array('type'    => 1,
+                  'message' => '《'.$thread['subject'].'》已被 '.$this->userInfo['username'].' 喜欢。--系统消息，回复无效。'));
 
         //
         $needcheck = false;
@@ -342,10 +343,11 @@ class MyController extends NativeBaseController {
             'tid'=>intval($this->getInput('tid')),
             'created_time'=>time(),
         );
-        if( $this->_getCollectService()->addCollect($data)!==false ){
+        if ($this->_getCollectService()->addCollect($data) !== false) {
             $thread = Wekit::load('forum.PwThread')->getThread($tid);
-            $push_msg = '《'.$thread['subject'].'》已被 '.$this->userInfo['username']. '收藏'; 
-            PwLaiWangSerivce::pushMessage($thread['created_userid'], $push_msg, $push_msg); 
+            PwLaiWangSerivce::sendNotification($thread['created_userid'],
+            array('type'    => 1,
+                  'message' => '《'.$thread['subject'].'》已被 '.$this->userInfo['username'].' 收藏。--系统消息，回复无效。'));
             //
             $this->showMessage('success');
         }
@@ -365,10 +367,11 @@ class MyController extends NativeBaseController {
      */
     public function delCollectAction(){
         $tid = intval($this->getInput('tid'));
-        if( $this->_getCollectService()->delCollect($this->uid, $tid)!==false ){
+        if ($this->_getCollectService()->delCollect($this->uid, $tid) !== false) {
             $thread = Wekit::load('forum.PwThread')->getThread($tid);
-            $push_msg = '《'.$thread['subject'].'》已被 '.$this->userInfo['username']. '取消收藏'; 
-            PwLaiWangSerivce::pushMessage($thread['created_userid'], $push_msg, $push_msg); 
+            PwLaiWangSerivce::sendNotification($thread['created_userid'],
+            array('type'    => 1,
+                  'message' => '《'.$thread['subject'].'》已被 '.$this->userInfo['username'].' 取消收藏。--系统消息，回复无效。'));
             //
             $this->showMessage('success');
         }
