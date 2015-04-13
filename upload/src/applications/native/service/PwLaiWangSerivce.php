@@ -345,7 +345,7 @@ class PwLaiWangSerivce {
         $conversation = min($notifier['userid'], $touid) . ':' . max($notifier['userid'], $touid);
         $content = array('contentType' => 'TEXT', 'text' => json_encode($notification));
 
-        $result = self::sendMessage($sender, $conversation, $content);
+        $result = self::sendMessage($notifier['userid'], $conversation, $content);
         return $result['success'];
     }
 
