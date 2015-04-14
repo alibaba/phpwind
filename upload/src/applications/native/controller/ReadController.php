@@ -190,6 +190,31 @@ class ReadController extends NativeBaseController {
         }
         unset($threadDisplay->attach);
         //
+        $poll = '';        
+        if($threadList[0]['special']=='poll'){//是投票帖子
+            $res = Wekit::load('poll.PwThreadPoll')->getPoll($tid);
+            $poll_id = $res['poll_id'];
+            $options = Wekit::load('poll.PwPollOption')->getByPollid($poll_id);
+            $vote_total = 0;
+            foreach($options as $v){
+                $voted_total += $v['voted_num'];
+            }
+//            $count = Wekit::load('poll.PwPollOption')->countByPollid($poll_id);
+//            var_dump($options);exit;
+            $res = Wekit::load('poll.PwPoll')->getPoll($poll_id);
+            $poll_state = $this->uid ? Wekit::load('poll.PwPollVoter')->isVoted($this->uid, $poll_id) : true;
+            $poll = array(
+                        'poll_id'=>$poll_id,
+                        'isafter_view'=>(int)$res['isafter_view'],
+                        'option_limit'=>(int)$res['option_limit'],
+                        'expired_time'=>$res['expired_time'] ? Pw::time2str($res['expired_time']) : "无限期",
+                        'poll_state'=>$poll_state,//true:已经投票或者未登陆;false:未投票
+                        'voted_total'=>$voted_total,
+                        'options'=>$options,//投票项以及各项结果
+                    );
+        }
+//        var_dump($poll);exit;
+        
         $data = array(
             'uid'           =>$this->uid,
             'operateReply'  =>$operateReply,
@@ -202,6 +227,7 @@ class ReadController extends NativeBaseController {
             'threadPlace'   =>$threadPlace,
             'postPlace'     =>$postPlace,
             'postLikeData'  =>$postLikeData,
+            'poll'=>$poll,
         );
         $this->setOutput($data,'data');
         $this->showMessage('success');
