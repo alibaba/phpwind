@@ -275,9 +275,9 @@ class PwLaiWangSerivce {
                 'senderId'  => $senderId,
                 'conversationId' => $conversationId,
                 'content'   => $content,
-                'extension' => $extension,
+                'extension' => (object)$extension,
                 );
-        return self::request(self::WK_API_SEND_MESSAGE, json_encode($data, JSON_FORCE_OBJECT),
+        return self::request(self::WK_API_SEND_MESSAGE, json_encode($data),
                              array('Content-Type' => 'application/json'), true);
     }
 
