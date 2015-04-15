@@ -537,6 +537,7 @@ class Pw {
             );
         }
         $content = preg_replace('/\[post\].+?\[\/post\]/i','［含有隐藏内容］',$content);
+        $content = preg_replace('/\[sell.*?\].+?\[\/sell\]/i','［含有售卖内容］',$content);
         $content = preg_replace('/\][^\[]+\[\/(tao|share|flash|mp3|img)/i', '][', $content);
         $content = preg_replace('/\[s:.+?\]/i','［表情］',$content);
         $content = preg_replace('/\[[^\]]*\]/i',' ',  strip_tags($content));
