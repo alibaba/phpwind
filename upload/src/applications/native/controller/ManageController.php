@@ -244,14 +244,14 @@ class ManageController extends NativeBaseController {
                 $params['manageTypeString'] = $this->_getManageActionName($action);
             }
             // laiwang
-            PwLaiWangSerivce::sendNotification($threads['created_userid'], array(
+            PwLaiWangSerivce::sendNotification($thread['created_userid'], array(
                 'type'    => 4,
                 'message' => '您的帖子《'.$params['manageThreadTitle'].'》被管理员 '
                              .$userBo->username.' 执行了删除操作。--系统消息，回复无效',
             ));
             //
             $noticeService->sendNotice($thread['created_userid'], 'threadmanage', $thread['tid'], $params);
-        }   
+        }
     } 
 
     protected function _getManageActionName($action) { 
