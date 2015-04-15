@@ -291,7 +291,7 @@ class PwLaiWangSerivce {
         'usertype'  => self::USERTYPE_NAME,
         'userid'    => self::DEFAULT_SENDER_UID,
         'username'  => 'admin',
-        'avatar'    => '',
+        'avatar'    => 'http://oss.aliyuncs.com/phpwind-image/b5828aae6b79286ec7cbbcea938f5290.png',
         'nickname'  => '小助手',
     );
 
@@ -300,9 +300,9 @@ class PwLaiWangSerivce {
         $config = Wekit::C()->getValues('notifier');
         if (empty($config)) {
             $config = self::$defaultNotifier;
-            $config['avatar'] = Pw::getAvatar(self::DEFAULT_SENDER_UID, 'big');
         } else {
-            $config['avatar'] = Pw::getPath($config['avatar']);
+            $config['avatar'] = empty($config['avatar']) ? self::$defaultNotifier['avatar']
+                                                         : Pw::getPath($config['avatar']);
         }
         return $config;
     }

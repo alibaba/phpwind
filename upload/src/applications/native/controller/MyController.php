@@ -81,9 +81,11 @@ class MyController extends NativeBaseController {
 		if ($result instanceof PwError) {
 			$this->showError($result->getError());
 		}
-        //
+        // 取消关注不发送通知
+        /*
         PwLaiWangSerivce::sendNotification($uid, array(
             'type' => 1, 'message' => $this->userInfo['username'] . ' 取消关注了您。--系统消息，回复无效。'));
+        */
 
         //
 		$this->showMessage('success');
