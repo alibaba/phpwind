@@ -165,16 +165,19 @@ class PostController extends NativeBaseController {
 
         // 发送通知
         // 关于type请查看sendNotification的注释
-        PwLaiWangSerivce::sendNotification($info['created_userid'],
-            array('type' => ($rpid > 0 ? 3 : 2),
-                  'message' => ($rpid > 0 ?
-                          $this->loginUser->info['username']." 评论了您的回帖：\n".$content
-                        : $this->loginUser->info['username'].' 评论了您的帖子《'.$info['subject']."》：\n".$content),
-                  'url' => ($rpid > 0 ? 'read' : 'read'),
-                  'arg' => ($rpid > 0 ? array((string)$tid)
-                            : array((string)$tid)),
-            )
-        );
+        // 如果自己回复了自己的帖子，则不发送通知
+        if ($info['created_userid'] != $this->uid) {
+            PwLaiWangSerivce::sendNotification($info['created_userid'],
+                array('type' => ($rpid > 0 ? 3 : 2),
+                      'message' => ($rpid > 0 ?
+                              $this->loginUser->info['username']." 评论了您的回帖：\n".$content
+                            : $this->loginUser->info['username'].' 评论了您的帖子《'.$info['subject']."》：\n".$content),
+                      'url' => ($rpid > 0 ? 'read' : 'read'),
+                      'arg' => ($rpid > 0 ? array((string)$tid)
+                                : array((string)$tid)),
+                )
+            );
+        }
 
         //
         $this->showMessage('success');
