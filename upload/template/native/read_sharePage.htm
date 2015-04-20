@@ -65,10 +65,12 @@
 
                 <!--# if ($threadDisplay->attach && $attach = $threadDisplay->attach->getList(0)) { #-->
                 <!--# if ($attach['pic']) { #-->
+                            <!--# foreach($attach['pic'] as $key => $value){ #-->
 				<div style="padding:0.5rem 0 0.5rem 0">
 				<img border="0" width='100%' src="{$value['url']}" class="J_post_img">
 				</div>
                 
+                            <!--# } #-->
                 <!--# } #-->
                 <!--# if ($attach['downattach']) { #-->
                 <div class="read_attach_downattach">
