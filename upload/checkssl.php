@@ -113,7 +113,7 @@ function showError($msg, $url = false) {
 		</div>
 	</div>
 	<div class="footer">
-		&copy; 2003-2103 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
+		&copy; 2003-2015 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
 	</div>
 </body>
 </html>
@@ -147,7 +147,7 @@ function showMsg($msg) {
 		</div>
 	</div>
 	<div class="footer">
-		&copy; 2003-2103 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
+		&copy; 2003-2015 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
 	</div>
 </body>
 </html>
