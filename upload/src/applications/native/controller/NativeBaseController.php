@@ -141,7 +141,7 @@ abstract class NativeBaseController extends PwBaseController {
      *
      * @return PwCheckVerifyService
      */
-    protected function _getVerifyService() {                                                                                                                
+    protected function _getVerifyService() {
         return Wekit::load("verify.srv.PwCheckVerifyService");
     }
 
