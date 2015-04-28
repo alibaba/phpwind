@@ -611,6 +611,16 @@ class UserController extends NativeBaseController {
     }
 
     /**
+     * 显示验证码。
+     * 为了和8.7 API兼容而增加。
+     *
+     */
+    public function showVerifycodeAction()
+    {
+        $this->forwardAction('verify/index/get?rand='.Pw::getTime());
+    }
+
+    /**
      * 判断是否需要展示验证码
      *
      * @return boolean
