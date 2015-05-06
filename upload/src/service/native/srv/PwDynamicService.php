@@ -143,7 +143,7 @@ class PwDynamicService {
                     $weight_values[] = "({$v['tid']},$weight,{$v['create_time']},{$v['create_userid']},'{$v['create_username']}',{$v['isenable']})";
                 }
                 $weight_values = implode(',', $weight_values);
-                //将权重计算结果插入权重表,表中已有数据不再重复插入
+                //将权重计算结果覆盖插入权重表,表中已有数据将被覆盖
                 $threadsWeightDao->replaceValues($weight_values);
             }
         }
