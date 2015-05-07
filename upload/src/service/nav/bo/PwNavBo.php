@@ -48,7 +48,7 @@ class PwNavBo {
 		$list = $this->_getNavDs()->getNavByType($type);
 		if (!is_array($list)) return array();
 		if (!$current) return $list;
-		$rating = $this->routRating();
+		$rating = $this->routeRating();
 		foreach ($list AS $key => $value) {
 			if (!$value['name']) continue;
 			$list[$key]['name'] = $this->bindHtml($value);
@@ -93,7 +93,7 @@ class PwNavBo {
 		$list = Wekit::C('nav', $type);
 		if (!is_array($list)) return array();
 		if (!$current) return $list;
-		$rating = $this->routRating();
+		$rating = $this->routeRating();
 		foreach ((array)$list AS $key => $value) {
 			if (!$value['name']) continue;
 			if ($_k = array_search($value['sign'], $rating)) {
@@ -132,7 +132,7 @@ class PwNavBo {
 	 * key越小，说明当前定位优先级越高
 	 * Enter description here ...
 	 */
-	protected function routRating() {
+	protected function routeRating() {
 		$rating = array();
 		$rating[] = '';
 		$m = $this->router['m'];
