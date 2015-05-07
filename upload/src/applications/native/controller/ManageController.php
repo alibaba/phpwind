@@ -59,7 +59,7 @@ class ManageController extends NativeBaseController {
         }
 
         $this->manage = $this->_getManage($action);
-        if (($result = $this->manage->check()) !== true) {                                                                                                   
+        if (($result = $this->manage->check()) !== true) {
             if (false === $result) $this->showError(new PwError('BBS:manage.permission.deny'));
             $this->showError($result->getError());
         }
@@ -87,14 +87,14 @@ class ManageController extends NativeBaseController {
 
         $userBo = new PwUserBo($this->uid);
 
-        Wind::import('SRV:forum.srv.PwThreadDisplay'); 
+        Wind::import('SRV:forum.srv.PwThreadDisplay');
         $threadDisplay = new PwThreadDisplay($tid, $userBo);
         $this->runHook('c_read_run', $threadDisplay);
 
         if (($result = $threadDisplay->check()) !== true) {
             $this->showError($result->getError());
 
-        }   
+        }
         $_cache = Wekit::cache()->fetch(array('level', 'group_right'));
 
         $pwforum = $threadDisplay->getForum();
@@ -112,7 +112,7 @@ class ManageController extends NativeBaseController {
 //        print_r($operateReply);
     }
 
-    protected function _getManage($action) {                                                                                                                 
+    protected function _getManage($action) {
         $tids = $this->getInput('tids');
         $tid = $this->getInput('tid');
         if ($tids && !is_array($tids)) {
@@ -136,16 +136,16 @@ class ManageController extends NativeBaseController {
             $manage = new PwThreadManage(new PwFetchReplyByTidAndPids($tid, $pids), new PwUserBo($this->uid));
             $do = $this->_getDeleteReplyManage($manage);
             break;
-        } 
+        }
         if (is_array($do)) {
             foreach ($do as $do1) {
                 $manage->appendDo($do1);
             }
         } else {
             $manage->appendDo($do);
-        }   
+        }
         return $manage;
-    }       
+    }
 
     protected function _getDeleteManage($manage) {
         Wind::import('SRV:forum.srv.manage.PwThreadManageDoDeleteTopic');
@@ -167,7 +167,7 @@ class ManageController extends NativeBaseController {
     protected function _getBanManage($manage) {
         Wind::import('SRV:forum.srv.manage.PwThreadManageDoBan');
         $do = new PwThreadManageDoBan($manage, new PwUserBo($this->uid));
-        
+
         $banInfo = new stdClass();
         $banInfo->types = array(1,2,4);
         $banInfo->reason = '任性';
@@ -182,7 +182,7 @@ class ManageController extends NativeBaseController {
     /**
      * 删除回复
      *
-     * @param mixed $manage 
+     * @param mixed $manage
      * @access protected
      * @return void
      */
@@ -196,7 +196,7 @@ class ManageController extends NativeBaseController {
 	}
 
 
-    /** 
+    /**
      * send messages
      */
     protected function _sendMessage($action, $threads) {
@@ -238,7 +238,7 @@ class ManageController extends NativeBaseController {
                 $tmp = array();
                 foreach ($actions as $v){
                     $tmp[] = $this->_getManageActionName('do' . $v);
-                }   
+                }
                 $tmp && $params['manageTypeString'] = implode(',', $tmp);
             } else {
                 $params['manageTypeString'] = $this->_getManageActionName($action);
@@ -252,15 +252,14 @@ class ManageController extends NativeBaseController {
             //
             $noticeService->sendNotice($thread['created_userid'], 'threadmanage', $thread['tid'], $params);
         }
-    } 
+    }
 
-    protected function _getManageActionName($action) { 
-        $resource = Wind::getComponent('i18n'); 
-        $message = $resource->getMessage("BBS:manage.operate.name.$action"); 
-        if (in_array($action, $this->doCancel)) { 
-            $message = $resource->getMessage("BBS:manage.operate.action.cancel") . $message; 
-        } 
-        return $message; 
-    } 
-
+    protected function _getManageActionName($action) {
+        $resource = Wind::getComponent('i18n');
+        $message = $resource->getMessage("BBS:manage.operate.name.$action");
+        if (in_array($action, $this->doCancel)) {
+            $message = $resource->getMessage("BBS:manage.operate.action.cancel") . $message;
+        }
+        return $message;
+    }
 }
