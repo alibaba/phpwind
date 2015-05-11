@@ -256,7 +256,7 @@ class PostController extends NativeBaseController {
                     'pid'               =>$v['pid'],
                     'created_time'      =>Pw::time2str($reply['created_time'],'auto'),
                     'created_username'  =>$v['created_username'],
-                    'content'           =>$v['content'],
+                    'content'           =>preg_replace('/\[quote.*?\].+?\[\/quote\]/i','',$v['content']),
                 );
                 if( $simple ){
                     $replyList[$key]['content'] = mb_substr($replyList[$key]['content'], 0, 30);
