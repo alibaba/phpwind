@@ -58,7 +58,12 @@ class PwLaiWangSerivce {
     public static $wk_appToken = '';
     public static $wk_appSecret= '';
 
-    function __construct(){
+    /**
+     * 需要从GET或者POST传入os，可以是Android或者iOS
+     *
+     */
+    function __construct()
+    {
         $_config = Wekit::C()->getValues('wukong');
         if (empty($_config) || !isset($_config['ios.appKey'])) {
             $_securityKey = Wekit::C()->getConfigByName('site', 'securityKey');
@@ -70,12 +75,19 @@ class PwLaiWangSerivce {
             return;
         }
 
-        $_config['appKey']  = $_config['android.appKey'];
+        $os = isset($_POST['os']) ? $_POST['os'] : (isset($_GET['os']) ? $_GET['os'] : '');
+        $os = strtolower($os);
+        if (empty($os) || !in_array($os, array('android', 'ios'))) {
+            $os = 'android';
+        }
+
+        $_config['appKey']  = $_config[$os . '.appKey'];
         self::$wk_appToken  = $_config['appToken'];
-        self::$wk_appSecret = $_config['android.appSecret'];
+        self::$wk_appSecret = $_config[$os . 'appSecret'];
         //
         unset($_config['android.appKey']);
         unset($_config['android.appSecret']);
+        unset($_config['ios.appKey']);
         unset($_config['ios.appSecret']);
         unset($_config['appToken']);
         //
