@@ -75,6 +75,7 @@ class PwLaiWangSerivce {
             return;
         }
 
+        // NOTE: 增加了os判断
         $os = isset($_POST['os']) ? $_POST['os'] : (isset($_GET['os']) ? $_GET['os'] : '');
         $os = strtolower($os);
         if (empty($os) || !in_array($os, array('android', 'ios'))) {
