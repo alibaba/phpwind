@@ -259,7 +259,7 @@ class PostController extends NativeBaseController {
                     'content'           =>preg_replace('/\[quote.*?\].+?\[\/quote\]/i','',$v['content']),
                 );
                 if( $simple ){
-                    $replyList[$key]['content'] = mb_substr($replyList[$key]['content'], 0, 30);
+                    $replyList[$key]['content'] = mb_substr($replyList[$key]['content'], 0, 30,'utf-8');
                 }
             }
             $data = array(
