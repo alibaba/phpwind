@@ -29,8 +29,9 @@ class UserController extends NativeBaseController {
      * @return void
      * @example
      <pre>
-     /index.php?m=native&c=user&a=checkLoginStatus
+     /index.php?m=native&c=user&a=checkLoginStatus&os=Android
      <br>
+     os可以是android或者ios <br>
      post: securityKey <br>
      response: {"referer":"","refresh":false,"state":"success","data":{"thirdPlatformAppid":{"taobao":{"order":"0","appId":"a123456"}},"userinfo":{"username":"qiwen","avatar":"http:\/\/img1.phpwind.net\/attachout\/avatar\/002\/37\/41\/2374101_small.jpg","gender":0}},"html":"","message":["\u6b22\u8fce\u56de\u6765..."],"__error":""}
      </pre>
@@ -108,7 +109,8 @@ class UserController extends NativeBaseController {
      * @return string
      * @example
      <pre>
-     /index.php?m=native&c=user&a=doLogin <br>
+     /index.php?m=native&c=user&a=doLogin&os=android <br>
+     os可以是android或者ios <br>
      post: username&password&csrf_token&code&_json=1 <br>
      response:
     {
@@ -179,7 +181,8 @@ class UserController extends NativeBaseController {
      * @return void
      * @example
      <pre>
-     /index.php?m=native&c=user&a=doRegister    <br>
+     /index.php?m=native&c=user&a=doRegister&os=android <br>
+     os可以是android或者ios <br>
      post: username&password&repassword&email&code
      response: {err:"",data:""}
      </pre>
@@ -355,6 +358,7 @@ class UserController extends NativeBaseController {
      * @return string sessionid
      * @example
      <pre>
+     os可以是android或者ios <br>
      post: access_token&platformname(qq|weibo|weixin|taobao)&native_name(回调地址)
      </pre>
      */
@@ -406,6 +410,7 @@ class UserController extends NativeBaseController {
      * @return void
      * @example
      <pre>
+     os可以是android或者ios <br>
      post: access_token&platformname&native_name&username&email&sex
      </pre>
      */

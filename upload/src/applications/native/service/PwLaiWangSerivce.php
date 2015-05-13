@@ -59,7 +59,7 @@ class PwLaiWangSerivce {
     public static $wk_appSecret= '';
 
     /**
-     * 需要从GET或者POST传入os，可以是Android或者iOS
+     * 需要从GET或者POST传入os，可以是android或者ios
      *
      */
     function __construct()
