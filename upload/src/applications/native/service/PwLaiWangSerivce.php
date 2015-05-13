@@ -84,7 +84,7 @@ class PwLaiWangSerivce {
 
         $_config['appKey']  = $_config[$os . '.appKey'];
         self::$wk_appToken  = $_config['appToken'];
-        self::$wk_appSecret = $_config[$os . 'appSecret'];
+        self::$wk_appSecret = $_config[$os . '.appSecret'];
         //
         unset($_config['android.appKey']);
         unset($_config['android.appSecret']);
