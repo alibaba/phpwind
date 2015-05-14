@@ -86,7 +86,7 @@ class PwThirdOpenPlatformService {
             $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['openid'],$this->access_token);
             $_openid_result = WindidUtility::buildRequest($_uri, array(), true, 2, 'get');
             if (!empty($_openid_result)) {
-                $_openid_result = substr($_openid_result, 9, -4);
+                $_openid_result = substr($_openid_result, 9, -3);
                 $_openid_result = json_decode($_openid_result,true);
                 if( isset($_openid_result['openid']) ){
                     //step 3
