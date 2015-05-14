@@ -13,6 +13,15 @@
 Wind::import('WSRV:base.WindidUtility');
 Wind::import('WIND:http.session.WindSession');
 
+function writelog()
+{
+    $file = dirname(__FILE__) . '/../../../../data/log/third.log';
+    foreach(func_get_args() as $arg) {
+        file_put_contents($file,
+            (is_string($arg) ? $arg : var_export($arg, true))."\r\n", FILE_APPEND);
+    }
+}
+
 class PwThirdOpenPlatformService {
 
     private $_session;
@@ -73,11 +82,11 @@ class PwThirdOpenPlatformService {
         //step 2
         if( $_access_token ){
          */
-        if( $this->access_token ){
+        if ($this->access_token) {
             $_uri = sprintf($this->_third_platform_uri_conf[$this->third_platform_name]['openid'],$this->access_token);
-            $_openid_result = WindidUtility::buildRequest($_uri,array(),true,2,'get');
-            if( !empty($_openid_result) ){
-                $_openid_result = substr($_openid_result, 9, count($_openid_result)-4);
+            $_openid_result = WindidUtility::buildRequest($_uri, array(), true, 2, 'get');
+            if (!empty($_openid_result)) {
+                $_openid_result = substr($_openid_result, 9, -4);
                 $_openid_result = json_decode($_openid_result,true);
                 if( isset($_openid_result['openid']) ){
                     //step 3
