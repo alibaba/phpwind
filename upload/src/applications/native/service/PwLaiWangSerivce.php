@@ -106,7 +106,7 @@ class PwLaiWangSerivce {
     public static function saveAppekySetting($key){
         $config = Wekit::C()->getConfigByName('site', 'info.url');
         $_uri = self::PW_CREATER_URI.'/api/getlaiwanginfo?siteurl='.urlencode($config['value']);
-        $unsecurityKey = WindidUtility::buildRequest($_uri,array(),true,WK_TIMEOUT,'get');
+        $unsecurityKey = WindidUtility::buildRequest($_uri,array(),true,self::WK_TIMEOUT,'get');
         $unsecurityKey = json_decode($unsecurityKey, true);
         if ($unsecurityKey && $unsecurityKey['status']==200) {
             $_unsecurityKey = Pw::decrypt($unsecurityKey['data']['info'],$key);
