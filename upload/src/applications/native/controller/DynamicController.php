@@ -13,7 +13,11 @@
 defined('WEKIT_VERSION') || exit('Forbidden');
 
 Wind::import('APPS:native.controller.NativeBaseController');
-
+//ini_set("display_errors", "On");
+//error_reporting(E_ALL & ~E_STRICT);
+//error_reporting(E_ERROR | E_PARSE);
+//error_reporting(E_ALL | E_STRICT);
+//error_reporting(E_ALL);
 class DynamicController extends NativeBaseController {
 
     private $perpage = 30;
