@@ -33,7 +33,7 @@ class ReadController extends NativeBaseController {
      * @return string
      * @example
      <pre>
-     /index.php?m=native&c=read&a=read&tid=21&fid=8&page=1
+     /index.php?m=native&c=read&tid=21&fid=8&page=1&_json=1
      cookie:usersession
      response: {err:"",data:""}  
      </pre>
@@ -196,7 +196,10 @@ class ReadController extends NativeBaseController {
             $poll_id = $res['poll_id'];
             $options = Wekit::load('poll.PwPollOption')->getByPollid($poll_id);
             $vote_total = 0;
-            foreach($options as $v){
+            foreach($options as $k=>$v){
+                if($v['image']){
+                    $options[$k]['image'] = PUBLIC_URL."/attachment/".$v['image'];
+                }
                 $voted_total += $v['voted_num'];
             }
 //            $count = Wekit::load('poll.PwPollOption')->countByPollid($poll_id);
