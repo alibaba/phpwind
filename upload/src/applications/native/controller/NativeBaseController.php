@@ -209,10 +209,13 @@ abstract class NativeBaseController extends PwBaseController {
         $image_content = WindidUtility::buildRequest($avatar_url,array(),true,2,'get');
 
         if( $image_content ){
-            $temp_file = tempnam(sys_get_temp_dir(),'tmp_');
+//            $temp_file = tempnam(sys_get_temp_dir(),'tmp_');
+            $temp_file = tempnam(PUBLIC_PATH."data/tmp/",'tmp_');
             $handle = fopen($temp_file, "w");
+//            $tmpdir = sys_get_temp_dir();
+//            var_dump($temp_file,$handle);
             if( $handle ){
-                fwrite($handle, $image_content);
+                $res = fwrite($handle, $image_content);
                 fclose($handle);
 
                 //

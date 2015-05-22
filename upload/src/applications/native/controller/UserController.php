@@ -415,6 +415,14 @@ class UserController extends NativeBaseController {
      </pre>
      */
     public function openAccountRegisterAction() {
+//        if($this->_getUserOpenAccountDs()->addUser(56,56,56)==false){
+//        if(true){
+//            echo "true";
+//            $this->downloadThirdPlatformAvatar(59,"http://q.qlogo.cn/qqapp/1104230675/A773C383D93AAF2986157BA34965A5CD/100");
+//        }else{
+//            echo "false";
+//        }
+//        exit;
         $accountData=$this->authThirdPlatform();
         //
         list($username,$email,$sex) = $this->getInput(array('username','email','sex'));
@@ -443,6 +451,7 @@ class UserController extends NativeBaseController {
             if ($this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type']) == false) {
                 $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
                 //
+//                $debug = array('uid'=>$info['uid'],'qq_avater'=>$accountData['avatar'],'accountData'=>$accountData);
                 $laiwangOK = PwLaiWangSerivce::registerUser($info['uid'],
                                                             $info['username'],
                                                             $info['password'],
@@ -451,6 +460,7 @@ class UserController extends NativeBaseController {
                 // 重置uid
                 $this->uid = $info['uid'];
                 $userdata  = $this->_getUserInfo($laiwangOK);
+//                $userdata['debug'] = $debug;
                 $this->setOutput($userdata,'data');
                 $this->showMessage('USER:register.success');
             }
