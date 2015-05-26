@@ -43,13 +43,13 @@ class ForumListController extends NativeBaseController {
     }
 
     /**
-     * 频道首页 
+     * 频道首页(分类+一级版块)
      * 
      * @access public
      * @return void
      * @example
      * <pre>
-     * response: /index.php?m=native&c=forumlist&a=categorylist <br>
+     * response: /index.php?m=native&c=forumlist&a=categorylist&_json=1 <br>
      * post: securityKey
      * </pre>
      */
@@ -100,11 +100,15 @@ class ForumListController extends NativeBaseController {
         $join_forum && $_fids = self::splitStringToArray($join_forum);
         //
         $forumList = $this->_getForumService()->getForumList();
+        //获取版块的logo图片版本号
+        $configs = Wekit::C()->getValues('native');
+        $forums_version = isset($configs['forums.version']) && $configs['forums.version'] ? $configs['forums.version'] : array();
         foreach($forumList as $k=>$v){
             if( (int)$v['fup']!=$fup ){
                 unset($forumList[$k]);
             }else{
                 $forumList[$k]['isjoin'] = in_array( $v['fid'],$_fids )!==false?true:false;
+                $forumList[$k]['logo_version'] = isset($forums_version[$v['fid']]) ? intval($forums_version[$v['fid']]) : 0;
             }
         }
         return $forumList;

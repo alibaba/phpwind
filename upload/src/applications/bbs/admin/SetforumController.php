@@ -216,6 +216,13 @@ class SetforumController extends AdminBaseController {
 			$this->showMessage('版块不存在', 'bbs/setforum/run', true);
 		}
 		$this->_updateForums($forum, $copyFids, $copyItems);
+                if(isset($_FILES['logo'])){//logo更新，修改图片版本号
+                    $configs = Wekit::C()->getValues('native');
+                    $forums_version = isset($configs['forums.version']) && $configs['forums.version'] ? $configs['forums.version'] : array();
+                    $forums_version[$fid] = isset($forums_version[$fid]) ? intval($forums_version[$fid])+1 : 1;
+                    $config = new PwConfigSet('native');
+                    $config->set('forums.version',$forums_version)->flush();
+                }
 		$this->showMessage('success', 'bbs/setforum/edit/?fid=' . $fid, true);
 	}
 
