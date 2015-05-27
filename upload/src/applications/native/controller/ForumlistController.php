@@ -108,16 +108,17 @@ class ForumListController extends NativeBaseController {
         $join_forum && $_fids = self::splitStringToArray($join_forum);
         //
         $forumList = $this->_getForumService()->getForumList();
-
+        $forumListTemp = array();
         foreach($forumList as $k=>$v){
             if( (int)$v['fup']!=$fup ){
                 unset($forumList[$k]);
             }else{
                 $forumList[$k]['isjoin'] = in_array( $v['fid'],$_fids )!==false?true:false;
                 $forumList[$k]['logo_version'] = isset($this->forums_version[$v['fid']]) ? intval($this->forums_version[$v['fid']]) : 0;
+                $forumListTemp[] = $forumList[$k];
             }
         }
-        return $forumList;
+        return $forumListTemp;
     }
 
 
