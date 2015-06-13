@@ -63,7 +63,7 @@ class LoginController extends PwBaseController {
 		Wekit::setV('seo', $seoBo);
     }
 
-    public function thirdLoginAction()
+    public function thirdloginAction()
     {
         $platform = $this->getInput('platform', 'get');
         if (!isset(PwThirdLoginService::$supportedPlatforms[$platform])) {
