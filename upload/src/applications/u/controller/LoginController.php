@@ -79,7 +79,19 @@ class LoginController extends PwBaseController {
         if (!isset(PwThirdLoginService::$supportedPlatforms[$platform])) {
             $this->showError('USER:third.platform.error');
         }
-        $service = new PwThirdLoginService();
+        $service  = new PwThirdLoginService();
+        // TODO: 确认第三方返回的授权码
+        $authcode = $this->getInput('code', 'get');
+        $result   = $service->getAccessToken($platform, $authcode);
+        if (!$result[0]) {
+            if (is_array($result[1])) {
+                $this->showError('USER:third.platform.dataerror.detail',
+                                 array('{code}' => $result[1][0], '{msg}' => $result[1][1]));
+            } else {
+                $this->showError('USER:third.platform.dataerror');
+            }
+        }
+        $accesstoken = $result[1];
     }
 
 	/**
