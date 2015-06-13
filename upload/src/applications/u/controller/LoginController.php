@@ -52,8 +52,8 @@ class LoginController extends PwBaseController {
 		$this->setOutput($this->_filterUrl(false), 'url');
 		$this->setOutput(PwUserHelper::getLoginMessage(), 'loginWay');
         $this->setOutput($this->getInput('invite'), 'invite');
-        $third = new PwThirdLoginService();
-        $this->setOutput($third->getPlatforms(), 'thirdlogin');
+        $service = new PwThirdLoginService();
+        $this->setOutput($service->getPlatforms(), 'thirdlogin');
 		$this->setTemplate('login');
 		
 		Wind::import('SRV:seo.bo.PwSeoBo');
@@ -69,6 +69,17 @@ class LoginController extends PwBaseController {
         if (!isset(PwThirdLoginService::$supportedPlatforms[$platform])) {
             $this->showError('USER:third.platform.error');
         }
+        $service = new PwThirdLoginService();
+        $this->forwardRedirect($service->getAuthorizeUrl($platform));
+    }
+
+    public function thirdlogincallbackAction()
+    {
+        $platform = $this->getInput('platform', 'get');
+        if (!isset(PwThirdLoginService::$supportedPlatforms[$platform])) {
+            $this->showError('USER:third.platform.error');
+        }
+        $service = new PwThirdLoginService();
     }
 
 	/**

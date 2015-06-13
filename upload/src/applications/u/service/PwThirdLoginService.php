@@ -12,8 +12,10 @@
 class PwThirdLoginService
 {
     public static $supportedPlatforms = array(
+        // See http://wiki.open.qq.com/wiki/website/%E4%BD%BF%E7%94%A8Authorization_Code%E8%8E%B7%E5%8F%96Access_Token
         'qq'    => array(
-            'img' => 'http://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/bt_blue_76X24.png',
+            'img'       => 'http://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/bt_blue_76X24.png',
+            'authorize' => 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=phpwind&scope=get_user_info',
         ),
         'weibo' => array(
             'img' => '',
@@ -30,10 +32,29 @@ class PwThirdLoginService
             if (!isset($thirdPlatforms[$p.'.status']) || !$thirdPlatforms[$p.'.status']) {
                 continue;
             }
-            $c['url']    = '/index.php?m=u&c=login&a=thirdLogin&platform='.$p;
+            $c['url']    = '/index.php?m=u&c=login&a=thirdlogin&platform='.$p;
             $platforms[] = $c;
         }
 
         return $platforms;
+    }
+
+    public function getAuthorizeUrl($platform)
+    {
+        $thirdPlatforms = Wekit::C('webThirdLogin');
+
+        $config = Wekit::C()->getConfigByName('site', 'info.url');
+        $redirecturl = $config['value'].'/index.php?m=u&c=login&a=thirdlogincallback&platform='.$platform;
+
+        switch($platform) {
+        case 'qq':
+            return sprintf(self::$supportedPlatforms[$platform]['authorize'],
+                           $thirdPlatforms[$platform.'.appid'],
+                           urlencode($redirecturl)
+                          );
+        default:
+            // should never happen
+            return '';
+        }
     }
 }
