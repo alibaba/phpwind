@@ -20,6 +20,8 @@ class PwThirdLoginService
             'img'       => 'http://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/bt_blue_76X24.png',
             'authorize' => 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=phpwind&scope=get_user_info',
             'accesstoken' => 'https://graph.qq.com/oauth2.0/token?grant_type=authorization_code&client_id=%s&client_secret=%s&code=%s&redirect_uri=%s',
+            'openid' => 'https://graph.qq.com/oauth2.0/me?access_token=%s',
+            'userinfo' => 'https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s',
         ),
         'weibo' => array(
             'img' => '',
@@ -96,6 +98,54 @@ class PwThirdLoginService
             }
         default:
             return array(false, '');
+        }
+    }
+
+    public function getUserInfo($platform, $accesstoken)
+    {
+        switch($platform) {
+        case 'qq':
+            $url = sprintf(self::$supportedPlatforms[$platform]['openid'],
+                           $accesstoken
+                          );
+            break;
+        default:
+            break;
+        }
+        if (isset($url)) {
+            $openid = $this->getOpenId($url);
+            if (!$openid[0]) {
+                return $openid;
+            }
+            $openid = $openid['openid'];
+        }
+
+        $thirdPlatforms = Wekit::C('webThirdLogin');
+        switch($platform) {
+        case 'qq':
+            $url = sprintf(self::$supportedPlatforms[$platform]['userinfo'],
+                           $accesstoken,
+                           $thirdPlatforms[$platform.'.appid'],
+                           $openid
+                          );
+            break;
+        default:
+            break;
+        }
+        $data = $this->_request($url, array());
+    }
+
+    public function getOpenId($url)
+    {
+        $data = self::_request($url, $params);
+        if (!$data) {
+            return array(false, '');
+        }
+        $result = json_decode(substr($data, 10, -4), true);
+        if (isset($result['error'])) {
+            return array(false, array($result['error'], $result['error_description']));
+        } else {
+            return array(true, $result['openid']);
         }
     }
 

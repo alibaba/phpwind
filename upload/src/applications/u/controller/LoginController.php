@@ -93,6 +93,16 @@ class LoginController extends PwBaseController {
             }
         }
         $accesstoken = $result[1];
+        $result = $service->getUserInfo($platform, $accesstoken);
+        if (!$result[0]) {
+            if (is_array($result[1])) {
+                $error =  new PwError('USER:third.platform.dataerror.detail',
+                                array('{code}' => $result[1][0], '{msg}' => $result[1][1]));
+                $this->showError($error->getError());
+            } else {
+                $this->showError('USER:third.platform.dataerror');
+            }
+        }
     }
 
 	/**
