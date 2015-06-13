@@ -2,6 +2,7 @@
 Wind::import('SRV:user.PwUser');
 Wind::import('SRV:user.srv.PwLoginService');
 Wind::import('APPS:u.service.helper.PwUserHelper');
+Wind::import('APPS:u.service.PwThirdLoginService');
 
 /**
  * 登录
@@ -50,7 +51,9 @@ class LoginController extends PwBaseController {
 		$this->setOutput('用户登录', 'title');
 		$this->setOutput($this->_filterUrl(false), 'url');
 		$this->setOutput(PwUserHelper::getLoginMessage(), 'loginWay');
-		$this->setOutput($this->getInput('invite'), 'invite');
+        $this->setOutput($this->getInput('invite'), 'invite');
+        $third = new PwThirdLoginService();
+        $this->setOutput($third->getPlatforms(), 'thirdlogin');
 		$this->setTemplate('login');
 		
 		Wind::import('SRV:seo.bo.PwSeoBo');
@@ -58,7 +61,15 @@ class LoginController extends PwBaseController {
 		$lang = Wind::getComponent('i18n');
 		$seoBo->setCustomSeo($lang->getMessage('SEO:u.login.run.title'), '', '');
 		Wekit::setV('seo', $seoBo);
-	}
+    }
+
+    public function thirdLoginAction()
+    {
+        $platform = $this->getInput('platform', 'get');
+        if (!isset(PwThirdLoginService::$supportedPlatforms[$platform])) {
+            $this->showError('USER:third.platform.error');
+        }
+    }
 
 	/**
 	 * 快捷登录

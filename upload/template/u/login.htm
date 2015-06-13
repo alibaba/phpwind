@@ -66,6 +66,13 @@ $_errMsg = '为保证帐户安全，请重新登录';
 				<div class="reg_side_cont">
 					<p class="mb10">还没有帐号？</p>
 					<p class="mb20"><a rel="nofollow" href="{@url:u/register/run}<!--#if ($invite) {#-->?invite={$invite}<!--#}#-->" class="btn btn_big">免费注册</a></p>
+<!--#
+    foreach($thirdlogin as $p) {
+#-->
+                    <p class="mb20"><a href="{$p['url']}"><img src="{$p['img']}" /></a></p>
+<!--#
+    }
+#-->
 					<hook name="login_sidebar"/>
 				</div>
 			</div>

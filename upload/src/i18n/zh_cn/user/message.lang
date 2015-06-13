@@ -148,3 +148,5 @@ user.forumadmin.add.error = "添加版主操作请到版块管理"
 user.syn.error = "用户信息同步错误"
 founder.edit = "创始人只能通过后台来修改密码"
 empty.error = "带*的不能为空"
+
+third.platform.error = "目前还不支持所您选择的第三方平台登录方式"
