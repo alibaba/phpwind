@@ -9,6 +9,9 @@
  * @version $Id: PwThirdLoginService.php 24383 2015-06-13 14:10:47Z ideal $
  * @package products.u.service
  */
+
+Wind::import('WSRV:base.WindidUtility');
+
 class PwThirdLoginService
 {
     public static $supportedPlatforms = array(
@@ -73,6 +76,7 @@ class PwThirdLoginService
                            $authcode,
                            urlencode($redirecturl)
                           );
+            break;
         default:
             // should never happen
             return array(false, '');
@@ -84,9 +88,9 @@ class PwThirdLoginService
         }
         switch($platform) {
         case 'qq':
-            parse_str($data, $result);
-            if (isset($result['code'])) {
-                return array(false, array($result['code'], $result['msg']));
+            $result = json_decode(substr($data, 10, -4), true);
+            if (isset($result['error'])) {
+                return array(false, array($result['error'], $result['error_description']));
             } else {
                 return array(true, $result['access_token']);
             }
