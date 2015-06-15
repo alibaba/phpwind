@@ -90,7 +90,11 @@ class PwThirdLoginService
         }
         switch($platform) {
         case 'qq':
-            $result = json_decode(substr($data, 10, -4), true);
+            if (substr($data, 0, 8) == 'callback') {
+                $result = json_decode(substr($data, 10, -4), true);
+            } else {
+                parse_str($data, $result);
+            }
             if (isset($result['error'])) {
                 return array(false, array($result['error'], $result['error_description']));
             } else {
@@ -117,7 +121,7 @@ class PwThirdLoginService
             if (!$openid[0]) {
                 return $openid;
             }
-            $openid = $openid['openid'];
+            $openid = $openid[1];
         }
 
         $thirdPlatforms = Wekit::C('webThirdLogin');
@@ -132,7 +136,27 @@ class PwThirdLoginService
         default:
             break;
         }
-        $data = $this->_request($url, array());
+        $data     = $this->_request($url, array());
+        $userinfo = array();
+        switch($platform) {
+        case 'qq':
+            $result = json_decode($data, true);
+            if ($result['ret'] != 0) {
+                $userinfo[0] = false;
+                $userinfo[1] = array('code' => $result['ret'],
+                                     'msg'  => $result['msg']
+                                    );
+            } else {
+                $userinfo[0] = true;
+                $userinfo[1] = array('nickname' => $result['nickname'],
+                                     'gender'   => $result['gender'], // 男 or 女
+                                     'avatar'   => $result['figureurl_qq_2'],
+                                    );
+            }
+            return $userinfo;
+        default:
+            return array(false, '');
+        }
     }
 
     public function getOpenId($url)
