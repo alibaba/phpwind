@@ -103,6 +103,48 @@ class LoginController extends PwBaseController {
                 $this->showError('USER:third.platform.dataerror');
             }
         }
+        $userdata = $result[1];
+        $acctRelationData = $this->_getUserOpenAccountDs()->getUid($userata['uid'], $userdata['type']);
+
+        // 如果没有这个用户，先注册上
+        if (empty($acctRelationData)) {
+            $password = substr(str_shuffle('abcdefghigklmnopqrstuvwxyz1234567890~!@#$%^&*()'), 0, 7);
+            Wind::import('SRC:service.user.dm.PwUserInfoDm');
+            $userDm = new PwUserInfoDm();
+            $userDm->setUsername($userdata['username']);
+            $userDm->setPassword($password);
+            $userDm->setGender($userdata['gender']);
+            $userDm->setRegdate(Pw::getTime());
+            $userDm->setLastvisit(Pw::getTime());
+            $userDm->setRegip(Wind::getComponent('request')->getClientIp());
+
+            $registerService = new PwRegisterService();
+            $registerService->setUserDm($userDm);
+            // [u_regsiter]:插件扩展
+            $this->runHook('c_register', $registerService);
+            if (($info = $registerService->register()) instanceof PwError) {
+                $this->showError($info->getError());
+            } else {
+                if ($this->_getUserOpenAccountDs()->addUser($info['uid'], $userata['uid'], $userata['type']) != false) {
+                    $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
+                }
+            }
+        }
+
+        // 继续登录
+        $login = new PwLoginService();
+        $this->runHook('c_login_dorun', $login);
+
+        Wind::import('SRV:user.srv.PwRegisterService');
+        $registerService = new PwRegisterService();
+        $info = $registerService->sysUser($acctRelationData['uid']);
+        if (!$info) {
+            $this->showError('USER:user.syn.error');
+        }
+        $identity = PwLoginService::createLoginIdentify($info);
+        $identity = base64_encode($identity . '|' . $this->getInput('backurl') . '|' . /* rememberme = */'0');
+
+        $this->showMessage('', 'u/login/welcome?_statu=' . $identity);
     }
 
 	/**
@@ -555,5 +597,16 @@ class LoginController extends PwBaseController {
 			array('username', 'password', 'question', 'answer', 'code', 'rememberme'), 'post');
 		if (empty($data['username']) || empty($data['password'])) $this->showError('USER:login.user.require', 'u/login/run');
 		return $data;
-	}
+    }
+
+    /**
+     * 开放平台帐号关联ds
+     *
+     * @access private
+     * @return void
+     */
+    private function _getUserOpenAccountDs()
+    {
+        return Wekit::load('native.PwOpenAccount');
+    }
 }
