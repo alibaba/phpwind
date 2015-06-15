@@ -38,7 +38,12 @@ class ThirdOpenPlatformController extends AdminBaseController {
 
         // 回调地址
         $config = Wekit::C()->getConfigByName('site', 'info.url');
-        $redirecturl = $config['value'].'/index.php?m=u&c=login&a=thirdlogincallback&platform='.$type;
+        if ($type == 'qq') {
+            // QQ的回调地址填写比较诡异，提示和文档都是错的
+            $redirecturl = $config['value'].'/index.php';
+        } else {
+            $redirecturl = $config['value'].'/index.php?m=u&c=login&a=thirdlogincallback&platform='.$type;
+        }
 
         // 
         $this->setOutput($redirecturl, 'redirecturl'); 
