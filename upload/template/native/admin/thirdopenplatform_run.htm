@@ -25,8 +25,8 @@
 		<th>开启绑定</th>
 		<td>
 			<ul class="switch_list cc">
-                <li><label><input type="radio" name="{$type}.status" value="1" {@Pw::ifcheck($info['status'])}><span>开启</span></label></li>
-                <li><label><input type="radio" name="{$type}.status" value="0" {@Pw::ifcheck(!$info['status'])}><span>关闭</span></label></li>
+                <li><label><input type="radio" name="{$type}_status" value="1" {@Pw::ifcheck($info['status'])}><span>开启</span></label></li>
+                <li><label><input type="radio" name="{$type}_status" value="0" {@Pw::ifcheck(!$info['status'])}><span>关闭</span></label></li>
 			</ul>
 		</td>
 		<td><div class="fun_tips"></div></td>
