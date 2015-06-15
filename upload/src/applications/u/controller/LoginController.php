@@ -8,7 +8,8 @@ Wind::import('APPS:u.service.PwThirdLoginService');
  * 登录
  *
  * @author xiaoxia.xu <xiaoxia.xuxx@aliyun-inc.com>
- * @copyright ©2003-2103 phpwind.com
+ * @author shangyuanchun <yuanchun.syc@aliyun-inc.com>
+ * @copyright ©2003-2015 phpwind.com
  * @license http://www.phpwind.com
  * @version $Id: LoginController.php 24383 2013-01-29 10:09:39Z jieyin $
  * @package products.u.controller
