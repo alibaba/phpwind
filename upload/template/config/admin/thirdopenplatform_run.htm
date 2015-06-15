@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<template source='TPL:admin.common.head' />
+</head>
+<body>
+<div class="wrap">
+<div class="nav">
+    <ul class="cc">
+		<li {$typeClasses['qq']|html}><a href="{@url:config/ThirdOpenPlatform/run?type=qq}">QQ</a></li>
+		<li {$typeClasses['weibo']|html}><a href="{@url:config/ThirdOpenPlatform/run?type=weibo}">新浪微博</a></li>
+	</ul>
+</div>
+	<div class="h_a">功能说明</div>
+	<div class="prompt_text">
+		<ul>
+			<li>此功能为设置PC网站端的第三方（QQ，微博）账户登录使用的AppId和AppKey，这里的AppId和AppKey与移动端的是不一样的。</li>
+			<li>设置后，在移动APP端使用了第三方账户方式登陆的用户，在您的PC网站也可以使用相同的第三方账户登录。</li>
+		</ul>
+	</div>
+<form class="J_ajaxForm" action="{@url:config/ThirdOpenPlatform/doset}" method="post">
+<input type="hidden" name="type" value="{$type}" />
+<div class="table_full">
+	<table width="100%">
+		<col width="th" />
+		<col width="400"/>
+		<col />
+		
+		<tr>
+		<th>开启绑定</th>
+		<td>
+			<ul class="switch_list cc">
+                <li><label><input type="radio" name="{$type}_status" value="1" {@Pw::ifcheck($info['status'])}><span>开启</span></label></li>
+                <li><label><input type="radio" name="{$type}_status" value="0" {@Pw::ifcheck(!$info['status'])}><span>关闭</span></label></li>
+			</ul>
+		</td>
+		<td><div class="fun_tips"></div></td>
+		</tr>
+		<tr>
+            <th>{$lab['AppId']}</th>
+		<td>
+            <input type="text" class="input length_5 mr5" name="{$type.'_appId'}" value="{$info['appId']}">
+		</td>
+        <td><div class="fun_tips">
+                <!--# 
+                $link = '';
+                switch($type){
+                case 'taobao':
+                $link = 'http://open.taobao.com';
+                break;
+                case 'qq':
+                $link = 'http://open.qq.com';
+                break;
+                case 'weibo':
+                $link = 'http://open.weibo.com';
+                break;
+                case 'weixin':
+                $link = 'http://open.weixin.qq.com';
+                break;
+                }
+                echo '申请地址：<a href="'.$link.'" target="_blank">'.$link.'</a>，注意是申请网站接入。<br />';
+                echo '回调地址请填写：'.$redirecturl;
+                #-->
+            </div>
+        </td>
+		</tr>
+		<tr>
+		<th>{$lab['AppKey']}</th>
+		<td>
+            <input type="text" class="input length_5 mr5" name="{$type.'_appKey'}" value="{$info['appKey']}">
+		</td>
+		</tr>
+	
+        <!-- 显示顺序 -->
+        <input type="hidden" class="input length_5 mr5" name="{$type}_displayOrder" value="{$info['displayOrder']}">
+	</table>
+</div>
+<div class="btn_wrap">
+	<div class="btn_wrap_pd" id="J_sub_wrap">
+   <button type="submit" class="btn btn_submit J_ajax_submit_btn">提交</button>
+	</div>
+</div>
+{$csrf_token}
+</form>
+
+</div>
+<template source='TPL:admin.common.footer' />
+</body>
+</html>
