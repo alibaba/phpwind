@@ -148,10 +148,13 @@ class PwThirdLoginService
                                     );
             } else {
                 $userinfo[0] = true;
-                $userinfo[1] = array('nickname' => $result['nickname'],
-                                     'gender'   => $result['gender'], // 男 or 女
-                                     'avatar'   => $result['figureurl_qq_2'],
-                                    );
+                $userinfo[1] = array(
+                        'uid'      => md5($result['figureurl_qq_2']),
+                        'username' => $result['nickname'],
+                        'gender'   => $result['gender'] == '男' ? 0 : 1,
+                        'avatar'   => $result['figureurl_qq_2'],
+                        'type'     => $platform,
+                        );
             }
             return $userinfo;
         default:
