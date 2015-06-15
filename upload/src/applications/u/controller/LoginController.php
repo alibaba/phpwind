@@ -140,6 +140,8 @@ class LoginController extends PwBaseController {
             if ($this->_getUserOpenAccountDs()->addUser($info['uid'], $userdata['uid'], $userdata['type']) == false) {
                 $this->downloadThirdPlatformAvatar($info['uid'], $userdata['avatar']);
             }
+            // 以便后面登录用到
+            $acctRelationData = array('uid' => $info['uid']);
         }
 
         // 继续登录
@@ -155,7 +157,53 @@ class LoginController extends PwBaseController {
         $identity = PwLoginService::createLoginIdentify($info);
         $identity = base64_encode($identity . '|' . $this->getInput('backurl') . '|' . /* rememberme = */'0');
 
-        $this->showMessage('', 'u/login/welcome?_statu=' . $identity);
+        $this->forwardRedirect(WindUrlHelper::createUrl('u/login/welcome', array('_statu' => $identity)));
+    }
+
+    protected function downloadThirdPlatformAvatar($uid, $avatar_url)
+    {
+        Wind::import('WSRV:base.WindidUtility');
+        $image_content = WindidUtility::buildRequest($avatar_url,array(),true,2,'get');
+
+        if ($image_content) {
+            $temp_file = tempnam(PUBLIC_PATH."data/tmp/",'tmp_');
+            $handle = fopen($temp_file, "w");
+            if ($handle) {
+                $res = fwrite($handle, $image_content);
+                fclose($handle);
+
+                Wind::import('WSRV:upload.action.WindidAvatarUpload');
+                Wind::import('LIB:upload.PwUpload');
+                $bhv = new WindidAvatarUpload($uid);
+                $upload = new PwUpload($bhv);
+
+                $value= array('name'=>'avatar.jpg','size'=>1024*1024*1,'tmp_name'=>$temp_file);
+                $file = new PwUploadFile('_0', $value);
+                $file->filename = $upload->filterFileName($bhv->getSaveName($file));
+                $file->savedir = $bhv->getSaveDir($file);
+                $file->store = Wind::getComponent($bhv->isLocal ? 'localStorage' : 'storage');
+                $file->source = str_replace('attachment',
+                                            'windid/attachment',
+                                            $file->store->getAbsolutePath($file->filename, $file->savedir));
+
+                if (PwUpload::moveUploadedFile($value['tmp_name'], $file->source)) {
+                    $image = new PwImage($file->source);
+                    if ($bhv->allowThumb()) {
+                        $thumbInfo = $bhv->getThumbInfo($file->filename, $file->savedir);
+                        foreach ($thumbInfo as $key => $value) {
+                            $thumburl = $file->store->getAbsolutePath($value[0], $value[1]);
+                            $thumburl = str_replace('attachment','windid/attachment',$thumburl);
+
+                            $result = $image->makeThumb($thumburl, $value[2], $value[3], $quality, $value[4], $value[5]);
+                            if ($result === true && $image->filename != $thumburl) {
+                                $ts = $image->getThumb();
+                            }
+                        }
+                    }
+                }
+                @unlink($temp_file);
+            }
+        }
     }
 
 	/**

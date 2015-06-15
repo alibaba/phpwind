@@ -1,6 +1,7 @@
 <?php
 
 Wind::import('WSRV:user.dao.WindidUserInterface');
+Wind::import('WSRV:base.WindidBaseDao');
 
 /**
  * 用户积分基本信息数据访问层

@@ -154,6 +154,7 @@ class PwThirdLoginService
                         'gender'   => $result['gender'] == '男' ? 0 : 1,
                         'avatar'   => $result['figureurl_qq_2'],
                         'type'     => $platform,
+                        'email'    => 'example@qq.com',
                         );
             }
             return $userinfo;
