@@ -447,11 +447,10 @@ class UserController extends NativeBaseController {
         if (($info = $registerService->register()) instanceof PwError) {
             $this->showError($info->getError());
         } else {
-            //这里注册成功，要把第三方帐号的头像下载下来并处理，这里还没有做
+            // 这里注册成功，要把第三方帐号的头像下载下来并处理
+            // 这里取了lastInsertId，但已经指定了主键的值，所以返回false表示成功
             if ($this->_getUserOpenAccountDs()->addUser($info['uid'],$accountData['uid'],$accountData['type']) == false) {
                 $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
-                //
-//                $debug = array('uid'=>$info['uid'],'qq_avater'=>$accountData['avatar'],'accountData'=>$accountData);
                 $laiwangOK = PwLaiWangSerivce::registerUser($info['uid'],
                                                             $info['username'],
                                                             $info['password'],
@@ -460,7 +459,6 @@ class UserController extends NativeBaseController {
                 // 重置uid
                 $this->uid = $info['uid'];
                 $userdata  = $this->_getUserInfo($laiwangOK);
-//                $userdata['debug'] = $debug;
                 $this->setOutput($userdata,'data');
                 $this->showMessage('USER:register.success');
             }

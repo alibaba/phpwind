@@ -125,8 +125,9 @@ class LoginController extends PwBaseController {
             if (($info = $registerService->register()) instanceof PwError) {
                 $this->showError($info->getError());
             } else {
-                if ($this->_getUserOpenAccountDs()->addUser($info['uid'], $userata['uid'], $userata['type']) != false) {
-                    $this->downloadThirdPlatformAvatar($info['uid'],$accountData['avatar']);
+                // 这里取了lastInsertId，但已经指定了主键的值，所以返回false表示成功。。
+                if ($this->_getUserOpenAccountDs()->addUser($info['uid'], $userata['uid'], $userata['type']) == false) {
+                    $this->downloadThirdPlatformAvatar($info['uid'], $userdata['avatar']);
                 }
             }
         }
