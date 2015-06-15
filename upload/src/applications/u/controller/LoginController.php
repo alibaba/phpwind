@@ -104,31 +104,41 @@ class LoginController extends PwBaseController {
             }
         }
         $userdata = $result[1];
-        $acctRelationData = $this->_getUserOpenAccountDs()->getUid($userata['uid'], $userdata['type']);
+        $acctRelationData = $this->_getUserOpenAccountDs()->getUid($userdata['uid'], $userdata['type']);
 
         // 如果没有这个用户，先注册上
         if (empty($acctRelationData)) {
             $password = substr(str_shuffle('abcdefghigklmnopqrstuvwxyz1234567890~!@#$%^&*()'), 0, 7);
             Wind::import('SRC:service.user.dm.PwUserInfoDm');
             $userDm = new PwUserInfoDm();
-            $userDm->setUsername($userdata['username']);
+
+            $service = Wekit::load('user.PwUser');
+            $user    = $service->getUserByName($userdata['username'], PwUser::FETCH_MAIN);
+            if ($user && $user['username'] == $userdata['username']) {
+                $userDm->setUsername($userdata['username'].'_qq');
+            } else {
+                $userDm->setUsername($userdata['username']);
+            }
+
             $userDm->setPassword($password);
+            $userDm->setEmail($userdata['email']);
             $userDm->setGender($userdata['gender']);
             $userDm->setRegdate(Pw::getTime());
             $userDm->setLastvisit(Pw::getTime());
             $userDm->setRegip(Wind::getComponent('request')->getClientIp());
+            $userDm->setStatus(0);
 
+            Wind::import('SRV:user.srv.PwRegisterService');
             $registerService = new PwRegisterService();
             $registerService->setUserDm($userDm);
             // [u_regsiter]:插件扩展
             $this->runHook('c_register', $registerService);
             if (($info = $registerService->register()) instanceof PwError) {
                 $this->showError($info->getError());
-            } else {
-                // 这里取了lastInsertId，但已经指定了主键的值，所以返回false表示成功。。
-                if ($this->_getUserOpenAccountDs()->addUser($info['uid'], $userata['uid'], $userata['type']) == false) {
-                    $this->downloadThirdPlatformAvatar($info['uid'], $userdata['avatar']);
-                }
+            }
+            // 这里取了lastInsertId，但已经指定了主键的值，所以返回false表示成功。。
+            if ($this->_getUserOpenAccountDs()->addUser($info['uid'], $userdata['uid'], $userdata['type']) == false) {
+                $this->downloadThirdPlatformAvatar($info['uid'], $userdata['avatar']);
             }
         }
 
