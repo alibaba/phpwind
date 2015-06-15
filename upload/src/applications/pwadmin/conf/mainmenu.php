@@ -57,9 +57,9 @@ return array(
 	'config_domain' => array('二级域名', 'rewrite/domain/*', '', '', 'config'),
 	'config_email' => array('电子邮件', 'config/email/*', '', '', 'config'),
 	'config_pay' => array('网上支付', 'config/pay/*', '', '', 'config'),
+    'config_thirdopen' => array('三方平台接入', 'config/ThirdOpenPlatform/*', '', '', 'config'),
 	'config_area' => array('地区库', 'windidclient/areadata/*', '', '', 'config'),
 	'config_school' => array('学校库', 'windidclient/schooldata/*', '', '', 'config'),
-    'config_thirdopen' => array('三方平台接入', 'config/ThirdOpenPlatform/*', '', '', 'config'),
 
 	'u_groups' => array('用户组权限', 'u/groups/*', '', '', 'u'),
 	'u_upgrade'=> array('用户组提升','u/upgrade/*','','','u'),
