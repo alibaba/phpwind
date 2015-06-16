@@ -96,7 +96,7 @@ class PwThirdLoginService
             $postdata = array('client_id' => $thirdPlatforms[$platform.'.appid'],
                               'client_secret' => $thirdPlatforms[$platform.'.appkey'],
                               'code' => $authcode,
-                              'redirect_uri' => urlencode($redirecturl)
+                              'redirect_uri' => $redirecturl,
                              );
             $method = 'post';
             break;
@@ -195,13 +195,21 @@ class PwThirdLoginService
             return $userinfo;
         case 'weibo':
             $result = json_decode($data, true);
-            error_log(var_export($data, true));
             if (isset($result['error_code']) && $result['error_code'] != 0) {
                 $userinfo[0] = false;
                 $userinfo[1] = array('code' => $result['error_code'],
                                      'msg'  => $result['error']
                                     );
             } else {
+                $userinfo[0] = true;
+                $userinfo[1] = array(
+                        'uid'      => $result['id'],
+                        'username' => substr($result['name'], 0, 15),
+                        'gender'   => $result['gender'] == 'm' ? 0 : 1,
+                        'avatar'   => $result['avatar_large'],
+                        'type'     => $platform,
+                        'email'    => 'example@weibo.com',
+                        );
             }
             return $userinfo;
         default:
