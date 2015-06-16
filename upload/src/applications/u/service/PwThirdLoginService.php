@@ -56,7 +56,6 @@ class PwThirdLoginService
         $thirdPlatforms = Wekit::C('webThirdLogin');
 
         $config = Wekit::C()->getConfigByName('site', 'info.url');
-        $config['value'] = 'http://www.everyoung.xyz';
         $redirecturl = $config['value'].'/index.php?m=u&c=login&a=thirdlogincallback&platform='.$platform;
 
         switch($platform) {
@@ -82,7 +81,6 @@ class PwThirdLoginService
         $config = Wekit::C()->getConfigByName('site', 'info.url');
 
         $method = 'get';
-        $config['value'] = 'http://www.everyoung.xyz';
         $redirecturl = $config['value'].'/index.php?m=u&c=login&a=thirdlogincallback&platform='.$platform;
         switch($platform) {
         case 'qq':
