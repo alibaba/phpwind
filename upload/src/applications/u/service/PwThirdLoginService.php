@@ -22,6 +22,7 @@ class PwThirdLoginService
             'accesstoken' => 'https://graph.qq.com/oauth2.0/token?grant_type=authorization_code&client_id=%s&client_secret=%s&code=%s&redirect_uri=%s',
             'openid' => 'https://graph.qq.com/oauth2.0/me?access_token=%s',
             'userinfo' => 'https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s',
+            'text' => '使用QQ帐号登录',
         ),
         // See http://open.weibo.com/wiki/%E9%A6%96%E9%A1%B5
         'weibo' => array(
@@ -29,6 +30,7 @@ class PwThirdLoginService
             'authorize' => 'https://api.weibo.com/oauth2/authorize?client_id=%s&redirect_uri=%s&scope=email&state=phpwind&display=default',
             'accesstoken' => 'https://api.weibo.com/oauth2/access_token',
             'userinfo'    => 'https://api.weibo.com/2/users/show.json?access_token=%s&uid=%s',
+            'text' => '使用新浪微博帐号登录',
         ),
     );
 
