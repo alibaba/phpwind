@@ -8,7 +8,7 @@ Wind::import('APPS:u.service.PwThirdLoginService');
  * 登录
  *
  * @author xiaoxia.xu <xiaoxia.xuxx@aliyun-inc.com>
- * @author shangyuanchun <yuanchun.syc@aliyun-inc.com>
+ * @author shangyuanchun <yuanchun.syc@alibaba-inc.com>
  * @copyright ©2003-2015 phpwind.com
  * @license http://www.phpwind.com
  * @version $Id: LoginController.php 24383 2013-01-29 10:09:39Z jieyin $
@@ -94,7 +94,7 @@ class LoginController extends PwBaseController {
             }
         }
         $accesstoken = $result[1];
-        $result = $service->getUserInfo($platform, $accesstoken);
+        $result = $service->getUserInfo($platform, $accesstoken, $result['extra']);
         if (!$result[0]) {
             if (is_array($result[1])) {
                 $error =  new PwError('USER:third.platform.dataerror.detail',

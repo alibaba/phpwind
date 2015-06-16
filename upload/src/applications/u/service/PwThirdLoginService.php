@@ -23,8 +23,12 @@ class PwThirdLoginService
             'openid' => 'https://graph.qq.com/oauth2.0/me?access_token=%s',
             'userinfo' => 'https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s',
         ),
+        // See http://open.weibo.com/wiki/%E9%A6%96%E9%A1%B5
         'weibo' => array(
-            'img' => '',
+            'img' => 'http://img.t.sinajs.cn/t4/appstyle/open/images/website/loginbtn/loginbtn_03.png',
+            'authorize' => 'https://api.weibo.com/oauth2/authorize?client_id=%s&redirect_uri=%s&scope=email&state=phpwind&display=default',
+            'accesstoken' => 'https://api.weibo.com/oauth2/access_token',
+            'userinfo'    => 'https://api.weibo.com/2/users/show.json?access_token=%s&uid=%s',
         ),
     );
 
@@ -58,6 +62,11 @@ class PwThirdLoginService
                            $thirdPlatforms[$platform.'.appid'],
                            urlencode($redirecturl)
                           );
+        case 'weibo':
+            return sprintf(self::$supportedPlatforms[$platform]['authorize'],
+                           $thirdPlatforms[$platform.'.appid'],
+                           urlencode($redirecturl)
+                          );
         default:
             // should never happen
             return '';
@@ -69,6 +78,7 @@ class PwThirdLoginService
         $thirdPlatforms = Wekit::C('webThirdLogin');
         $config = Wekit::C()->getConfigByName('site', 'info.url');
 
+        $method = 'get';
         $redirecturl = $config['value'].'/index.php?m=u&c=login&a=thirdlogincallback&platform='.$platform;
         switch($platform) {
         case 'qq':
@@ -79,12 +89,21 @@ class PwThirdLoginService
                            urlencode($redirecturl)
                           );
             break;
+        case 'weibo':
+            $url = self::$supportedPlatforms[$platform]['accesstoken'];
+            $postdata = array('client_id' => $thirdPlatforms[$platform.'.appid'],
+                              'client_secret' => $thirdPlatforms[$platform.'.appkey'],
+                              'code' => $authcode,
+                              'redirect_uri' => urlencode($redirecturl)
+                             );
+            $method = 'post';
+            break;
         default:
             // should never happen
             return array(false, '');
         }
 
-        $data = $this->_request($url, array());
+        $data = $this->_request($url, ($method == 'post' ? $postdata : array()), $method);
         if (!$data) {
             return array(false, '');
         }
@@ -98,14 +117,17 @@ class PwThirdLoginService
             if (isset($result['error'])) {
                 return array(false, array($result['error'], $result['error_description']));
             } else {
-                return array(true, $result['access_token']);
+                return array(true, $result['access_token'], 'extra' => array());
             }
+        case 'weibo':
+            $result = json_decode($data);
+            return array(true, $result['access_token'], 'extra' => array('uid' => $result['uid']));
         default:
             return array(false, '');
         }
     }
 
-    public function getUserInfo($platform, $accesstoken)
+    public function getUserInfo($platform, $accesstoken, array $extra)
     {
         switch($platform) {
         case 'qq':
@@ -122,6 +144,8 @@ class PwThirdLoginService
                 return $openid;
             }
             $openid = $openid[1];
+        } else {
+            $openid = $extra['uid'];
         }
 
         $thirdPlatforms = Wekit::C('webThirdLogin');
@@ -130,6 +154,12 @@ class PwThirdLoginService
             $url = sprintf(self::$supportedPlatforms[$platform]['userinfo'],
                            $accesstoken,
                            $thirdPlatforms[$platform.'.appid'],
+                           $openid
+                          );
+            break;
+        case 'qq':
+            $url = sprintf(self::$supportedPlatforms[$platform]['userinfo'],
+                           $accesstoken,
                            $openid
                           );
             break;
@@ -158,6 +188,8 @@ class PwThirdLoginService
                         );
             }
             return $userinfo;
+        case 'weibo':
+            return array(false, '');
         default:
             return array(false, '');
         }
@@ -180,10 +212,10 @@ class PwThirdLoginService
     // 发往外部的http请求超时时间
     const HTTP_TIMEOUT = 4;
 
-    protected function _request($url, $params)
+    protected function _request($url, $params, $method = 'get')
     {
         $result = WindidUtility::buildRequest($url, $params, /* isreturn = */ true,
-                                              self::HTTP_TIMEOUT, 'get');
+                                              self::HTTP_TIMEOUT, $method);
         return !empty($result) ? $result : false;
     }
 }
