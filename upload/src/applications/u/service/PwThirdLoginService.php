@@ -17,7 +17,7 @@ class PwThirdLoginService
     public static $supportedPlatforms = array(
         // See http://wiki.open.qq.com/wiki/website/%E4%BD%BF%E7%94%A8Authorization_Code%E8%8E%B7%E5%8F%96Access_Token
         'qq'    => array(
-            'img'       => 'http://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/bt_blue_76X24.png',
+            'img'       => 'http://oss.aliyuncs.com/phpwind-image/4819ac3d87071089648af06c5fb7f204.png',
             'authorize' => 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=phpwind&scope=get_user_info',
             'accesstoken' => 'https://graph.qq.com/oauth2.0/token?grant_type=authorization_code&client_id=%s&client_secret=%s&code=%s&redirect_uri=%s',
             'openid' => 'https://graph.qq.com/oauth2.0/me?access_token=%s',
@@ -25,7 +25,7 @@ class PwThirdLoginService
         ),
         // See http://open.weibo.com/wiki/%E9%A6%96%E9%A1%B5
         'weibo' => array(
-            'img' => 'http://img.t.sinajs.cn/t4/appstyle/open/images/website/loginbtn/loginbtn_03.png',
+            'img' => 'http://oss.aliyuncs.com/phpwind-image/be7945e0d9521e74b8130a138b8694df.png',
             'authorize' => 'https://api.weibo.com/oauth2/authorize?client_id=%s&redirect_uri=%s&scope=email&state=phpwind&display=default',
             'accesstoken' => 'https://api.weibo.com/oauth2/access_token',
             'userinfo'    => 'https://api.weibo.com/2/users/show.json?access_token=%s&uid=%s',
@@ -54,6 +54,7 @@ class PwThirdLoginService
         $thirdPlatforms = Wekit::C('webThirdLogin');
 
         $config = Wekit::C()->getConfigByName('site', 'info.url');
+        $config['value'] = 'http://www.everyoung.xyz';
         $redirecturl = $config['value'].'/index.php?m=u&c=login&a=thirdlogincallback&platform='.$platform;
 
         switch($platform) {
@@ -79,6 +80,7 @@ class PwThirdLoginService
         $config = Wekit::C()->getConfigByName('site', 'info.url');
 
         $method = 'get';
+        $config['value'] = 'http://www.everyoung.xyz';
         $redirecturl = $config['value'].'/index.php?m=u&c=login&a=thirdlogincallback&platform='.$platform;
         switch($platform) {
         case 'qq':
@@ -120,7 +122,10 @@ class PwThirdLoginService
                 return array(true, $result['access_token'], 'extra' => array());
             }
         case 'weibo':
-            $result = json_decode($data);
+            $result = json_decode($data, true);
+            if (isset($result['error_code']) && $result['error_code'] != 0) {
+                return array(false, array($result['error_code'], $result['error']));
+            }
             return array(true, $result['access_token'], 'extra' => array('uid' => $result['uid']));
         default:
             return array(false, '');
@@ -157,7 +162,7 @@ class PwThirdLoginService
                            $openid
                           );
             break;
-        case 'qq':
+        case 'weibo':
             $url = sprintf(self::$supportedPlatforms[$platform]['userinfo'],
                            $accesstoken,
                            $openid
@@ -189,7 +194,16 @@ class PwThirdLoginService
             }
             return $userinfo;
         case 'weibo':
-            return array(false, '');
+            $result = json_decode($data, true);
+            error_log(var_export($data, true));
+            if (isset($result['error_code']) && $result['error_code'] != 0) {
+                $userinfo[0] = false;
+                $userinfo[1] = array('code' => $result['error_code'],
+                                     'msg'  => $result['error']
+                                    );
+            } else {
+            }
+            return $userinfo;
         default:
             return array(false, '');
         }
