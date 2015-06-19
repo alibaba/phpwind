@@ -183,13 +183,14 @@ class PwThirdLoginService
                                     );
             } else {
                 $userinfo[0] = true;
+                $uid = md5($result['figureurl_qq_2']);
                 $userinfo[1] = array(
-                        'uid'      => md5($result['figureurl_qq_2']),
+                        'uid'      => $uid,
                         'username' => $result['nickname'],
                         'gender'   => $result['gender'] == '男' ? 0 : 1,
                         'avatar'   => $result['figureurl_qq_2'],
                         'type'     => $platform,
-                        'email'    => 'example@qq.com',
+                        'email'    => 'example'.substr($uid, 0, 10).'@qq.com',
                         );
             }
             return $userinfo;
@@ -208,7 +209,7 @@ class PwThirdLoginService
                         'gender'   => $result['gender'] == 'm' ? 0 : 1,
                         'avatar'   => $result['avatar_large'],
                         'type'     => $platform,
-                        'email'    => 'example@weibo.com',
+                        'email'    => 'example'.substr($result['uid'], 0, 10).'@weibo.com',
                         );
             }
             return $userinfo;
