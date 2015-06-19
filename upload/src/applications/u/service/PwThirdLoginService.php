@@ -209,7 +209,7 @@ class PwThirdLoginService
                         'gender'   => $result['gender'] == 'm' ? 0 : 1,
                         'avatar'   => $result['avatar_large'],
                         'type'     => $platform,
-                        'email'    => 'example'.substr($result['uid'], 0, 10).'@weibo.com',
+                        'email'    => 'example'.substr(md5($result['id']), 0, 10).'@weibo.com',
                         );
             }
             return $userinfo;
