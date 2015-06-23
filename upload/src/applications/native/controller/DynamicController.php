@@ -33,20 +33,31 @@ class DynamicController extends NativeBaseController {
      * @access public
      * @return string
       <pre>
-      /index.php?m=native&c=dynamic&a=hot&page=1&_json=1
+      /index.php?m=native&c=dynamic&a=hot&page=1&timestamp=1000000&_json=1
       response: {err:"",data:""}
       </pre>
      */
     public function hotAction() {
         $num = $this->perpage;//一页显示记录数
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
+        $timestamp = isset($_GET['timestamp']) && intval($_GET['timestamp'])>0 ? intval($_GET['timestamp']) : 0;//作业最近一次执行的时间
         $start_pos = ($page-1)*$num;
+        $modified_time = 0;
+        if($timestamp){
+            $weight_cron = Wekit::loadDao('native.dao.PwNativeCronDao')->getByFilename("PwCronDoUpdateWeight");
+            $modified_time = isset($weight_cron['modified_time']) ? intval($weight_cron['modified_time']) : 0;
+        }
+        
         $count = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadCount();
-        $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadTids($start_pos,$num);//按最后回复时间排序、只展示移动端可显示版块数据，不包含生活服务
-        $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,$this->uid);
+        if($timestamp && $timestamp==$modified_time){//没有数据更新
+            $threads_list = array();
+        }else{//有数据更新
+            $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchHotThreadTids($start_pos,$num);//按最后回复时间排序、只展示移动端可显示版块数据，不包含生活服务
+            $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,$this->uid);
+        }
         ($max_page = ceil($count/$num))||$max_page=1;
         $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>$max_page);
-        $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'threads_list'=>$threads_list);
+        $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'threads_list'=>$threads_list,'modified_time'=>$modified_time);
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');
     }
@@ -164,7 +175,7 @@ class DynamicController extends NativeBaseController {
      * @return string
      * @example
       <pre>
-      /index.php?m=native&c=dynamic&a=new&page=1&_json=1
+      /index.php?m=native&c=dynamic&a=new&page=1&maxid=100&_json=1
       response: {err:"",data:""}
       </pre>
      */
@@ -173,15 +184,22 @@ class DynamicController extends NativeBaseController {
         $num = $this->perpage;//一页显示记录数
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $pos = ($page-1)*$num;
+        $maxid = isset($_GET['maxid']) && $_GET['maxid'] ? intval($_GET['maxid']) : 0;
 //        $nativeThreadsDao = Wekit::loadDao('native.dao.PwNativeThreadsDao');
 //        $threads = $nativeThreadsDao->fetchNewThreadTids($pos,$num);
         $count = Wekit::loadDao('native.dao.PwNativeThreadsDao')->getNewThreadCount();
         $tids = Wekit::loadDao('native.dao.PwNativeThreadsDao')->fetchNewThreadTids($pos,$num);//按照发帖时间排序，只筛选移动端版块展示数据
-        $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,$this->uid);
-        
+        if($maxid && $maxid==max($tids)){//没有新数据
+            $threads_list = array();
+            $updated = false;
+        }else{
+            $threads_list = Wekit::load('native.srv.PwDynamicService')->fetchThreadsList($tids,$this->uid);
+            $updated = true;
+        }
+          
         ($max_page = ceil($count/$num))||$max_page=1;
         $page_info = array('page'=>$page,'perpage'=>$num,'count'=>$count,'max_page'=>$max_page);
-        $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'threads_list'=>$threads_list);
+        $data = array('page_info'=>$page_info,'user_info'=>array('uid'=>$this->uid),'threads_list'=>$threads_list,'updated'=>$updated);
 //        print_r($data);exit;
         $this->setOutput($data,'data');
         $this->showMessage('NATIVE:data.success');
