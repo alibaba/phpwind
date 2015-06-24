@@ -77,7 +77,7 @@ class PwNativeThread {
             //列表数据，过滤掉图片及附件url等标签
             $_shareData = Pw::formatContent( $threadList[$key]['content'] );
             $threadList[$key]['share'] = $_shareData['share'];
-            $threadList[$key]['content'] = mb_substr($_shareData['content'],0,90);
+            $threadList[$key]['content'] = preg_replace('/(\[)[^\]]*$/i','',mb_substr($_shareData['content'],0,90));//截字并修正表情标签
             //
             $threadList[$key]['created_user_avatar'] = Pw::getAvatar($threadList[$key]['created_userid'],'');
             //

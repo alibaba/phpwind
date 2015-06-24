@@ -540,7 +540,7 @@ class Pw {
         $content = preg_replace('/\[sell.*?\].+?\[\/sell\]/i','［含有售卖内容］',$content);
         $content = preg_replace('/\][^\[]+\[\/(tao|share|flash|mp3|img)/i', '][', $content);
 //        $content = preg_replace('/\[s:.+?\]/i','［表情］',$content);
-        $content = preg_replace('/\[(?!s:)[^\]]*\]/i',' ',  strip_tags($content));//不过滤表情标签
+        $content = preg_replace('/\[(?!s:)[^\]]*\]/i','',  strip_tags($content));//不过滤表情标签
         ///$content = str_replace(array('[视频]','[音乐]','[附件]'),array('','',''),trim(Wekit::load('forum.srv.PwThreadService')->displayContent($content,1,array(),strlen($content)),'.')); //过滤ubb标签  
 
         return array("share"=>$share,"content"=>$content);
