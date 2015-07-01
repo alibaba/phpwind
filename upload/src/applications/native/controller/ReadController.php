@@ -218,6 +218,27 @@ class ReadController extends NativeBaseController {
         }
 //        var_dump($poll);exit;
         
+//        var_dump($threadList[0]);exit;
+        $sell = false;
+        if($this->uid && strpos($threadList[0]['content'], '[sell')!==false && $threadList[0]['created_userid']!=$this->uid){//含有售卖内容,当前用户不是作者
+            //获取用户是否购买过帖子
+            $res = Wekit::loadDao('native.dao.PwNativeThreadsBuyDao')->getBuyRecord($tid,$this->uid);
+            if(!$res){//用户未购买过帖子
+                $start = strpos($threadList[0]['content'], '[sell=');
+		$start += 6;
+		$end = strpos($threadList[0]['content'], ']', $start);
+		$cost = substr($threadList[0]['content'], $start, $end - $start);
+                list($creditvalue, $credittype) = explode(',', $cost);
+                Wind::import('SRV:credit.bo.PwCreditBo');
+		$creditBo = PwCreditBo::getInstance();
+		isset($creditBo->cType[$credittype]) || $credittype = key($creditBo->cType);
+		$creditType = $creditBo->cType[$credittype];
+                $myCredit = $this->loginUser->getCredit($credittype);
+//                var_dump($cost,$creditvalue,$credittype,$creditType,$myCredit);exit;
+                $sell = array('credit_value'=>$creditvalue,'user_credit'=>$myCredit,'credit_name'=>$creditType);
+            }
+        }
+
         $data = array(
             'uid'           =>$this->uid,
             'operateReply'  =>$operateReply,
@@ -231,6 +252,7 @@ class ReadController extends NativeBaseController {
             'postPlace'     =>$postPlace,
             'postLikeData'  =>$postLikeData,
             'poll'=>$poll,
+            'sell'=>$sell
         );
         $this->setOutput($data,'data');
         $this->showMessage('success');
@@ -331,6 +353,101 @@ class ReadController extends NativeBaseController {
         $this->setOutput($threadList,'threadList');
         $this->setOutput($threadDisplay, 'threadDisplay'); 
         $this->setOutput(PwCreditBo::getInstance(), 'creditBo'); 
+    }
+    
+    /**
+     * 购买帖子出售内容
+     * @access public
+     * @return string
+     * @example
+     <pre>
+     /index.php?m=native&c=read&a=buy&tid=21&_json=1
+     cookie:usersession
+     response: {err:"",data:""}  
+     </pre>
+     */
+    public function buyAction(){
+        $tid = $this->getInput('tid');
+        $submit = 1;
+        if (!$this->loginUser->isExists()) {
+                $this->showError('login.not');
+        }
+        if (!$tid) {
+                $this->showError('data.error');
+        }
+        if ($pid) {
+                $result = Wekit::load('forum.PwThread')->getPost($pid);
+        } else {
+                $pid = 0;
+                $result = Wekit::load('forum.PwThread')->getThread($tid, PwThread::FETCH_ALL);
+        }
+        if (empty($result) || $result['tid'] != $tid) {
+                $this->showError('data.error');
+        }
+        $start = strpos($result['content'], '[sell=');
+        if ($start === false) {
+                $this->showError('BBS:thread.buy.error.sell.not');
+        }
+        $start += 6;
+        $end = strpos($result['content'], ']', $start);
+        $cost = substr($result['content'], $start, $end - $start);
+
+        list($creditvalue, $credittype) = explode(',', $cost);
+        Wind::import('SRV:credit.bo.PwCreditBo');
+        $creditBo = PwCreditBo::getInstance();
+        isset($creditBo->cType[$credittype]) || $credittype = key($creditBo->cType);
+        $creditType = $creditBo->cType[$credittype];
+        if ($result['created_userid'] == $this->loginUser->uid) {
+                $this->showError('BBS:thread.buy.error.self');
+        }
+        if (Wekit::load('forum.PwThreadBuy')->get($tid, $pid, $this->loginUser->uid)) {
+                $this->showError('BBS:thread.buy.error.already');
+        }
+
+        if (($myCredit = $this->loginUser->getCredit($credittype)) < $creditvalue) {
+                $this->showError(array('BBS:thread.buy.error.credit.notenough',array('{myCredit}' => $myCredit.$creditType, '{count}' => $creditvalue.$creditType)));
+        }
+
+        !$submit && $this->showMessage(array('BBS:thread.buy.message.buy', array('{count}' => $myCredit.$creditType, '{buyCount}' => -$creditvalue.$creditType)));
+        Wind::import('SRV:forum.dm.PwThreadBuyDm');
+        $dm = new PwThreadBuyDm();
+        $dm->setTid($tid)
+                ->setPid($pid)
+                ->setCreatedUserid($this->loginUser->uid)
+                ->setCreatedTime(Pw::getTime())
+                ->setCtype($credittype)
+                ->setCost($creditvalue);
+        Wekit::load('forum.PwThreadBuy')->add($dm);
+
+        $creditBo->addLog('buythread', array($credittype => -$creditvalue), $this->loginUser, array(
+                'title' => $result['subject'] ? $result['subject'] : Pw::substrs($result['content'], 20)
+        ));
+        $creditBo->set($this->loginUser->uid, $credittype, -$creditvalue, true);
+
+        $user = new PwUserBo($result['created_userid']);
+        if (($max = $user->getPermission('sell_credit_range.maxincome')) && Wekit::load('forum.PwThreadBuy')->sumCost($tid, $pid) > $max) {
+
+        } else {
+                $creditBo->addLog('sellthread', array($credittype => $creditvalue), $user, array(
+                        'title' => $result['subject'] ? $result['subject'] : Pw::substrs($result['content'], 20)
+                ));
+                $creditBo->set($user->uid, $credittype, $creditvalue, true);
+        }
+        $creditBo->execute();
+
+        if ($pid) {
+                Wind::import('SRV:forum.dm.PwReplyDm');
+                $dm = new PwReplyDm($pid);
+                $dm->addSellCount(1);
+                Wekit::load('forum.PwThread')->updatePost($dm);
+        } else {
+                Wind::import('SRV:forum.dm.PwTopicDm');
+                $dm = new PwTopicDm($tid);
+                $dm->addSellCount(1);
+                Wekit::load('forum.PwThread')->updateThread($dm, PwThread::FETCH_CONTENT);
+        }
+
+        $this->showMessage('success');
     }
 
     protected function _getThreadPlaceService(){
