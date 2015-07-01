@@ -254,7 +254,7 @@ class PostController extends NativeBaseController {
                     'fid'               =>$v['fid'],
                     'tid'               =>$v['tid'],
                     'pid'               =>$v['pid'],
-                    'created_time'      =>Pw::time2str($reply['created_time'],'auto'),
+                    'created_time'      =>Pw::time2str($v['created_time'],'auto'),
                     'created_username'  =>$v['created_username'],
                     'created_userid'    =>$v['created_userid'],
                     'content'           =>preg_replace('/\[quote.*?\].+?\[\/quote\]/i','',$v['content']),
