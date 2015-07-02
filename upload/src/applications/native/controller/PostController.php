@@ -246,7 +246,7 @@ class PostController extends NativeBaseController {
 
             list($start, $limit) = Pw::page2limit($page, $perpage);
             $replydb = Wekit::load('forum.PwPostsReply')->getPostByPid($pid, $limit, $start);
-            $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb,140,false);
+//            $replydb = Wekit::load('forum.srv.PwThreadService')->displayReplylist($replydb,140,false);//不对回复内容截字
             //
             $replyList = array();
             foreach ($replydb as $key=>$v) {
@@ -259,8 +259,8 @@ class PostController extends NativeBaseController {
                     'created_userid'    =>$v['created_userid'],
                     'content'           =>preg_replace('/\[quote.*?\].+?\[\/quote\]/i','',$v['content']),
                 );
-                if( $simple ){
-                    $replyList[$key]['content'] = mb_substr($replyList[$key]['content'], 0, 30,'utf-8');
+                if( $simple && mb_strlen($replyList[$key]['content'],'utf-8') > 30){
+                    $replyList[$key]['content'] = mb_substr($replyList[$key]['content'], 0, 30,'utf-8')."...";
                 }
             }
             $data = array(
