@@ -21,8 +21,15 @@ if(!isset($_GET['action'])){//说明页面
         升级程序说明：
         1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
         2)	支持升级版本：9.0.1（20141223版）；
-        3)	升级后会增加对移动端的支持、对部分功能进行完善及bug的修复；
-        4)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
+        3)	升级后会增加对移动端的支持、新增加一套表情包同时支持PC端与APP,
+                对部分功能进行完善及bug的修复；
+        4)      新增加的表情包文件在根目录\res\images\emotion\wangwang中。
+                如果您之前有添加过自定义表情包，并且跟wangwang目录同名，
+                那么请不要直接将升级包进行覆盖并执行升级脚本。
+                请先将升级包中的对应的表情包文件夹wangwang重命名再覆盖，
+                然后登陆到管理后台，在【全局】->【表情管理】中进行手动安装，
+                并参考配置文件,根目录\face_configure.txt对表情进行命名。
+        5)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
         升级步骤：
         1)	关闭站点，后台管理-全局-站点设置-站点状态设置页面进行设置；
         2)	请提前备份您的站点文件，网站根目录下所有文件；
@@ -335,6 +342,46 @@ $(function(){
     $fids = serialize($fids);
 //    var_dump($fids);exit;
     $sql = "REPLACE INTO `".$dbpre."common_config` (`name`, `namespace`, `value`, `vtype`) VALUES ('forum.fids', 'native', '".$fids."', 'array');";
+    mysql_query($sql) or showError("Invalid query: " . mysql_error());
+    //获取旺旺表情包分类id
+    $sql = "SELECT `category_id` FROM `".$dbpre."common_emotion_category` WHERE `emotion_folder`='wangwang'";
+    $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
+    $row = mysql_fetch_array($result,MYSQL_ASSOC);
+    $category_id = $row['category_id'];
+    $wangwang = array(
+        array('name'=>'弹-2','file'=>'face_01.gif'),
+        array('name'=>'抱抱-2','file'=>'face_02.gif'),
+        array('name'=>'晕-2','file'=>'face_03.gif'),
+        array('name'=>'美味-2','file'=>'face_04.gif'),
+        array('name'=>'烦-2','file'=>'face_05.gif'),
+        array('name'=>'擦口水-2','file'=>'face_06.gif'),
+        array('name'=>'思考-2','file'=>'face_07.gif'),
+        array('name'=>'心跳-2','file'=>'face_08.gif'),
+        array('name'=>'汗-2','file'=>'face_09.gif'),
+        array('name'=>'呸-2','file'=>'face_10.gif'),
+        array('name'=>'吐舌头-2','file'=>'face_11.gif'),
+        array('name'=>'加油-2','file'=>'face_12.gif'),
+        array('name'=>'吐-2','file'=>'face_13.gif'),
+        array('name'=>'大哭-2','file'=>'face_14.gif'),
+        array('name'=>'亲-2','file'=>'face_15.gif'),
+        array('name'=>'委屈-2','file'=>'face_16.gif'),
+        array('name'=>'眼镜-2','file'=>'face_17.gif'),
+        array('name'=>'抠鼻子-2','file'=>'face_18.gif'),
+        array('name'=>'臭美-2','file'=>'face_19.gif'),
+        array('name'=>'无奈-2','file'=>'face_20.gif'),
+        array('name'=>'槌子-2','file'=>'face_21.gif'),
+        array('name'=>'哇-2','file'=>'face_22.gif'),
+        array('name'=>'抱一抱-2','file'=>'face_23.gif'),
+        array('name'=>'不爽-2','file'=>'face_24.gif'),
+        array('name'=>'鼻血-2','file'=>'face_25.gif'),
+        array('name'=>'帅-2','file'=>'face_26.gif'),
+    );
+    $values = array();
+    foreach($wangwang as $v){//插入表情
+        $values[] = "({$category_id},'{$v['name']}','wangwang','{$v['file']}',0,1)";
+    }
+    $values = implode(",", $values);
+    $sql = "INSERT INTO `{$dbpre}common_emotion` (`category_id`,`emotion_name`,`emotion_folder`,`emotion_icon`,`vieworder`,`isused`) VALUES {$values};";
     mysql_query($sql) or showError("Invalid query: " . mysql_error());
     mysql_close($con);
     //热帖权重计算
