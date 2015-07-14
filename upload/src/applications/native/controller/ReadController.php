@@ -238,7 +238,18 @@ class ReadController extends NativeBaseController {
                 $sell = array('credit_value'=>$creditvalue,'user_credit'=>$myCredit,'credit_name'=>$creditType);
             }
         }
-
+        
+        //获取最近点赞的5个人
+        $res = Wekit::loadDao('native.dao.PwNativeLikeContentDao')->getLikeidByFromid($tid);
+        $likeUsers = array();
+        if(isset($res['likeid'])){
+            $uids = Wekit::loadDao('native.dao.PwNativeLikeLogDao')->fetchUidsByLikeid($res['likeid']);
+            $res = Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids);
+            foreach($res as $v){
+                $likeUsers[] = $v['username'];
+            }
+        }
+        
         $data = array(
             'uid'           =>$this->uid,
             'operateReply'  =>$operateReply,
@@ -252,7 +263,8 @@ class ReadController extends NativeBaseController {
             'postPlace'     =>$postPlace,
             'postLikeData'  =>$postLikeData,
             'poll'=>$poll,
-            'sell'=>$sell
+            'sell'=>$sell,
+            'likeUsers'=>$likeUsers,
         );
         $this->setOutput($data,'data');
         $this->showMessage('success');
@@ -449,6 +461,35 @@ class ReadController extends NativeBaseController {
 
         $this->showMessage('success');
     }
+    
+    
+    /**
+     * 帖子点赞的用户
+     * @access public
+     * @return string
+     * @example
+     <pre>
+     /index.php?m=native&c=read&a=likeusers&tid=21&_json=1
+     cookie:usersession
+     response: {err:"",data:""}  
+     </pre>
+     */
+    public function likeUsersAction(){
+        $tid = $this->getInput('tid');
+        $res = Wekit::loadDao('native.dao.PwNativeLikeContentDao')->getLikeidByFromid($tid);
+        $data = array();
+        if(isset($res['likeid'])){
+            $uids = Wekit::loadDao('native.dao.PwNativeLikeLogDao')->fetchUidsByLikeid($res['likeid']);
+            $res = Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids);
+            foreach($res as $v){
+                $data[] = array('uid'=>$v['uid'],'username'=>$v['username'],'avatar'=>Pw::getAvatar($v['uid'],'small'));
+            }
+        }
+        
+        $this->setOutput($data,'data');
+        $this->showMessage('success');
+    }
+    
 
     protected function _getThreadPlaceService(){
         return Wekit::loadDao('place.srv.PwThreadPlaceService');
