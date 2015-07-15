@@ -5,9 +5,9 @@ Wekit::loadDao('like.dao.PwLikeLogDao');
 
 class PwNativeLikeLogDao extends PwLikeLogDao {
     
-        public function fetchUidsByLikeid($likeid,$count=5){
+        public function fetchUidsByLikeid($likeid,$start=0,$count=5){
             if(!$likeid) return array();
-            $limit = $count ? " LIMIT $count" : "";
+            $limit = $count ? " LIMIT {$start},{$count}" : "";
             $sql = $this->_bindTable("SELECT uid FROM %s WHERE `likeid`={$likeid} ORDER BY `created_time` DESC{$limit}");
             $smt = $this->getConnection()->query($sql);
             $res = $smt->fetchAll();
@@ -17,6 +17,16 @@ class PwNativeLikeLogDao extends PwLikeLogDao {
             }
             
             return $uids;
+        }
+        
+        
+        public function getLikeCount($likeid){
+            if(!$likeid) return 0;
+            $sql = $this->_bindTable("SELECT count(*) cnt FROM %s WHERE `likeid`={$likeid}");
+            $smt = $this->getConnection()->query($sql);
+            $res = $smt->fetch();
+            
+            return isset($res['cnt']) ? intval($res['cnt']) : 0;
         }
 	
         

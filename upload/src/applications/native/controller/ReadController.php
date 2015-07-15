@@ -469,22 +469,32 @@ class ReadController extends NativeBaseController {
      * @return string
      * @example
      <pre>
-     /index.php?m=native&c=read&a=likeusers&tid=21&_json=1
+     /index.php?m=native&c=read&a=likeusers&tid=21&page=1&_json=1
      cookie:usersession
      response: {err:"",data:""}  
      </pre>
      */
     public function likeUsersAction(){
         $tid = $this->getInput('tid');
+        $page = $this->getInput('page');
+        $page || $page = 1;
+        $perpage = 30;
+        $start = ($page-1)*$perpage;
         $res = Wekit::loadDao('native.dao.PwNativeLikeContentDao')->getLikeidByFromid($tid);
-        $data = array();
+        $likeUsers = array();
+        $count = 0;
         if(isset($res['likeid'])){
-            $uids = Wekit::loadDao('native.dao.PwNativeLikeLogDao')->fetchUidsByLikeid($res['likeid']);
+            $count = Wekit::loadDao('native.dao.PwNativeLikeLogDao')->getLikeCount($res['likeid']);
+            $uids = Wekit::loadDao('native.dao.PwNativeLikeLogDao')->fetchUidsByLikeid($res['likeid'],$start,$perpage);
             $res = Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids);
             foreach($res as $v){
-                $data[] = array('uid'=>$v['uid'],'username'=>$v['username'],'avatar'=>Pw::getAvatar($v['uid'],'small'));
+                $likeUsers[] = array('uid'=>$v['uid'],'username'=>$v['username'],'avatar'=>Pw::getAvatar($v['uid'],'small'));
             }
         }
+        $data = array(
+                    'likeUsers'=>$likeUsers,
+                    'pageCount'=>ceil($count/$perpage) > 0 ? ceil($count/$perpage) : 1 ,
+                );
         
         $this->setOutput($data,'data');
         $this->showMessage('success');
