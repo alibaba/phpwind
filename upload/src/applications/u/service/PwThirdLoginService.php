@@ -44,7 +44,7 @@ class PwThirdLoginService
             if (!isset($thirdPlatforms[$p.'.status']) || !$thirdPlatforms[$p.'.status']) {
                 continue;
             }
-            $c['url']    = '/index.php?m=u&c=login&a=thirdlogin&platform='.$p;
+            $c['url']    = 'index.php?m=u&c=login&a=thirdlogin&platform='.$p;
             $platforms[] = $c;
         }
 

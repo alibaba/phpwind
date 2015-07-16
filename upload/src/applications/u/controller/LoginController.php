@@ -106,46 +106,74 @@ class LoginController extends PwBaseController {
         }
         $userdata = $result[1];
         $acctRelationData = $this->_getUserOpenAccountDs()->getUid($userdata['uid'], $userdata['type']);
-
-        // 如果没有这个用户，先注册上
-        if (empty($acctRelationData)) {
-            $password = substr(str_shuffle('abcdefghigklmnopqrstuvwxyz1234567890~!@#$%^&*()'), 0, 7);
-            Wind::import('SRC:service.user.dm.PwUserInfoDm');
-            $userDm = new PwUserInfoDm();
-
-            $service = Wekit::load('user.PwUser');
-            $user    = $service->getUserByName($userdata['username'], PwUser::FETCH_MAIN);
-            if ($user && $user['username'] == $userdata['username']) {
-                $userDm->setUsername($userdata['username'].'_qq');
-            } else {
-                $userDm->setUsername($userdata['username']);
-            }
-
-            $userDm->setPassword($password);
-            $userDm->setEmail($userdata['email']);
-            $userDm->setGender($userdata['gender']);
-            $userDm->setRegdate(Pw::getTime());
-            $userDm->setLastvisit(Pw::getTime());
-            $userDm->setRegip(Wind::getComponent('request')->getClientIp());
-            $userDm->setStatus(0);
+//        var_dump($acctRelationData);exit;
+        if(empty($acctRelationData)){//如果没有这个用户,跳转到第三方登录注册页，$userdata内容保存到注册页面hidden
+//            var_dump($userdata,$_GET,$_POST);
+            $this->setOutput($userdata,'userdata');
+        }else{//已经注册过，继续登录
+            $login = new PwLoginService();
+            $this->runHook('c_login_dorun', $login);
 
             Wind::import('SRV:user.srv.PwRegisterService');
             $registerService = new PwRegisterService();
-            $registerService->setUserDm($userDm);
-            // [u_regsiter]:插件扩展
-            $this->runHook('c_register', $registerService);
-            if (($info = $registerService->register()) instanceof PwError) {
-                $this->showError($info->getError());
+            $info = $registerService->sysUser($acctRelationData['uid']);
+            if (!$info) {
+                $this->showError('USER:user.syn.error');
             }
-            // 这里取了lastInsertId，但已经指定了主键的值，所以返回false表示成功。。
-            if ($this->_getUserOpenAccountDs()->addUser($info['uid'], $userdata['uid'], $userdata['type']) == false) {
-                $this->downloadThirdPlatformAvatar($info['uid'], $userdata['avatar']);
-            }
-            // 以便后面登录用到
-            $acctRelationData = array('uid' => $info['uid']);
-        }
+            $identity = PwLoginService::createLoginIdentify($info);
+            $identity = base64_encode($identity . '|' . $this->getInput('backurl') . '|' . /* rememberme = */'0');
 
-        // 继续登录
+            $this->forwardRedirect(WindUrlHelper::createUrl('u/login/welcome', array('_statu' => $identity)));
+        }
+        
+    }
+    
+    /**
+     * 执行第三方授权登录后的注册动作
+     * 
+     */
+    public function doThirdRegistAction(){
+        //第三方登录注册不校验验证码
+        /*
+        if(Wekit::load("verify.srv.PwCheckVerifyService")->checkVerify($this->getInput('code')) != true){
+            $this->showError('USER:verifycode.error','index.php?m=u&c=login');
+        }
+         */
+        //post参数中获取用户注册信息、第三方授权获取的信息通过hidden标签保存
+        $username = $this->getInput('username','post');
+        $password = $this->getInput('password','post');
+        $email = $this->getInput('email','post');
+        $gender = $this->getInput('gender','post');
+        $uid = $this->getInput('uid','post');
+        $type = $this->getInput('type','post');
+        $avatar = $this->getInput('avatar','post');
+        //执行注册
+        Wind::import('SRC:service.user.dm.PwUserInfoDm');
+        $userDm = new PwUserInfoDm();
+        $userDm->setUsername($username);
+        $userDm->setPassword($password);
+        $userDm->setEmail($email);
+        $userDm->setGender($gender);
+        $userDm->setRegdate(Pw::getTime());
+        $userDm->setLastvisit(Pw::getTime());
+        $userDm->setRegip(Wind::getComponent('request')->getClientIp());
+        $userDm->setStatus(0);
+
+        Wind::import('SRV:user.srv.PwRegisterService');
+        $registerService = new PwRegisterService();
+        $registerService->setUserDm($userDm);
+        // [u_regsiter]:插件扩展
+        $this->runHook('c_register', $registerService);
+        if (($info = $registerService->register()) instanceof PwError) {
+            $this->showError($info->getError());
+        }
+        // 这里取了lastInsertId，但已经指定了主键的值，所以返回false表示成功。。
+        if ($this->_getUserOpenAccountDs()->addUser($info['uid'], $uid, $type) == false) {
+            $this->downloadThirdPlatformAvatar($info['uid'], $avatar);
+        }
+        // 以便后面登录用到
+        $acctRelationData = array('uid' => $info['uid']);
+        //继续登录
         $login = new PwLoginService();
         $this->runHook('c_login_dorun', $login);
 
