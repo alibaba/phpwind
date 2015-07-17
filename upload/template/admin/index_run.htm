@@ -133,6 +133,7 @@ $(function(){
 	$.each(SUBMENU_CONFIG,function(i,o) {
 		html.push('<li><a href="" title="'+ o.tip +'" data-id="'+ o.id +'">'+ o.name +'</a></li>');
 	});
+        html.push('<li><a id="aliyun" href="http://market.aliyun.com/products/?spm=5176.9000004.0.0.YiHPLj&tag=phpwind" target="_blank" style="outline:0">云平台</a></li>');
 	$('#J_B_main_block').html(html.join(''));
 
 	//后台位在第一个导航
@@ -174,6 +175,12 @@ $(window).on('resize',function() {
 })();
 //一级导航点击
 $('#J_B_main_block').on('click','a',function(e) {
+        if($(this).attr("id")=="aliyun"){
+            $(this).parent().addClass('current').siblings().removeClass('current');
+//            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
 	e.preventDefault();
 	e.stopPropagation();
 	$(this).parent().addClass('current').siblings().removeClass('current');
