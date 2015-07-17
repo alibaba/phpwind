@@ -101,32 +101,32 @@ if(!isset($_GET['action'])){//说明页面
     $row = mysql_fetch_array($result,MYSQL_ASSOC);
     $category_id = $row['category_id'];
     $wangwang = array(
-        array('name'=>'弹-2','file'=>'face_01.gif'),
-        array('name'=>'抱抱-2','file'=>'face_02.gif'),
-        array('name'=>'晕-2','file'=>'face_03.gif'),
-        array('name'=>'美味-2','file'=>'face_04.gif'),
-        array('name'=>'烦-2','file'=>'face_05.gif'),
-        array('name'=>'擦口水-2','file'=>'face_06.gif'),
-        array('name'=>'思考-2','file'=>'face_07.gif'),
-        array('name'=>'心跳-2','file'=>'face_08.gif'),
-        array('name'=>'汗-2','file'=>'face_09.gif'),
-        array('name'=>'呸-2','file'=>'face_10.gif'),
-        array('name'=>'吐舌头-2','file'=>'face_11.gif'),
-        array('name'=>'加油-2','file'=>'face_12.gif'),
-        array('name'=>'吐-2','file'=>'face_13.gif'),
-        array('name'=>'大哭-2','file'=>'face_14.gif'),
-        array('name'=>'亲-2','file'=>'face_15.gif'),
-        array('name'=>'委屈-2','file'=>'face_16.gif'),
-        array('name'=>'眼镜-2','file'=>'face_17.gif'),
-        array('name'=>'抠鼻子-2','file'=>'face_18.gif'),
-        array('name'=>'臭美-2','file'=>'face_19.gif'),
-        array('name'=>'无奈-2','file'=>'face_20.gif'),
-        array('name'=>'槌子-2','file'=>'face_21.gif'),
-        array('name'=>'哇-2','file'=>'face_22.gif'),
-        array('name'=>'抱一抱-2','file'=>'face_23.gif'),
-        array('name'=>'不爽-2','file'=>'face_24.gif'),
-        array('name'=>'鼻血-2','file'=>'face_25.gif'),
-        array('name'=>'帅-2','file'=>'face_26.gif'),
+        array('name'=>'闭嘴','file'=>'face_01.gif'),
+        array('name'=>'握手','file'=>'face_02.gif'),
+        array('name'=>'晕死','file'=>'face_03.gif'),
+        array('name'=>'口水','file'=>'face_04.gif'),
+        array('name'=>'神马','file'=>'face_05.gif'),
+        array('name'=>'猪头','file'=>'face_06.gif'),
+        array('name'=>'明白','file'=>'face_07.gif'),
+        array('name'=>'心动','file'=>'face_08.gif'),
+        array('name'=>'汗死','file'=>'face_09.gif'),
+        array('name'=>'真弱','file'=>'face_10.gif'),
+        array('name'=>'调皮','file'=>'face_11.gif'),
+        array('name'=>'战斗','file'=>'face_12.gif'),
+        array('name'=>'呕吐','file'=>'face_13.gif'),
+        array('name'=>'流泪','file'=>'face_14.gif'),
+        array('name'=>'亲亲','file'=>'face_15.gif'),
+        array('name'=>'伤心','file'=>'face_16.gif'),
+        array('name'=>'酷毙','file'=>'face_17.gif'),
+        array('name'=>'不屑','file'=>'face_18.gif'),
+        array('name'=>'得意','file'=>'face_19.gif'),
+        array('name'=>'怕怕','file'=>'face_20.gif'),
+        array('name'=>'扁你','file'=>'face_21.gif'),
+        array('name'=>'鼓掌','file'=>'face_22.gif'),
+        array('name'=>'嘿嘿','file'=>'face_23.gif'),
+        array('name'=>'发怒','file'=>'face_24.gif'),
+        array('name'=>'心碎','file'=>'face_25.gif'),
+        array('name'=>'好强','file'=>'face_26.gif'),
     );
     $values = array();
     foreach($wangwang as $v){//插入表情
@@ -134,6 +134,9 @@ if(!isset($_GET['action'])){//说明页面
     }
     $values = implode(",", $values);
     $sql = "INSERT INTO `{$dbpre}common_emotion` (`category_id`,`emotion_name`,`emotion_folder`,`emotion_icon`,`vieworder`,`isused`) VALUES {$values};";
+    mysql_query($sql) or showError("Invalid query: " . mysql_error());
+    //删除表情包缓存数据
+    $sql = "DELETE FROM `{$dbpre}cache` WHERE `cache_key`='all_emotions'";
     mysql_query($sql) or showError("Invalid query: " . mysql_error());
     mysql_close($con);
     //生成lock文件
