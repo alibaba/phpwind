@@ -88,9 +88,11 @@ class SpaceController extends NativeBaseController {
                 'username'  =>$space->spaceUser['username'],
                 'gender'    =>$space->spaceUser['gender'],
                 'location_text'=>$location_text,
-                'avatar'    =>Pw::getAvatar($spaceUid)
+                'avatar'    =>Pw::getAvatar($spaceUid),
+                'attentionNum'=>$space->spaceUser['follows'],
+                'fansNum'=>$space->spaceUser['fans'],
             )
-            :array('username'=>'','gender'=>0,'location_text'=>'','avatar'=>''),
+            :array('username'=>'','gender'=>0,'location_text'=>'','avatar'=>'','attentionNum'=>0,'fansNum'=>0),
             'tome'      =>isset($space->tome)?$space->tome:0,
             'pageCount' =>$this->_getPwNativeThreadDs()->getThreadPageCount(),
             'threadList'=>$_threadList,
@@ -99,6 +101,72 @@ class SpaceController extends NativeBaseController {
         $this->setOutput($data, 'data');
         $this->showMessage('success');
 
+    }
+    
+    
+    /**
+     * 用户的关注列表
+     * 
+     * @access public
+     * @return void
+     * * <pre>
+     * /index.php?m=native&c=space&a=attention&page=1&uid=1&_json=1
+     * </pre>
+     */
+    public function attentionAction(){
+        $spaceUid = $this->getInput('uid');
+        $page = $this->getInput('page');
+        $page || $page = 1;
+        $perpage = 30;
+        $start = ($page-1)*$perpage;
+        
+        $attentionUsers = array();
+        $count = Wekit::loadDao('native.dao.PwNativeAttentionDao')->getAttentionCount($spaceUid);
+        $uids = Wekit::loadDao('native.dao.PwNativeAttentionDao')->fetchAttentionByUid($spaceUid,$start,$perpage);
+        $res = Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids);
+        foreach($res as $v){
+            $attentionUsers[] = array('uid'=>$v['uid'],'username'=>$v['username'],'avatar'=>Pw::getAvatar($v['uid'],'small'));
+        }
+        $data = array(
+                    'attentionUsers'=>$attentionUsers,
+                    'pageCount'=>ceil($count/$perpage) > 0 ? ceil($count/$perpage) : 1 ,
+                );
+        
+        $this->setOutput($data,'data');
+        $this->showMessage('success');
+    }
+    
+    
+    /**
+     * 用户的粉丝列表
+     * 
+     * @access public
+     * @return void
+     * * <pre>
+     * /index.php?m=native&c=space&a=fans&page=1&uid=1&_json=1
+     * </pre>
+     */
+    public function fansAction(){
+        $spaceUid = $this->getInput('uid');
+        $page = $this->getInput('page');
+        $page || $page = 1;
+        $perpage = 30;
+        $start = ($page-1)*$perpage;
+        
+        $fansUsers = array();
+        $count = Wekit::loadDao('native.dao.PwNativeAttentionDao')->getFansCount($spaceUid);
+        $uids = Wekit::loadDao('native.dao.PwNativeAttentionDao')->fetchFansByUid($spaceUid,$start,$perpage);
+        $res = Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids);
+        foreach($res as $v){
+            $fansUsers[] = array('uid'=>$v['uid'],'username'=>$v['username'],'avatar'=>Pw::getAvatar($v['uid'],'small'));
+        }
+        $data = array(
+                    'fansUsers'=>$fansUsers,
+                    'pageCount'=>ceil($count/$perpage) > 0 ? ceil($count/$perpage) : 1 ,
+                );
+        
+        $this->setOutput($data,'data');
+        $this->showMessage('success');
     }
 
     private function _getPwNativeThreadDs(){
