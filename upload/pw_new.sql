@@ -106,5 +106,3 @@ REPLACE INTO {pre}common_config (`name`, `namespace`, `value`, `vtype`, `descrip
 REPLACE INTO {pre}common_config (`name`, `namespace`, `value`, `vtype`, `description`) VALUES ('hotTopic', 'freshSetting', '1', 'string', NULL);
 REPLACE INTO {pre}common_config (`name`, `namespace`, `value`, `vtype`, `description`) VALUES ('lifeService', 'freshSetting', '1', 'string', NULL);
 REPLACE INTO {pre}common_config (`name`, `namespace`, `value`, `vtype`, `description`) VALUES ('sameCity', 'freshSetting', '1', 'string', NULL);
-
-INSERT INTO {pre}common_emotion_category (`category_name`, `emotion_folder`, `emotion_apps`, `orderid`, `isopen`) VALUES ('旺旺', 'wangwang', 'bbs', 0, 1);

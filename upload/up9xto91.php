@@ -1,10 +1,90 @@
 <?php
-if(!isset($_GET['action'])){//说明页面
-?>
+error_reporting(0);
+ini_set( 'display_errors', 'Off' );
+//pw移动版升级包版本列表
+$pw_version = array(
+    1=>array(//完整版升级（不包含表情包）
+            'version_num'=>'1',
+            'title'=>'phpwind 9.0.1 to 9.0.1移动版',
+            'description'=>'升级程序说明：
+        1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
+        2)	支持升级版本：8.7（20141224版）；
+        3)	升级后会增加对移动端的支持、对部分功能进行完善及bug的修复；
+        4)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
+        升级步骤：
+        1)	关闭站点，后台管理-全局-站点设置-站点状态设置页面进行设置；
+        2)	请提前备份您的站点文件，网站根目录下所有文件；
+        3)	请提前备份您网站所有的数据库文件；
+        4)	下载移动版插件，解压，并上传至站点根目录；
+        5)	在上传移动版插件后请不要修改”根目录/native”这个目录的名字；
+        6)	请确保“根目录/data/sql_config.php”文件存在且数据库连接配置信息正确；
+        7)	运行“http://yourwebsite/native/up87toMobile.php”执行升级。
+        风险说明：
+        因phpwind为开源程序，升级程序是在基础程序上做的更新优化，对基础程序作过二次开发的，可能部分文件、数据库会出现冲突覆盖，可能会导致程序无法正常运行，强烈建议自行手动升级。',
+            'fun'=>'update01',
+            'lockfile'=>'./data/up9xto91.lock',
+        ),
+    2=>array(//完整版补充升级，增加一个库（不包含表情包）
+            'version_num'=>'2',
+            'title'=>'phpwind 9.0.1 to 9.0.1移动版',
+            'description'=>'升级程序说明：
+        1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
+        2)	支持升级版本：8.7（20141224版）；
+        3)	升级后会增加对移动端的支持、对部分功能进行完善及bug的修复；
+        4)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
+        升级步骤：
+        1)	关闭站点，后台管理-全局-站点设置-站点状态设置页面进行设置；
+        2)	请提前备份您的站点文件，网站根目录下所有文件；
+        3)	请提前备份您网站所有的数据库文件；
+        4)	下载移动版插件，解压，并上传至站点根目录；
+        5)	在上传移动版插件后请不要修改”根目录/native”这个目录的名字；
+        6)	请确保“根目录/data/sql_config.php”文件存在且数据库连接配置信息正确；
+        7)	运行“http://yourwebsite/native/up87toMobile.php”执行升级。
+        风险说明：
+        因phpwind为开源程序，升级程序是在基础程序上做的更新优化，对基础程序作过二次开发的，可能部分文件、数据库会出现冲突覆盖，可能会导致程序无法正常运行，强烈建议自行手动升级。',
+            'fun'=>'update02',
+            'lockfile'=>'./data/up9xto91_2.lock',
+        ),
+    3=>array(//表情包升级
+            'version_num'=>'3',
+            'title'=>'9.0.1移动版表情包升级',
+            'description'=>'升级程序说明：
+        1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
+        2)	支持升级版本：已经升级过9.0.1移动版的用户（如果这是您第一次升级移动版请不要执行此脚本，
+                直接执行up9xto91.php升级脚本即可）；
+        3)	升级后会增加一套表情包同时支持PC端与APP、对部分功能进行完善及bug的修复；
+        4)      新增加的表情包文件在根目录\res\images\emotion\wangwang中。
+                如果您之前有添加过自定义表情包，并且跟wangwang目录同名，那么请不要直接
+                将升级包进行覆盖并执行升级脚本。请先将升级包中的对应的表情包文件夹wangwang重命名再覆盖，
+                然后登陆到管理后台，在【全局】->【表情管理】中进行手动安装，并参考配置文件,
+                根目录\face_configure.txt对表情进行命名。
+        升级步骤：
+        1)	请提前备份您的站点文件，网站根目录下所有文件；
+        2)	请提前备份您网站所有的数据库文件；
+        3)	下载移动版插件，解压，并上传至站点根目录；
+        4)	在上传移动版插件后请不要修改”根目录\src\applications\native”这个目录的名字；
+        5)	请确保“根目录/conf/Database.php”文件存在且数据库连接配置信息正确；
+        7)	将upexp.php文件拷贝到根目录下；
+        8)	运行“http://yourwebsite/upexp.php”执行表情包升级。
+        风险说明：
+        因phpwind为开源程序，升级程序是在基础程序上做的更新优化，对基础程序作过二次开发的，可能部分文件、数据库会出现冲突覆盖，可能会导致程序无法正常运行，强烈建议自行手动升级。',
+            'fun'=>'update03',
+            'lockfile'=>'./data/up9xto91_3.lock',
+    ),
+
+);
+
+$http_server = "http://".((isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:''));
+
+if(!isset($_GET['action'])){//升级前的版本检测
+    /* 版本检测 */
+    $update_version = choose_version();
+    if($update_version){//需要执行脚本升级，展示说明页
+?>        
 <!doctype html>
 <html>
 <head>
-<title>update phpwind9.0.1 to 9.0.1移动版</title>
+<title>update <?php echo $pw_version[$update_version]['title']?></title>
 <meta charset="utf8" />
 <link rel="stylesheet" href="res/css/install.css" />
 </head>
@@ -13,37 +93,12 @@ if(!isset($_GET['action'])){//说明页面
     <div class="header">
         <h1 class="logo">logo</h1>
         <div class="icon_update">升级向导</div>
-        <div class="version">phpwind 9.0.1 to 9.0.1移动版</div>
+        <div class="version"><?php echo $pw_version[$update_version]['title']?></div>
     </div>
     
     <div class="main cc">
         <pre class="pact" readonly="readonly">
-        升级程序说明：
-        1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
-        2)	支持升级版本：9.0.1（20141223版）；
-        3)	升级后会增加对移动端的支持、新增加一套表情包同时支持PC端与APP,
-                对部分功能进行完善及bug的修复；
-        4)      新增加的表情包文件在根目录\res\images\emotion\wangwang中。
-                如果您之前有添加过自定义表情包，并且跟wangwang目录同名，
-                那么请不要直接将升级包进行覆盖并执行升级脚本。
-                请先将升级包中的对应的表情包文件夹wangwang重命名再覆盖，
-                然后登陆到管理后台，在【全局】->【表情管理】中进行手动安装，
-                并参考配置文件,根目录\face_configure.txt对表情进行命名。
-        5)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
-        升级步骤：
-        1)	关闭站点，后台管理-全局-站点设置-站点状态设置页面进行设置；
-        2)	请提前备份您的站点文件，网站根目录下所有文件；
-        3)	请提前备份您网站所有的数据库文件；
-        4)	下载移动版插件，解压，并上传至站点根目录；
-        5)	在上传移动版插件后请不要修改”根目录\src\applications\native”这个目录的名字；
-        6)	请确保“根目录/conf/Database.php”文件存在且数据库连接配置信息正确；
-        7)	将pw_new.sql、up9xto91.php文件拷贝到根目录下；
-        8)	运行“http://yourwebsite/up9xto91.php”执行升级。
-        风险说明：
-        因phpwind为开源程序，升级程序是在基础程序上做的更新优化，对基础程序作过二次开发的，可能部分文件、数据库会出现冲突覆盖，可能会导致程序无法正常运行，强烈建议自行手动升级。
-
-
-
+        <?php echo $pw_version[$update_version]['description']?>
 
         <!--
         phpwind9.x的环境准备，请确认：
@@ -95,170 +150,25 @@ if(!isset($_GET['action'])){//说明页面
     </div>
     
     <div class="bottom tac">
-        <a href="up9xto91.php?action=dorun" class="btn">同 意</a>
+        <a href="up9xto91.php?action=dorun&version=<?php echo $update_version;?>" class="btn">同 意</a>
     </div>
 </body>
 </html>
 
 <?php
-}else if($_GET['action']=="form"){
-?>
-<!doctype html>
-<html>
-<head>
-<title>update phpwind9.0.1 to 9.0.1移动版</title>
-<meta charset="utf8" />
-<link rel="stylesheet" href="res/css/install.css" />
-</head>
-<body>
-    <div class="wrap">
-            <div class="header">
-                    <h1 class="logo">logo</h1>
-                    <div class="icon_update">升级向导</div>
-                    <div class="version">phpwind 9.0.1 to 9.0.1移动版</div>
-            </div>
-            <div class="section">
-                    <div class="step">
-                            <ul>
-                                    <li class="current" style="width:40%"><em>1</em>设置升级信息</li>
-                                    <li class="" style="width:40%"><em>2</em>完成升级</li>
-                            </ul>
-                    </div>
-                    <form method="post" id="J_up87_form" action="up9xto91.php?action=dorun">
-                    <div class="server">
-                            <table width="100%" style="table-layout:fixed">
-                                    <table width="100%" style="table-layout:fixed">
-                                    <tr><td class="td1" colspan="3">9.x数据库信息</td></tr>
-                            </table>
-                            <table width="100%" style="table-layout:fixed">
-                                    <tr>
-                                            <td width="100" class="tar">数据库服务器：</td>
-                                            <td width="210"><input type="text" id="host" name="host" value="localhost" class="input"></td>
-                                            <td><div id="J_up87_tip_host"></div></td>
-                                    </tr>
-                                    <tr>
-                                            <td class="tar">数据库用户名：</td>
-                                            <td><input type="text" id="username" name="username" value="root" class="input"></td>
-                                            <td><div id="J_up87_tip_username"></div></div></td>
-                                    </tr>
-                                    <tr>
-                                            <td class="tar">数据库密码：</td>
-                                            <td><input type="password" id="password" name="password" value="" class="input"></td>
-                                            <td><div id="J_up87_tip_password"></div></div></td>
-                                    </tr>
-                                    <tr>
-                                            <td class="tar">数据库名：</td>
-                                            <td><input type="text" id="dbname" name="dbname" value="nextwind" class="input"></td>
-                                            <td><div id="J_up87_tip_dbname"></div></td>
-                                    </tr>
-                                    <tr>
-                                            <td class="tar">数据库端口：</td>
-                                            <td><input type="text" id="port" name="port" value="3306" class="input"></td>
-                                            <td><div id="J_up87_tip_port"></div></td>
-                                    </tr>
-                                    <tr>
-                                            <td class="tar">数据库表前缀：</td>
-                                            <td><input type="text" id="dbpre" name="dbpre" value="nw_" class="input"></td>
-                                            <td><div id="J_up87_tip_dbpre"></div></td>
-                                    </tr>
-                                    <!--
-                                    <tr>
-                                            <td class="tar">数据库创建引擎：</td>
-                                            <td><input type="radio" name="engine" checked value="1"> InnoDB<input type="radio" name="engine" value="0"> MyISAM</td>
-                                            <td>&nbsp;</td>
-                                    </tr>
-                                    <tr>
-                                            <td class="tar">创始人帐号：</td>
-                                            <td><input type="text" id="f_name" name="f_name" value="admin" class="input"></td>
-                                            <td><div id="J_up87_tip_f_name"></div></td>
-                                    </tr>
-                                    <tr>
-                                            <td class="tar">创始人密码：</td>
-                                            <td><input type="password" id="f_pass" name="f_pass" value="" class="input"></td>
-                                            <td><div id="J_up87_tip_f_pass"></div></td>
-                                    </tr>
-                                    <tr>
-                                            <td class="tar">再输入一遍：</td>
-                                            <td><input type="password" id="f_rpass" name="f_rpass" value="" class="input"></td>
-                                            <td><div id="J_up87_tip_f_rpass"></div></td>
-                                    </tr>
-                                    -->
-                            </table>
-                    </div>
-                    
-                    <div class="bottom tac">
-                        <button type="submit" class="btn btn_submit">下一步</button>
-                    </div>
-            </form>
-            </div>
-    </div>
-    <div class="footer">
-            &copy; 2003-2103 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
-    </div>
-<script src="res/js/dev/jquery.js"></script>
-<script src="res/js/dev/util_libs/validate.js"></script>
-<script>
-$(function(){
-	var focus_tips={'host':'数据库服务器地址，一般为localhost','port':'建议使用默认','dbpre':'建议使用默认，同一数据库安装多个phpwind时需修改'};
-    	var form=$("#J_up87_form");
-        form.validate({
-            errorPlacement:function(error,element){
-                                $('#J_up87_tip_'+element[0].name).html(error)
-                            },
-            errorElement:'div',
-            errorClass:'tips_error',
-            validClass:'',
-            onkeyup:false,
-            focusInvalid:false,
-            highlight:false,
-            rules:{
-                        host:{required:true},
-                        username:{required:true},
-                        dbname:{required:true},
-                        port:{required:true},
-                        dbpre:{required:true},
-                        f_name:{required:true},
-                        f_pass:{required:true},
-                        f_rpass:{required:true,
-                        equalTo:'#f_pass'
-                    },
-            src_host:{required:true},
-            src_username:{required:true},
-            src_dbname:{required:true},
-            src_port:{required:true},
-            src_dbpre:{required:true}},
-            unhighlight:function(element,errorClass,validClass){var tip_elem=$('#J_up87_tip_'+element.name);if(element.value){tip_elem.html('<span class="'+validClass+'"><span>')}},
-            onfocusin:function(element){var id=element.name,tips=focus_tips[id]?focus_tips[id]:'';$('#J_up87_tip_'+id).html('<span class="gray" data-text="text">'+tips+'</span>')},
-            onfocusout:function(element){this.element(element)},
-            messages:{
-                        host:{required:'Nextwind数据库服务器不能为空'},
-                        username:{required:'Nextwind数据库用户名不能为空'},
-                        dbname:{required:'Nextwind数据库服务器端口不能为空'},
-                        port:{required:'Nextwind数据库服务器端口不能为空'},
-                        dbpre:{required:'Nextwind数据库表前缀不能为空'},
-                        f_name:{required:'创始人帐号不能为空'},
-                        f_pass:{required:'创始人密码不能为空'},
-                        f_rpass:{required:'确认密码不能为空',equalTo:'两次输入的密码不一致。请重新输入'},
-                        src_host:{required:'PW8.7数据库服务器不能为空'},
-                        src_username:{required:'PW8.7数据库用户名不能为空'},
-                        src_dbname:{required:'PW8.7数据库名不能为空'},
-                        src_port:{required:'PW8.7数据库服务器端口不能为空'},
-                        src_dbpre:{required:'PW8.7数据库表前缀不能为空'},
-                    }
-        })
-});
-</script>
-</body>
-</html>
-
-<?php
-}else if($_GET['action']=="dorun"){//用户提交基本信息，执行升级过程
+    }else{//不需要脚本升级，直接提示升级成功
+        $success_text = "恭喜！您的站点已成功升级至phpwind 9.0.1移动最新版本！
+                    感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛<a href='http://www.phpwind.net' target='_blank'>（http://www.phpwind.net）</a> 
+                    <a href='$http_server' target='_blank'>返回站点首页</a>";
+        showMsg($success_text);
+    }
+    //关闭数据库连接
+//    mysql_close($con);
+}else if($_GET['action']=="dorun" && isset($_GET['version']) && isset($pw_version[$_GET['version']])){//执行脚本升级
 //    header("Content-type: text/html; charset=utf-8");
-//    echo "脚本开始执行...<br>";
+//    echo "脚本开始循环执行...<br>";
     ignore_user_abort(true);
     set_time_limit(0);
-    error_reporting(0);
-    ini_set( 'display_errors', 'Off' );
 //    error_reporting(E_ALL);
 //    ini_set( 'display_errors', 'On' );
     /*
@@ -267,10 +177,226 @@ $(function(){
     flush();
     sleep(5);
      */
+    $cnt = count($pw_version);
+    for($i=$_GET['version'];$i<=$cnt;$i++){
+        $pw_version[$i]['fun']($pw_version[$i]['lockfile']);
+    }
+    //关闭数据库连接
+//    mysql_close($con);
+    //升级结束，提示升级成功
+    $success_text = "恭喜！您的站点已成功升级至phpwind 9.0.1移动最新版本！
+                    感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛<a href='http://www.phpwind.net' target='_blank'>（http://www.phpwind.net）</a> 
+                    <a href='$http_server' target='_blank'>返回站点首页</a>";
+//    echo "升级结束...<br>";
+    showMsg($success_text);
+}else{//参数错误
+    echo "args error";
+}
+
+
+class PW_DB {
+
+//保存类实例的静态成员变量
+    private static $_instance;
+    public $dbpre;
+    public $charset;
+
+//private标记的构造方法
+    private function __construct() {
+        $db_conf = include_once './conf/database.php';
+        $username = $db_conf['user'];
+        $password = $db_conf['pwd'];
+        $this->charset = $db_conf['charset'];
+        $this->dbpre = $db_conf['tableprefix'];
+        $engine = $db_conf['engine'];
+        $dsn = explode(";", $db_conf['dsn']);
+        //    var_dump($dsn);
+        $host = trim(substr($dsn[0],strpos($dsn[0], "=")+1));
+        $dbname = trim(substr($dsn[1],strpos($dsn[1], "=")+1));
+        $port = trim(substr($dsn[2],strpos($dsn[2], "=")+1));
+        //    var_dump($host,$dbname,$port);exit;
+        //    echo "连接数据库...<br>";
+        $con = mysql_connect($host.":".$port,$username,$password) or showError('Could not connect: ' . mysql_error());
+        mysql_select_db($dbname, $con) or showError('Can\'t use foo : ' . mysql_error());
+        //    echo "设置查询字符集...<br>";
+        $result = mysql_query("SET character_set_connection= 'utf8', character_set_results= 'utf8', character_set_client=BINARY, sql_mode=''") or die("Invalid query: " . mysql_error());
+        $result = mysql_query("SET NAMES 'utf8'") or die("Invalid query: " . mysql_error());
+    }
+
+//创建__clone方法防止对象被复制克隆
+    public function __clone() {
+        trigger_error('Clone is not allow!', E_USER_ERROR);
+    }
+
+//单例方法,用于访问实例的公共的静态方法
+    public static function getInstance() {
+        if (!(self::$_instance instanceof self)) {
+            self::$_instance = new self;
+        }
+        return self::$_instance;
+    }
+
+    public function query($sql) {
+        $result = mysql_query($sql) or die("Invalid query: " . mysql_error());
+        $res = array();
+        while ($row = mysql_fetch_array($result,MYSQL_ASSOC)) {
+            $res[] = $row;
+        }
+        
+        return $res;
+    }
+
+}
+
+/*错误信息页面*/
+function showError($msg ,$title="phpwind9.0.1移动版", $url = false) {
+	global $action,$token;
+	if (!$url) {
+		if ($action) {
+			$url = '<a href="' . $_SERVER['SCRIPT_NAME']. '">返回重新开始</a>';
+		} else {
+			$url = '<a href="javascript:window.history.go(-1);">返回重新开始</a>';
+		}
+	} else {
+		$url = '';
+	}
+	echo <<<EOT
+<!doctype html>
+<html>
+<head>
+<title>{$title} 升级程序</title>
+<meta charset="utf8" />
+<link rel="stylesheet" href="res/css/install.css" />
+</head>
+<body>
+	<div class="wrap">
+		<div class="header">
+			<h1 class="logo">logo</h1>
+			<div class="icon_update">升级向导</div>
+			<div class="version">{$title}</div>
+		</div>
+
+		<div class="success_tip cc error_tip">
+			<div class="mb10 f14">$msg</div>
+			<div class="error_return">{$url}</div>
+		</div>
+	</div>
+	<div class="footer">
+		&copy; 2003-2103 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
+	</div>
+</body>
+</html>
+EOT;
+	exit;
+}
+
+
+/*信息页面*/
+function showMsg($msg,$title="phpwind9.0.1移动版") {
+	global $action,$token;
+	
+	echo <<<EOT
+<!doctype html>
+<html>
+<head>
+<title>{$title} 升级程序</title>
+<meta charset="utf8" />
+<link rel="stylesheet" href="res/css/install.css" />
+</head>
+<body>
+	<div class="wrap">
+		<div class="header">
+			<h1 class="logo">logo</h1>
+			<div class="icon_update">升级向导</div>
+			<div class="version">{$title}</div>
+		</div>
+
+		<div class="success_tip cc error_tip">
+			<div class="mb10 f14">$msg</div>
+		</div>
+	</div>
+	<div class="footer">
+		&copy; 2003-2103 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
+	</div>
+</body>
+</html>
+EOT;
+	exit;
+}
+
+
+/** 
+ * 取得输入目录所包含的所有文件 
+ * 以数组形式返回 
+ * author: flynetcn 
+ */  
+function get_dir_files($dir){
+    if (is_file($dir)) {  
+        return array($dir);  
+    }  
+    $files = array();  
+    if (is_dir($dir) && ($dir_p = opendir($dir))) {  
+        $ds = DIRECTORY_SEPARATOR;  
+        while (($filename = readdir($dir_p)) !== false) {  
+            if ($filename=='.' || $filename=='..') { continue; }  
+            $filetype = filetype($dir.$ds.$filename);  
+            if ($filetype == 'dir') {  
+//                $files = array_merge($files, get_dir_files($dir.$ds.$filename));  
+            } elseif ($filetype == 'file') {  
+//                $files[] = $dir.$ds.$filename;
+                $files[] = $filename;  
+            }  
+        }  
+        closedir($dir_p);  
+    }  
+    return $files;  
+}
+
+
+/**
+ * 选择本次需要升级的版本
+ */
+function choose_version(){
+    global $pw_version;
+    $current_version = 0;
+    $update_version = 0;
+    //获取data下的lock文件
+    $lockfiles = get_dir_files("./data");
+    is_array($lockfiles) || $lockfiles = array();
+    foreach($lockfiles as $k=>$v){
+        if(strpos($v,".lock")===false){
+            unset($lockfiles[$k]);
+        }else{
+            $lockfiles[$k] = "./data/$v";
+        }
+    }
+    //升级脚本根据data下的lock文件判断当前pw版本，仅以data目录下的最近一次的lock文件为判断依据，判断最近一次lock文件的内容查看升级是否成功
+    foreach($pw_version as $k=>$v){
+        in_array($v['lockfile'],$lockfiles) && $current_version = $k;
+    }
+    $pw_db = PW_DB::getInstance();
+    if(!$current_version || $current_version==1){//没检测到lock文件，没有执行过升级,或升级后删除lock文件 || 只执行过第一版的升级
+        $sql = "SHOW TABLES LIKE '{$pw_db->dbpre}bbs_forum_life'";
+        $pw_db->query($sql) && $current_version = 1;
+        $sql = "SHOW TABLES LIKE '{$pw_db->dbpre}fresh_site'";
+        $pw_db->query($sql) && $current_version = 2;
+        $update_version = $current_version+1;
+    }else{//存在lock文件，用户执行过升级
+        isset($pw_version[++$current_version]) && $update_version = $current_version;
+    }
+    
+    return $update_version;
+}
+
+
+/**
+ * 移动版第一版升级
+ */
+function update01($lockfile){
     //检查lock文件是否存在
 //    echo "检查lock文件是否存在...<br>";
-    if (file_exists("./data/up9xto91.lock")) {
-	showError('升级程序已被锁定, 如需重新运行，请先删除./data/up9xto91.lock');
+    if (file_exists($lockfile)) {
+	showError("升级程序已被锁定, 如需重新运行，请先删除{$lockfile}");
     }
     //判断native目录是否存在
 //    echo "判断native目录是否存在...<br>";
@@ -290,35 +416,17 @@ $(function(){
             showError("检测失败！您当前主机的操作系统curl库依赖的SSL版本为".$curl_version['ssl_version']."，NSS版本过低，请您联系主机运营商将NSS库升级为3.16或以上（如果您拥有主机的管理员权限也可以自行升级），否则会影响APP的聊天功能。");
         }
     }
+    $pw_db = PW_DB::getInstance();
     //执行数据库升级
 //    echo "引入数据库脚本...<br>";
     $sql_source = file_get_contents("./pw_new.sql");
 //    var_dump($sql_source);
     $err_msg = '';
-//    echo "加载本地数据库配置...<br>";
-    $db_conf = include_once './conf/database.php';
-    $username = $db_conf['user'];
-    $password = $db_conf['pwd'];
-    $charset = $db_conf['charset'];
-    $dbpre = $db_conf['tableprefix'];
-    $engine = $db_conf['engine'];
-    $dsn = explode(";", $db_conf['dsn']);
-//    var_dump($dsn);
-    $host = trim(substr($dsn[0],strpos($dsn[0], "=")+1));
-    $dbname = trim(substr($dsn[1],strpos($dsn[1], "=")+1));
-    $port = trim(substr($dsn[2],strpos($dsn[2], "=")+1));
-//    var_dump($host,$dbname,$port);exit;
 //    echo "格式化数据库脚本...<br>";
       
-    $sql_source = str_replace(array("{pre}","{charset}","{time}"),array($dbpre,$charset,time()), $sql_source);
+    $sql_source = str_replace(array("{pre}","{charset}","{time}"),array($pw_db->dbpre,$pw_db->charset,time()), $sql_source);
 //    var_dump($sql_source);
 //    $con = mysql_connect($host.":".$port,$username,$password) or die('Could not connect: ' . mysql_error());
-//    echo "连接数据库...<br>";
-    $con = mysql_connect($host.":".$port,$username,$password) or showError('Could not connect: ' . mysql_error());
-    mysql_select_db($dbname, $con) or showError('Can\'t use foo : ' . mysql_error());
-//    echo "设置查询字符集...<br>";
-    $result = mysql_query("SET character_set_connection= 'utf8', character_set_results= 'utf8', character_set_client=BINARY, sql_mode=''") or die("Invalid query: " . mysql_error());
-    $result = mysql_query("SET NAMES 'utf8'") or die("Invalid query: " . mysql_error());
     $sql_source = explode(';', $sql_source);
 //    echo "校验sql语句...<br>";
     foreach($sql_source as $k => $v){
@@ -328,11 +436,11 @@ $(function(){
 //    echo "逐条执行sql...<br>";
     foreach($sql_source as $sql){
         //执行sql
-        $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
+        $result = $pw_db->query($sql);
     }
     //将站点所有一级版面设置为移动端可显示版面
 //    echo "查找站点一级版面...<br>";
-    $sql = "SELECT fid FROM `".$dbpre."bbs_forum` WHERE TYPE='forum'";
+    $sql = "SELECT fid FROM `".$pw_db->dbpre."bbs_forum` WHERE TYPE='forum'";
     $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
     $fids = array();
     while ($row = mysql_fetch_array($result,MYSQL_ASSOC)) {
@@ -341,49 +449,9 @@ $(function(){
 //    echo "将一级版面默认设置为移动端可显示版面...<br>";
     $fids = serialize($fids);
 //    var_dump($fids);exit;
-    $sql = "REPLACE INTO `".$dbpre."common_config` (`name`, `namespace`, `value`, `vtype`) VALUES ('forum.fids', 'native', '".$fids."', 'array');";
-    mysql_query($sql) or showError("Invalid query: " . mysql_error());
-    //获取旺旺表情包分类id
-    $sql = "SELECT `category_id` FROM `".$dbpre."common_emotion_category` WHERE `emotion_folder`='wangwang'";
-    $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
-    $row = mysql_fetch_array($result,MYSQL_ASSOC);
-    $category_id = $row['category_id'];
-    $wangwang = array(
-        array('name'=>'弹-2','file'=>'face_01.gif'),
-        array('name'=>'抱抱-2','file'=>'face_02.gif'),
-        array('name'=>'晕-2','file'=>'face_03.gif'),
-        array('name'=>'美味-2','file'=>'face_04.gif'),
-        array('name'=>'烦-2','file'=>'face_05.gif'),
-        array('name'=>'擦口水-2','file'=>'face_06.gif'),
-        array('name'=>'思考-2','file'=>'face_07.gif'),
-        array('name'=>'心跳-2','file'=>'face_08.gif'),
-        array('name'=>'汗-2','file'=>'face_09.gif'),
-        array('name'=>'呸-2','file'=>'face_10.gif'),
-        array('name'=>'吐舌头-2','file'=>'face_11.gif'),
-        array('name'=>'加油-2','file'=>'face_12.gif'),
-        array('name'=>'吐-2','file'=>'face_13.gif'),
-        array('name'=>'大哭-2','file'=>'face_14.gif'),
-        array('name'=>'亲-2','file'=>'face_15.gif'),
-        array('name'=>'委屈-2','file'=>'face_16.gif'),
-        array('name'=>'眼镜-2','file'=>'face_17.gif'),
-        array('name'=>'抠鼻子-2','file'=>'face_18.gif'),
-        array('name'=>'臭美-2','file'=>'face_19.gif'),
-        array('name'=>'无奈-2','file'=>'face_20.gif'),
-        array('name'=>'槌子-2','file'=>'face_21.gif'),
-        array('name'=>'哇-2','file'=>'face_22.gif'),
-        array('name'=>'抱一抱-2','file'=>'face_23.gif'),
-        array('name'=>'不爽-2','file'=>'face_24.gif'),
-        array('name'=>'鼻血-2','file'=>'face_25.gif'),
-        array('name'=>'帅-2','file'=>'face_26.gif'),
-    );
-    $values = array();
-    foreach($wangwang as $v){//插入表情
-        $values[] = "({$category_id},'{$v['name']}','wangwang','{$v['file']}',0,1)";
-    }
-    $values = implode(",", $values);
-    $sql = "INSERT INTO `{$dbpre}common_emotion` (`category_id`,`emotion_name`,`emotion_folder`,`emotion_icon`,`vieworder`,`isused`) VALUES {$values};";
-    mysql_query($sql) or showError("Invalid query: " . mysql_error());
-    mysql_close($con);
+    $sql = "REPLACE INTO `".$pw_db->dbpre."common_config` (`name`, `namespace`, `value`, `vtype`) VALUES ('forum.fids', 'native', '".$fids."', 'array');";
+    $pw_db->query($sql);
+    
     //热帖权重计算
     $dirname = dirname($_SERVER['SCRIPT_NAME']);
     $dirname = $dirname == "\\" ? "" : $dirname;
@@ -393,92 +461,104 @@ $(function(){
     @file_get_contents($http_host);
     //生成lock文件
 //    echo "生成lock文件...<br>";
-    file_put_contents("./data/up9xto91.lock", "pw9.0.1移动版");
-    $success_text = "恭喜！您的站点已成功升级至phpwind 9.0.1移动版本！
-                    感谢您使用phpwind，在使用或者升级过程中有任何问题，请反馈至phpwind官方论坛<a href='http://www.phpwind.net' target='_blank'>（http://www.phpwind.net）</a> 
-                    <a href='$http_server' target='_blank'>返回站点首页</a>";
-//    echo "升级结束...<br>";
-    showMsg($success_text);
-}else{
-    echo "args error";
+    file_put_contents($lockfile, "pw9.0.1移动版");
+    
 }
 
 
-/*错误信息页面*/
-function showError($msg, $url = false) {
-	global $action,$token;
-	if (!$url) {
-		if ($action) {
-			$url = '<a href="' . $_SERVER['SCRIPT_NAME']. '">返回重新开始</a>';
-		} else {
-			$url = '<a href="javascript:window.history.go(-1);">返回重新开始</a>';
-		}
-	} else {
-		$url = '';
-	}
-	echo <<<EOT
-<!doctype html>
-<html>
-<head>
-<title>phpwind 9.0.1 to 9.0.1移动版 升级程序</title>
-<meta charset="utf8" />
-<link rel="stylesheet" href="res/css/install.css" />
-</head>
-<body>
-	<div class="wrap">
-		<div class="header">
-			<h1 class="logo">logo</h1>
-			<div class="icon_update">升级向导</div>
-			<div class="version">phpwind 9.0.1 to 9.0.1移动版</div>
-		</div>
-
-		<div class="success_tip cc error_tip">
-			<div class="mb10 f14">$msg</div>
-			<div class="error_return">{$url}</div>
-		</div>
-	</div>
-	<div class="footer">
-		&copy; 2003-2103 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
-	</div>
-</body>
-</html>
-EOT;
-	exit;
+/**
+ * 移动版第二版补充升级，增加新表
+ */
+function update02($lockfile){
+    if (file_exists($lockfile)) {
+	showError("升级程序已被锁定, 如需重新运行，请先删除{$lockfile}");
+    }
+    $pw_db = PW_DB::getInstance();
+    $sql_source = "DROP TABLE IF EXISTS `{pre}fresh_site`;
+                   CREATE TABLE `{pre}fresh_site` (
+                        `fresh_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                        `title` varchar(50) DEFAULT NULL COMMENT '说明，标题',
+                        `href` varchar(100) DEFAULT NULL COMMENT '链接',
+                        `img` varchar(100) DEFAULT NULL COMMENT '图片',
+                        `des` varchar(100) DEFAULT NULL COMMENT '说明',
+                        `vieworder` int(10) unsigned DEFAULT NULL COMMENT '排序',
+                        PRIMARY KEY (`fresh_id`)
+                    ) ENGINE=MyISAM DEFAULT CHARSET={charset};";
+    $sql_source = str_replace(array("{pre}","{charset}","{time}"),array($pw_db->dbpre,$pw_db->charset,time()), $sql_source);
+    $sql_source = explode(';', $sql_source);
+    foreach($sql_source as $k => $v){
+        $sql_source[$k] = trim($v);
+        if(!$sql_source[$k])unset($sql_source[$k]);
+    }
+    foreach($sql_source as $sql){
+        $result = $pw_db->query($sql);
+    }
+    
+    file_put_contents($lockfile, "pw9.0.1移动版");
 }
 
-
-/*信息页面*/
-function showMsg($msg) {
-	global $action,$token;
-	
-	echo <<<EOT
-<!doctype html>
-<html>
-<head>
-<title>phpwind 9.0.1 to 9.0.1移动版 升级程序</title>
-<meta charset="utf8" />
-<link rel="stylesheet" href="res/css/install.css" />
-</head>
-<body>
-	<div class="wrap">
-		<div class="header">
-			<h1 class="logo">logo</h1>
-			<div class="icon_update">升级向导</div>
-			<div class="version">phpwind 9.0.1 to 9.0.1移动版</div>
-		</div>
-
-		<div class="success_tip cc error_tip">
-			<div class="mb10 f14">$msg</div>
-		</div>
-	</div>
-	<div class="footer">
-		&copy; 2003-2103 <a href="http://www.phpwind.com" target="_blank">phpwind.com</a>（阿里巴巴集团旗下品牌）
-	</div>
-</body>
-</html>
-EOT;
-	exit;
+/**
+ * 移动版第三版升级，增加新表情包
+ */
+function update03($lockfile){
+    if (file_exists($lockfile)) {
+	showError("升级程序已被锁定, 如需重新运行，请先删除{$lockfile}");
+    }
+    $pw_db = PW_DB::getInstance();
+    //如果是二次运行，本次导入表情包前先删除旧数据
+    $sql = "DELETE FROM `{$pw_db->dbpre}common_emotion_category` WHERE `emotion_folder`='wangwang'";
+    $pw_db->query($sql);
+    $sql = "DELETE FROM `{$pw_db->dbpre}common_emotion` WHERE `emotion_folder`='wangwang'";
+    $pw_db->query($sql);
+    //添加旺旺表情包分类
+    $sql = "INSERT INTO {$pw_db->dbpre}common_emotion_category (`category_name`, `emotion_folder`, `emotion_apps`, `orderid`, `isopen`) VALUES ('旺旺', 'wangwang', 'bbs', 0, 1);";
+    $pw_db->query($sql);
+    //获取旺旺表情包分类id
+    $sql = "SELECT `category_id` FROM `".$pw_db->dbpre."common_emotion_category` WHERE `emotion_folder`='wangwang'";
+    $result = mysql_query($sql) or showError("Invalid query: " . mysql_error());
+    $row = mysql_fetch_array($result,MYSQL_ASSOC);
+    $category_id = $row['category_id'];
+    $wangwang = array(
+        array('name'=>'闭嘴','file'=>'face_01.gif'),
+        array('name'=>'握手','file'=>'face_02.gif'),
+        array('name'=>'晕死','file'=>'face_03.gif'),
+        array('name'=>'口水','file'=>'face_04.gif'),
+        array('name'=>'神马','file'=>'face_05.gif'),
+        array('name'=>'猪头','file'=>'face_06.gif'),
+        array('name'=>'明白','file'=>'face_07.gif'),
+        array('name'=>'心动','file'=>'face_08.gif'),
+        array('name'=>'汗死','file'=>'face_09.gif'),
+        array('name'=>'真弱','file'=>'face_10.gif'),
+        array('name'=>'调皮','file'=>'face_11.gif'),
+        array('name'=>'战斗','file'=>'face_12.gif'),
+        array('name'=>'呕吐','file'=>'face_13.gif'),
+        array('name'=>'流泪','file'=>'face_14.gif'),
+        array('name'=>'亲亲','file'=>'face_15.gif'),
+        array('name'=>'伤心','file'=>'face_16.gif'),
+        array('name'=>'酷毙','file'=>'face_17.gif'),
+        array('name'=>'不屑','file'=>'face_18.gif'),
+        array('name'=>'得意','file'=>'face_19.gif'),
+        array('name'=>'怕怕','file'=>'face_20.gif'),
+        array('name'=>'扁你','file'=>'face_21.gif'),
+        array('name'=>'鼓掌','file'=>'face_22.gif'),
+        array('name'=>'嘿嘿','file'=>'face_23.gif'),
+        array('name'=>'发怒','file'=>'face_24.gif'),
+        array('name'=>'心碎','file'=>'face_25.gif'),
+        array('name'=>'好强','file'=>'face_26.gif'),
+    );
+    $values = array();
+    foreach($wangwang as $v){//插入表情
+        $values[] = "({$category_id},'{$v['name']}','wangwang','{$v['file']}',0,1)";
+    }
+    $values = implode(",", $values);
+    $sql = "INSERT INTO `{$pw_db->dbpre}common_emotion` (`category_id`,`emotion_name`,`emotion_folder`,`emotion_icon`,`vieworder`,`isused`) VALUES {$values};";
+    $pw_db->query($sql);
+    //删除表情包缓存数据
+    $sql = "DELETE FROM `{$pw_db->dbpre}cache` WHERE `cache_key`='all_emotions'";
+    $pw_db->query($sql);
+    //生成lock文件
+//    echo "生成lock文件...<br>";
+    file_put_contents($lockfile, "pw9.0.1移动版");
 }
-
 ?>
 
