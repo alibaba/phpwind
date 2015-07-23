@@ -1,26 +1,30 @@
-name=>弹-2,'file'=>'face_01.gif'
-name=>抱抱-2,'file'=>'face_02.gif'
-name=>晕-2,'file'=>'face_03.gif'
-name=>美味-2,'file'=>'face_04.gif'
-name=>烦-2,'file'=>'face_05.gif'
-name=>擦口水-2,'file'=>'face_06.gif'
-name=>思考-2,'file'=>'face_07.gif'
-name=>心跳-2,'file'=>'face_08.gif'
-name=>汗-2,'file'=>'face_09.gif'
-name=>呸-2,'file'=>'face_10.gif'
-name=>吐舌头-2,'file'=>'face_11.gif'
-name=>加油-2,'file'=>'face_12.gif'
-name=>吐-2,'file'=>'face_13.gif'
-name=>大哭-2,'file'=>'face_14.gif'
-name=>亲-2,'file'=>'face_15.gif'
-name=>委屈-2,'file'=>'face_16.gif'
-name=>眼镜-2,'file'=>'face_17.gif'
-name=>抠鼻子-2,'file'=>'face_18.gif'
-name=>臭美-2,'file'=>'face_19.gif'
-name=>无奈-2,'file'=>'face_20.gif'
-name=>槌子-2,'file'=>'face_21.gif'
-name=>哇-2,'file'=>'face_22.gif'
-name=>抱一抱-2,'file'=>'face_23.gif'
-name=>不爽-2,'file'=>'face_24.gif'
-name=>鼻血-2,'file'=>'face_25.gif'
-name=>帅-2,'file'=>'face_26.gif'
+<?xml version="1.0" encoding="utf-8"?>
+
+<face_configure>
+	<item string="[s:闭嘴]" file="face_01.gif" face="face_01.gif"/> 
+	<item string="[s:握手]" file="face_02.gif" face="face_02.gif"/> 
+	<item string="[s:晕死]" file="face_03.gif" face="face_03.gif"/> 
+	<item string="[s:口水]" file="face_04.gif" face="face_04.gif"/> 
+	<item string="[s:神马]" file="face_05.gif" face="face_05.gif"/> 
+	<item string="[s:猪头]" file="face_06.gif" face="face_06.gif"/>
+	<item string="[s:明白]" file="face_07.gif" face="face_07.gif"/> 
+	<item string="[s:心动]" file="face_08.gif" face="face_08.gif"/> 
+	<item string="[s:汗死]" file="face_09.gif" face="face_09.gif"/> 
+	<item string="[s:真弱]" file="face_10.gif" face="face_10.gif"/> 
+	<item string="[s:调皮]" file="face_11.gif" face="face_11.gif"/> 
+	<item string="[s:战斗]" file="face_12.gif" face="face_12.gif"/> 
+	<item string="[s:呕吐]" file="face_13.gif" face="face_13.gif"/> 
+	<item string="[s:流泪]" file="face_14.gif" face="face_14.gif"/> 
+	<item string="[s:亲亲]" file="face_15.gif" face="face_15.gif"/> 
+	<item string="[s:伤心]" file="face_16.gif" face="face_16.gif"/> 
+	<item string="[s:酷毙]" file="face_17.gif" face="face_17.gif"/> 
+	<item string="[s:不屑]" file="face_18.gif" face="face_18.gif"/> 
+	<item string="[s:得意]" file="face_19.gif" face="face_19.gif"/> 
+	<item string="[s:怕怕]" file="face_20.gif" face="face_20.gif"/> 
+	<item string="[s:扁你]" file="face_21.gif" face="face_21.gif"/> 
+	<item string="[s:鼓掌]" file="face_22.gif" face="face_22.gif"/> 
+	<item string="[s:嘿嘿]" file="face_23.gif" face="face_23.gif"/> 
+	<item string="[s:发怒]" file="face_24.gif" face="face_24.gif"/> 
+	<item string="[s:心碎]" file="face_25.gif" face="face_25.gif"/> 
+	<item string="[s:好强]" file="face_26.gif" face="face_26.gif"/>
+</face_configure>
