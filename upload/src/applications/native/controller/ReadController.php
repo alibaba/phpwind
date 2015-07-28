@@ -93,7 +93,7 @@ class ReadController extends NativeBaseController {
                 )
             );
         }
-
+        isset($operateThread['topped']) && $operateThread['topped'] = $this->loginUser->gid == 3 && $operateThread ? "1" : "0";
         //主题的信息
         $threadInfo = $threadDisplay->getThreadInfo();
         //帖子收藏统计
