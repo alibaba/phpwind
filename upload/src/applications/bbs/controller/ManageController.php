@@ -180,7 +180,7 @@ class ManageController extends PwBaseController {
 		} else {
 			$digest = $this->getInput('digest', 'post');
 			$do->setDigest($digest);
-			$do->setReason($this->getInput('reason', 'post'));
+			$do->setReason(htmlentities($this->getInput('reason', 'post')));
 			!$digest && $this->doCancel[] = 'dodigest';
 		}
 		return $do;
@@ -211,7 +211,7 @@ class ManageController extends PwBaseController {
 			$do->setTopped($topped);
 			$do->setFids($toppedFids);
 			$do->setOvertime($toppedOvertime);
-			$do->setReason($this->getInput('reason', 'post'));
+			$do->setReason(htmlentities($this->getInput('reason', 'post')));
 			!$topped && $this->doCancel[] = 'dotopped';
 		}
 		return $do;
@@ -225,7 +225,7 @@ class ManageController extends PwBaseController {
 		} else {
 			$uptime = $this->getInput('uptime', 'post');
 			$do->setUptime($uptime);
-			$do->setReason($this->getInput('reason', 'post'));
+			$do->setReason(htmlentities($this->getInput('reason', 'post')));
 		}
 		return $do;
 	}
@@ -256,7 +256,7 @@ class ManageController extends PwBaseController {
 			$hightlight->setUnderline($underline);
 			$do->setHighlight($hightlight->getHighlight());
 			$do->setOvertime($highlightOvertime);
-			$do->setReason($this->getInput('reason', 'post'));
+			$do->setReason(htmlentities($this->getInput('reason', 'post')));
 			if (!$color && !$bold && !$italic && !$underline) $this->doCancel[] = 'dohighlight';
 		}
 		return $do;
@@ -270,7 +270,7 @@ class ManageController extends PwBaseController {
 		} else {
 			$deductCredit = $this->getInput('deductCredit', 'post');
 			$do->setIsDeductCredit($deductCredit)
-				->setReason($this->getInput('reason', 'post'));
+				->setReason(htmlentities($this->getInput('reason', 'post')));
 		}
 		return $do;
 	}
@@ -282,7 +282,7 @@ class ManageController extends PwBaseController {
 			
 		} else {
 			list($downtime, $downed) = $this->getInput(array('downtime', 'downed'), 'post');
-			$do->setDowntime($downtime)->setDowned($downed)->setReason($this->getInput('reason', 'post'));
+			$do->setDowntime($downtime)->setDowned($downed)->setReason(htmlentities($this->getInput('reason', 'post')));
 		}
 		return $do;
 	}
@@ -299,7 +299,7 @@ class ManageController extends PwBaseController {
 			$this->setOutput($defaultLocked, 'defaultLocked');
 		} else {
 			$locked = $this->getInput('locked', 'post');
-			$do->setLocked($locked)->setReason($this->getInput('reason', 'post'));
+			$do->setLocked($locked)->setReason(htmlentities($this->getInput('reason', 'post')));
 			!$locked && $this->doCancel[] = 'dolock';
 		}
 		return $do;
@@ -313,7 +313,7 @@ class ManageController extends PwBaseController {
 			$this->setOutput('domove', 'doaction');
 		} else {
 			list($fid, $topictype) = $this->getInput(array('fid', 'topictype'), 'post');
-			$do->setFid($fid)->setTopictype($topictype)->setReason($this->getInput('reason', 'post'));
+			$do->setFid($fid)->setTopictype($topictype)->setReason(htmlentities($this->getInput('reason', 'post')));
 		}
 		return $do;
 	}
@@ -328,7 +328,7 @@ class ManageController extends PwBaseController {
 		} else {
 			list($topicType, $subTopicType) = $this->getInput(array('topictype', 'sub_topictype'), 'post');
 			$do->setTopictype($topicType, $subTopicType);
-			$do->setReason($this->getInput('reason', 'post'));
+			$do->setReason(htmlentities($this->getInput('reason', 'post')));
 		}
 		return $do;
 	}
@@ -342,7 +342,7 @@ class ManageController extends PwBaseController {
 			$this->setOutput($this->_getFroumService()->getForumOption($do->fid), 'option_html');
 		} else {
 			list($fid, $topictype) = $this->getInput(array('fid', 'topictype'), 'post');
-			$do->setFid($fid)->setTopictype($topictype)->setReason($this->getInput('reason', 'post'));
+			$do->setFid($fid)->setTopictype($topictype)->setReason(htmlentities($this->getInput('reason', 'post')));
 		}
 		return $do;
 	}
@@ -359,7 +359,7 @@ class ManageController extends PwBaseController {
 			$banInfo = new stdClass();
 			$banInfo->types = $this->getInput('types', 'post');
 			$banInfo->end_time = $this->getInput('end_time', 'post');
-			$banInfo->reason = $this->getInput('reason', 'post');
+			$banInfo->reason = htmlentities($this->getInput('reason', 'post'));
 			$banInfo->ban_range = intval($this->getInput('ban_range', 'post'));
 			$banInfo->sendNotice = intval($this->getInput('sendnotice', 'post'));
 			$do->setBanInfo($banInfo)->setBanUids($this->getInput('uids', 'post'))->setDeletes($this->getInput('delete', 'post'));
@@ -394,7 +394,7 @@ class ManageController extends PwBaseController {
 	protected function _sendMessage($action, $threads) {
 		if (!is_array($threads) || !$threads || !$action || $action == 'doban') return false;
 		$noticeService = Wekit::load('message.srv.PwNoticeService');
-		$reason = $this->getInput('reason', 'post');
+		$reason = htmlentities($this->getInput('reason', 'post'));
 		foreach ($threads as $thread) {
 			$params = array();
 			$params['manageUsername'] = $this->manage->user->username;
