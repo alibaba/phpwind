@@ -123,7 +123,7 @@ class SpaceController extends NativeBaseController {
         $attentionUsers = array();
         $count = Wekit::loadDao('native.dao.PwNativeAttentionDao')->getAttentionCount($spaceUid);
         $uids = Wekit::loadDao('native.dao.PwNativeAttentionDao')->fetchAttentionByUid($spaceUid,$start,$perpage);
-        $res = Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids);
+        $res = $uids ? Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids) : array();
         foreach($res as $v){
             $attentionUsers[] = array('uid'=>$v['uid'],'username'=>$v['username'],'avatar'=>Pw::getAvatar($v['uid'],'small'));
         }
@@ -156,7 +156,7 @@ class SpaceController extends NativeBaseController {
         $fansUsers = array();
         $count = Wekit::loadDao('native.dao.PwNativeAttentionDao')->getFansCount($spaceUid);
         $uids = Wekit::loadDao('native.dao.PwNativeAttentionDao')->fetchFansByUid($spaceUid,$start,$perpage);
-        $res = Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids);
+        $res = $uids ? Wekit::loadDao('user.dao.PwUserDao')->fetchUserByUid($uids) : array();
         foreach($res as $v){
             $fansUsers[] = array('uid'=>$v['uid'],'username'=>$v['username'],'avatar'=>Pw::getAvatar($v['uid'],'small'));
         }

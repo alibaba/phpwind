@@ -19,6 +19,20 @@ class AttachController extends NativeBaseController {
     public function run() {
 
     }
+    
+     /** 
+     * 附件下载前的权限检测                                                                                                                                 
+     * @access public
+     * @return void
+     * @example
+     * <pre>
+     * /index.php?m=native&c=attach&a=check&aid=77&_json=1
+     * </pre>
+     */
+    public function checkAction() {
+        $this->setOutput(array('state'=>1,'message'=>''),'data');
+        $this->showMessage('NATIVE:data.success');
+    }
 
     /**
      * 附件下载
