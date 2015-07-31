@@ -30,8 +30,43 @@ class AttachController extends NativeBaseController {
      * </pre>
      */
     public function checkAction() {
-        $this->setOutput(array('state'=>1,'message'=>''),'data');
-        $this->showMessage('NATIVE:data.success');
+        //检测用户是否登录
+        $this->uid || $this->showError("您还没有登录");
+        $this->loginUser = new PwUserBo($this->uid);
+        //参数检测
+        $aid = $this->getInput('aid');
+        $aid || $this->showError("参数错误");
+        //获取附件详细信息
+        $attach = Wekit::load('attach.PwThreadAttach')->getAttach($aid);
+        if (!$attach) {
+                $this->showError('BBS:thread.buy.attach.error');
+        }
+        //免费附件、附件上传者 可以下载
+        if(!$attach['cost'] || $this->uid == $attach['created_userid']){
+            $this->setOutput(array('state'=>1,'message'=>''),'data');
+            $this->showMessage('NATIVE:data.success'); 
+        }
+        //收费附件已购买用户可下载
+        $attachbuy = Wekit::load('attach.PwThreadAttachBuy');
+        if ($attachbuy->getByAidAndUid($attach['aid'], $this->uid)) {
+            $this->setOutput(array('state'=>1,'message'=>''),'data');
+            $this->showMessage('NATIVE:data.success'); 
+        }
+        //其余用户提示需要购买，获取用户当前的余额
+        $creditvalue = $attach['cost'];
+        $credittype = $attach['ctype'];
+        Wind::import('SRV:credit.bo.PwCreditBo');
+        $creditBo = PwCreditBo::getInstance();
+        $creditname = $creditBo->cType[$attach['ctype']];
+        $userCredit = $this->loginUser->getCredit($attach['ctype']);
+        
+        if($userCredit >= $creditvalue){//余额充足的提示是否购买
+            $this->setOutput(array('state'=>2,'message'=>"该附件售价：{$creditvalue}{$creditname}， 您目前的{$creditname}：{$userCredit} 您确定要下载吗？ "),'data');
+            $this->showMessage('NATIVE:data.success');
+        }else{//余额不足的提示无法购买
+            $this->setOutput(array('state'=>3,'message'=>"该附件售价：{$creditvalue}{$creditname}， 您目前的{$creditname}：{$userCredit} 余额不足不能下载。 "),'data');
+            $this->showMessage('NATIVE:data.success');
+        }
     }
 
     /**
@@ -41,8 +76,7 @@ class AttachController extends NativeBaseController {
     public function downloadAction() {
 //        $this->uid = 1;
             $this->loginUser = new PwUserBo($this->uid);
-        
-//            var_dump($this->uid);exit;
+//        var_dump($this->loginUser);
             $aid = (int)$this->getInput('aid', 'get');
             $submit = (int)$this->getInput('submit', 'post');
             $attach = Wekit::load('attach.PwThreadAttach')->getAttach($aid);
@@ -54,8 +88,7 @@ class AttachController extends NativeBaseController {
             if (!$forum->isForum()) {
                     $this->showError('data.error');
             }
-            /*
-            ///////////////////////////////////////////////
+            
             if ($attach['cost'] && !$this->loginUser->isExists()) {
                     $this->showError('download.fail.login.not','bbs/attach/download');
             }
@@ -93,14 +126,11 @@ class AttachController extends NativeBaseController {
             } else {
                     $dataShow = $lang->getMessage('BBS:thread.attachbuy.message.success');
             }
-            //////////////////////////////////////////////////////////
-             * 
-             */
+            
             $submit = 1;
             !$submit && $this->showMessage($dataShow);
             
-            /*
-            //////////////////////////////////////////////////////
+    
             //购买积分操作
             $this->_operateBuyCredit($attach);
 
@@ -121,10 +151,7 @@ class AttachController extends NativeBaseController {
             $dm = new PwThreadAttachDm($aid);
             $dm->addHits(1);
             Wekit::load('attach.PwThreadAttach')->updateAttach($dm);
-            /////////////////////////////////////////////////////////////////////////////////
-             * 
-             */
-
+            
             $filename = basename($attach['path']);
             $fileext = substr(strrchr($attach['path'], '.'), 1);
             $filesize = 0;
@@ -342,7 +369,7 @@ class AttachController extends NativeBaseController {
      */
     protected function _checkAttachCost($attach) {
             if (!$attach['cost']) return $attach;
-            $user = Wekit::getLoginUser();
+            $user = $this->loginUser;
             if ($attach['created_userid'] == $user->uid) {
                     $attach['cost'] = 0;
                     return $attach;
@@ -366,7 +393,7 @@ class AttachController extends NativeBaseController {
      * 下载购买积分
      */
     protected function _checkAttachDownload($operate, $attach, PwForumBo $forum) {
-            $user = Wekit::getLoginUser();
+            $user = $this->loginUser;
             if (1 != $user->getPermission('allow_download')) {
                     return false;
             }
@@ -400,13 +427,13 @@ class AttachController extends NativeBaseController {
     protected function _operateCredit($operate, PwForumBo $forum) {
             Wind::import('SRV:credit.bo.PwCreditBo');
             $credit = PwCreditBo::getInstance();
-            $user = Wekit::getLoginUser();
+            $user = $this->loginUser;
             $credit->operate($operate, $user, true, array('forumname' => $forum->foruminfo['name']),$forum->getCreditSet($operate));
             $credit->execute();
     }
 
     protected function _operateBuyCredit($attach) {
-            $user = Wekit::getLoginUser();
+            $user = $this->loginUser;
             if (!$attach['cost'] || $attach['created_userid'] == $user->uid) {
                     return false;
             }
