@@ -78,7 +78,7 @@ class PostController extends NativeBaseController {
 
         //app发帖子不带标题,内容格式化，抓取分享链接内容，此处尚需要处理
         list($title, $content, $topictype, $subtopictype, $reply_notice, $hide, $created_address,$area_code,$share_url) = $this->getInput(array('atc_title', 'atc_content', 'topictype', 'sub_topictype', 'reply_notice', 'hide' ,'created_address','area_code','share_url'), 'post');
-        
+        $from_type = $title ? 0 : 1;//0 移动端发帖带标题（同pc）；1 移动端发帖不带标题
         //从内容中获得tag
         preg_match("/^(#[^#]+?#)?(.+)/i",$content, $matches);
         if( isset($matches[1]) && $matches[1] ){
@@ -90,7 +90,7 @@ class PostController extends NativeBaseController {
         // 
 //        $title = preg_match('/\[[^\]]+\]/i',$content);
 //        $title = mb_substr(strip_tags($content), 0,15,"UTF-8");
-        $title = Pw::substrs(preg_replace("/\[.*?\]/i","",$content), 15,0,false);
+        $title || $title = Pw::substrs(preg_replace("/\[.*?\]/i","",$content), 15,0,false);
         $title ? "" : $title="来自移动端的帖子";
         $postDm = $this->post->getDm();
         $postDm->setTitle($title)
@@ -107,7 +107,7 @@ class PostController extends NativeBaseController {
         }
         $tid = $this->post->getNewId();
         //在帖子移动端扩展表中插入数据
-        $data = array('tid'=>$tid,'from_type'=>1,'created_address'=>$created_address,'area_code'=>$area_code);
+        $data = array('tid'=>$tid,'from_type'=>$from_type,'created_address'=>$created_address,'area_code'=>$area_code);
         $res = Wekit::loadDao('native.dao.PwThreadsPlaceDao')->insertValue($data);
         $this->showMessage('success');
     }
