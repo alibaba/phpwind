@@ -26,6 +26,14 @@
                 </select>
                 </div>
                 
+                <div class="h_a">* 移动版版块列表是否默认展开</div>
+                <div class="home_info">
+                    <ul class="switch_list cc">
+                        <li><label><input type="radio"  value="1" <!--# echo $forum_open ? "checked" : ""; #--> name="forum_open">展开</label></li>
+                        <li><label><input type="radio"  value="0" <!--# echo $forum_open ? "" : "checked"; #--> name="forum_open">不展开</label></li>
+                    </ul>
+                </div>
+                
                 <div class="h_a">*动态最新、最热数据来自于以下版面：</div>
                 <div class="table_list">
                     <table width="100%" id="J_table_list" style="table-layout:fixed;">

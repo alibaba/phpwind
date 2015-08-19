@@ -17,7 +17,7 @@ class ForumController extends AdminBaseController {
         $fids = isset($configs['forum.fids']) && $configs['forum.fids'] ? $configs['forum.fids'] : array();
         $life_fid = isset($configs['forum.life_fid']) && $configs['forum.life_fid'] ? $configs['forum.life_fid'] : 0;
         $fid_default = isset($configs['forum.fid.default']) && $configs['forum.fid.default'] ? intval($configs['forum.fid.default']) : 0;
-
+        $forum_open = isset($configs['forum.open']) && $configs['forum.open'] ? intval($configs['forum.open']) : 0;
         //获取允许在移动端展示的一级板块
         $forums = Wekit::load('forum.PwForum')->getCommonForumList(PwForum::FETCH_MAIN | PwForum::FETCH_STATISTICS);
         $categories = array();
@@ -86,6 +86,7 @@ class ForumController extends AdminBaseController {
          */
         $this->setOutput($forums, 'forums');
         $this->setOutput($categories, 'categories');
+        $this->setOutput($forum_open, 'forum_open');
     }
     
     public function doEditAction(){
@@ -97,8 +98,9 @@ class ForumController extends AdminBaseController {
             }
         }
         $fid_default = isset($_POST['fid_default']) && $_POST['fid_default'] ? intval($_POST['fid_default']) : 0;
-        $config->set('forum.fids',$forums)->set('forum.fid.default',$fid_default)->flush();
+        $forum_open = isset($_POST['forum_open']) ? intval($_POST['forum_open']) : 0;
         
+        $config->set('forum.fids',$forums)->set('forum.fid.default',$fid_default)->set('forum.open',$forum_open)->flush();
         $this->showMessage('success', 'native/forum/run/', true);
     }
 

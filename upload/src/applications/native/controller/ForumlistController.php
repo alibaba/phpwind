@@ -64,6 +64,7 @@ class ForumListController extends NativeBaseController {
         $join_forum = $this->loginUser->info['join_forum'];
         $join_forum && $_fids = self::splitStringToArray($join_forum);
         $default_forumid = Wekit::C()->getConfigByName('native','forum.fid.default');
+        $forum_open = Wekit::C()->getConfigByName('native','forum.open');
         //
         $myFllowForumList = $this->_getForumService()->fetchForum( array_intersect($_fids,$this->_getForumService()->fids) );
         $categoryList = $this->_getForumService()->getCategoryList();
@@ -78,6 +79,7 @@ class ForumListController extends NativeBaseController {
             'fid_default'=>$default_forumid['value'],
             'myFllowForumList'=>$myFllowForumList,
             'categoryList'=>$categoryList,
+            'forum_open'=>$forum_open['value'],
         );
 
         $this->setOutput($data,'data');
