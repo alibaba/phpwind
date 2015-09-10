@@ -8,7 +8,7 @@ $pw_version = array(
             'title'=>'phpwind 9.0.1 to 9.0.1移动版',
             'description'=>'升级程序说明：
         1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
-        2)	支持升级版本：8.7（20141224版）；
+        2)	支持升级版本：9.0.1（20141223版）；
         3)	升级后会增加对移动端的支持、对部分功能进行完善及bug的修复；
         4)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
         升级步骤：
@@ -16,9 +16,9 @@ $pw_version = array(
         2)	请提前备份您的站点文件，网站根目录下所有文件；
         3)	请提前备份您网站所有的数据库文件；
         4)	下载移动版插件，解压，并上传至站点根目录；
-        5)	在上传移动版插件后请不要修改”根目录/native”这个目录的名字；
-        6)	请确保“根目录/data/sql_config.php”文件存在且数据库连接配置信息正确；
-        7)	运行“http://yourwebsite/native/up87toMobile.php”执行升级。
+        5)	在上传移动版插件后请不要修改”根目录\src\applications\native”这个目录的名字；
+        6)	请确保“根目录/conf/Database.php”文件存在且数据库连接配置信息正确；
+        7)	运行“http://yourwebsite/up9xto91.php”执行升级。
         风险说明：
         因phpwind为开源程序，升级程序是在基础程序上做的更新优化，对基础程序作过二次开发的，可能部分文件、数据库会出现冲突覆盖，可能会导致程序无法正常运行，强烈建议自行手动升级。',
             'fun'=>'update01',
@@ -29,7 +29,7 @@ $pw_version = array(
             'title'=>'phpwind 9.0.1 to 9.0.1移动版',
             'description'=>'升级程序说明：
         1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
-        2)	支持升级版本：8.7（20141224版）；
+        2)	支持升级版本：9.0.1（20141223版）；
         3)	升级后会增加对移动端的支持、对部分功能进行完善及bug的修复；
         4)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
         升级步骤：
@@ -37,9 +37,9 @@ $pw_version = array(
         2)	请提前备份您的站点文件，网站根目录下所有文件；
         3)	请提前备份您网站所有的数据库文件；
         4)	下载移动版插件，解压，并上传至站点根目录；
-        5)	在上传移动版插件后请不要修改”根目录/native”这个目录的名字；
-        6)	请确保“根目录/data/sql_config.php”文件存在且数据库连接配置信息正确；
-        7)	运行“http://yourwebsite/native/up87toMobile.php”执行升级。
+        5)	在上传移动版插件后请不要修改”根目录\src\applications\native”这个目录的名字；
+        6)	请确保“根目录/conf/Database.php”文件存在且数据库连接配置信息正确；
+        7)	运行“http://yourwebsite/up9xto91.php”执行升级。
         风险说明：
         因phpwind为开源程序，升级程序是在基础程序上做的更新优化，对基础程序作过二次开发的，可能部分文件、数据库会出现冲突覆盖，可能会导致程序无法正常运行，强烈建议自行手动升级。',
             'fun'=>'update02',
@@ -47,25 +47,20 @@ $pw_version = array(
         ),
     3=>array(//表情包升级
             'version_num'=>'3',
-            'title'=>'9.0.1移动版表情包升级',
+            'title'=>'phpwind 9.0.1 to 9.0.1移动版',
             'description'=>'升级程序说明：
         1)	运行环境需求：php版本 >php 5.3.x  Mysql版本>5 
-        2)	支持升级版本：已经升级过9.0.1移动版的用户（如果这是您第一次升级移动版请不要执行此脚本，
-                直接执行up9xto91.php升级脚本即可）；
-        3)	升级后会增加一套表情包同时支持PC端与APP、对部分功能进行完善及bug的修复；
-        4)      新增加的表情包文件在根目录\res\images\emotion\wangwang中。
-                如果您之前有添加过自定义表情包，并且跟wangwang目录同名，那么请不要直接
-                将升级包进行覆盖并执行升级脚本。请先将升级包中的对应的表情包文件夹wangwang重命名再覆盖，
-                然后登陆到管理后台，在【全局】->【表情管理】中进行手动安装，并参考配置文件,
-                根目录\face_configure.txt对表情进行命名。
+        2)	支持升级版本：9.0.1（20141223版）；
+        3)	升级后会增加对移动端的支持、对部分功能进行完善及bug的修复；
+        4)	更新内容详见补丁包文件，数据变更内容详见数据库sql文件。
         升级步骤：
-        1)	请提前备份您的站点文件，网站根目录下所有文件；
-        2)	请提前备份您网站所有的数据库文件；
-        3)	下载移动版插件，解压，并上传至站点根目录；
-        4)	在上传移动版插件后请不要修改”根目录\src\applications\native”这个目录的名字；
-        5)	请确保“根目录/conf/Database.php”文件存在且数据库连接配置信息正确；
-        7)	将upexp.php文件拷贝到根目录下；
-        8)	运行“http://yourwebsite/upexp.php”执行表情包升级。
+        1)	关闭站点，后台管理-全局-站点设置-站点状态设置页面进行设置；
+        2)	请提前备份您的站点文件，网站根目录下所有文件；
+        3)	请提前备份您网站所有的数据库文件；
+        4)	下载移动版插件，解压，并上传至站点根目录；
+        5)	在上传移动版插件后请不要修改”根目录\src\applications\native”这个目录的名字；
+        6)	请确保“根目录/conf/Database.php”文件存在且数据库连接配置信息正确；
+        7)	运行“http://yourwebsite/up9xto91.php”执行升级。
         风险说明：
         因phpwind为开源程序，升级程序是在基础程序上做的更新优化，对基础程序作过二次开发的，可能部分文件、数据库会出现冲突覆盖，可能会导致程序无法正常运行，强烈建议自行手动升级。',
             'fun'=>'update03',
@@ -504,6 +499,7 @@ function update03($lockfile){
     if (file_exists($lockfile)) {
 	showError("升级程序已被锁定, 如需重新运行，请先删除{$lockfile}");
     }
+    /* app生成平台已改成用户自定义上传表情
     $pw_db = PW_DB::getInstance();
     //如果是二次运行，本次导入表情包前先删除旧数据
     $sql = "DELETE FROM `{$pw_db->dbpre}common_emotion_category` WHERE `emotion_folder`='wangwang'";
@@ -556,6 +552,8 @@ function update03($lockfile){
     //删除表情包缓存数据
     $sql = "DELETE FROM `{$pw_db->dbpre}cache` WHERE `cache_key`='all_emotions'";
     $pw_db->query($sql);
+     * 
+     */
     //生成lock文件
 //    echo "生成lock文件...<br>";
     file_put_contents($lockfile, "pw9.0.1移动版");
