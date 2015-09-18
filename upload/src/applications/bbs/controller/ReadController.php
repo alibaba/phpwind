@@ -74,7 +74,18 @@ class ReadController extends PwBaseController {
 		$this->setOutput($tid, 'tid');
 		$this->setOutput($threadDisplay->fid, 'fid');
 		$this->setOutput($threadInfo, 'threadInfo');
-		$this->setOutput($threadDisplay->getList(), 'readdb');
+                $readdb = $threadDisplay->getList();
+                foreach($readdb as $key=>$value){
+                    preg_match_all("/<div.*?class=\"J_video\".*?data-url=\"(.*?)\".*?>/i",$value['content'],$matches);
+                    if(isset($matches[1]) && is_array($matches[1])){
+                        $urls = $matches[1];
+                        foreach($urls as $k=>$v){
+                            $urls[$k] = preg_replace(array("/javascript:/i","/>|<|\(|\)|(\\\\x)|\s/i"),array('',''),$v);
+                        }
+                        $readdb[$key]['content'] = str_replace($matches[1],$urls,$value['content']);
+                    }
+                }
+		$this->setOutput($readdb, 'readdb');
 		$this->setOutput($threadDisplay->getUsers(), 'users');
 		$this->setOutput($pwforum, 'pwforum');
 		$this->setOutput(PwCreditBo::getInstance(), 'creditBo');
