@@ -41,6 +41,7 @@ class DynamicController extends NativeBaseController {
         $num = $this->perpage;//一页显示记录数
         $page = isset($_GET['page']) && intval($_GET['page'])>=1 ? intval($_GET['page']) : 1;//第几页，从请求参数获取
         $timestamp = isset($_GET['timestamp']) && intval($_GET['timestamp'])>0 ? intval($_GET['timestamp']) : 0;//作业最近一次执行的时间
+        $timestamp = 0;//去掉时间戳，暂时关闭前端缓存
         $start_pos = ($page-1)*$num;
         $modified_time = 0;
         if($timestamp){
